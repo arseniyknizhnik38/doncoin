@@ -150,3 +150,291 @@ const user = await prisma.user.upsert({
 
 Сгенерированный клиент лежит в `server/src/generated/prisma/` и в git не
 попадает — после `git clone` выполните `npm install && npm run db:generate`.
+
+## Telegram Mini App
+
+Пакет: [`@telegram-apps/sdk-react`](https://docs.telegram-mini-apps.com/) 3.3.9 —
+официальный React-биндинг платформы Telegram Mini Apps.
+
+Инициализация — [`client/src/telegram/init.ts`](client/src/telegram/init.ts),
+вызывается в `main.tsx` до рендера React:
+
+| Что делает                                   | Метод SDK                                        |
+| -------------------------------------------- | ------------------------------------------------ |
+| Разворачивает окно на весь экран              | `viewport.expand()`                              |
+| Красит фон, шапку и нижнюю панель в `#0A0A0A` | `miniApp.setBackgroundColor/HeaderColor/BottomBarColor` |
+| Отдаёт реальную высоту окна в CSS             | `viewport.bindCssVars()` → `--tg-viewport-*`     |
+| Сообщает клиенту о готовности UI              | `miniApp.ready()`                                |
+| Данные пользователя                           | `initData.restore()` → сигнал `initData.user`    |
+
+Вне Telegram `isTMA()` возвращает false, SDK не инициализируется, страница
+показывает «Тестовый режим (не в Telegram)». Ошибки SDK перехватываются —
+приложение деградирует до браузерного режима, а не падает белым экраном.
+
+Имя пользователя берётся хуком
+[`useTelegram()`](client/src/telegram/useTelegram.ts).
+
+### Быстрая проверка без Telegram (мок)
+
+```bash
+npm run dev:mock
+```
+
+Подставляет фиктивное окружение Telegram (`mockTelegramEnv`), страница
+показывает тестового пользователя «Vito Corleone», а в консоли видны команды,
+уходящие клиенту (`web_app_expand`, `web_app_set_background_color`, …).
+Флаг живёт в `client/.env.mock`, в прод-сборку код мока не попадает.
+
+Мок не проверяет подпись initData — для этого нужен запуск в настоящем Telegram.
+
+### Как протестировать внутри настоящего Telegram
+
+Telegram открывает Mini App только по **публичному HTTPS-адресу**, поэтому
+`localhost` напрямую не подойдёт — нужен туннель.
+
+**1. Поднять приложение локально**
+
+```bash
+npm run dev
+```
+
+**2. Пробросить порт 5173 наружу по HTTPS** (в отдельном терминале):
+
+```bash
+ssh -R 80:localhost:5173 nokey@localhost.run
+```
+
+Команда выведет адрес вида `https://911a9c7077d4fe.lhr.life`. Аккаунт и ключи
+не нужны, туннель идёт по ssh (порт 22) и проходит через VPN/прокси.
+
+Другие варианты, если этот недоступен:
+
+| Сервис | Команда | Замечание |
+| --- | --- | --- |
+| localhost.run | `ssh -R 80:localhost:5173 nokey@localhost.run` | без регистрации, без заглушек |
+| pinggy | `ssh -p 443 -R0:localhost:5173 a.pinggy.io` | работает через 443, сессия 60 мин |
+| cloudflared | `npx cloudflared tunnel --url http://localhost:5173` | нужен **порт 7844** (UDP или TCP) |
+| ngrok | `ngrok http 5173` | нужен бесплатный аккаунт + токен |
+| localtunnel | `npx localtunnel --port 5173` | **не годится**: показывает браузерам страницу-заглушку, Telegram увидит её вместо приложения |
+
+> **Если включён VPN/прокси в режиме TUN + fake-IP** (все домены резолвятся в
+> `198.18.x.x`), cloudflared не поднимется: он ходит на порт 7844, который такие
+> прокси обычно не пропускают — в логах будет `QUIC connection failed`, а с
+> `--protocol http2` — `TLS handshake with edge error: EOF`. Лечится либо
+> отключением прокси, либо ssh-туннелем из таблицы выше.
+
+**3. Хост туннеля уже разрешён.** Vite отвечает 403 Blocked request на чужой
+Host-заголовок, поэтому в `client/vite.config.ts` заранее прописан
+`server.allowedHosts` для доменов localhost.run, serveo, pinggy, cloudflared,
+ngrok и localtunnel. Другой сервис — добавьте его домен в этот список.
+
+Если через туннель не работает HMR, допишите туда же `hmr: { clientPort: 443 }`.
+
+**4. Создать бота и Mini App в [@BotFather](https://t.me/BotFather)**
+
+- `/newbot` → имя и username бота → получите токен (он понадобится позже для
+  серверной валидации initData);
+- `/newapp` → выбрать бота → название, описание, картинку 640×360 → **Web App
+  URL**: вставить HTTPS-адрес туннеля;
+- BotFather вернёт ссылку вида `https://t.me/ваш_бот/имя_приложения`.
+
+Быстрее без `/newapp`: `/mybots` → бот → **Bot Settings → Menu Button → Edit
+menu button URL** → адрес туннеля. Тогда Mini App открывается кнопкой меню в
+чате с ботом.
+
+**5. Открыть ссылку в Telegram** — на телефоне или в Telegram Desktop.
+Должно быть видно: приложение развёрнуто на весь экран, фон тёмный (не белый),
+на карточке — ваше настоящее имя из Telegram.
+
+### Отладка внутри Telegram
+
+- **Telegram Desktop:** Настройки → Продвинутые → Экспериментальные настройки →
+  включить **Enable webview inspecting**, затем правый клик по Mini App →
+  «Inspect».
+- **Android:** включить отладку по USB и открыть `chrome://inspect` на
+  компьютере.
+- **iOS:** Safari → Разработка → устройство (нужен Web Inspector в настройках
+  Safari на телефоне).
+
+Если в Telegram страница пустая — почти всегда это одно из трёх: адрес не
+HTTPS, домен туннеля не добавлен в `allowedHosts` (тогда туннель отдаёт 403
+Blocked request), либо сервис туннеля показывает свою страницу-заглушку.
+
+## Авторизация через Telegram
+
+### Как это работает
+
+1. Клиент внутри Telegram получает от SDK сырую строку `initData` (сигнал
+   `initDataRaw`) и отправляет её в `POST /api/auth/telegram`
+   — [client/src/telegram/useAuth.ts](client/src/telegram/useAuth.ts).
+2. Сервер проверяет подпись по алгоритму Telegram
+   — [server/src/lib/telegram.ts](server/src/lib/telegram.ts):
+
+   ```
+   secret_key       = HMAC_SHA256(key = "WebAppData", message = TELEGRAM_BOT_TOKEN)
+   data_check_string= поля initData кроме hash и signature, отсортированы, склеены через 
+
+   ожидаемый hash   = HMAC_SHA256(key = secret_key, message = data_check_string)
+   ```
+
+   Сравнение — `timingSafeEqual`. Дополнительно отвергаются данные старше
+   24 часов (`auth_date`).
+3. Если подпись верна — пользователь ищется по `telegramId`; если его нет,
+   создаётся новый — [server/src/routes/auth.ts](server/src/routes/auth.ts).
+
+Ответ:
+
+```json
+{
+  "isNew": true,
+  "user": {
+    "id": "f1ac2ccd-...",
+    "telegramId": "999000001",
+    "username": "test_don",
+    "firstName": "Тест",
+    "referredByCode": "REF123",
+    "createdAt": "2026-08-24T11:33:32.867Z"
+  }
+}
+```
+
+Коды ошибок: `400` — нет поля `initData`; `401` — подпись не сошлась или
+данные протухли; `503` — на сервере не задан `TELEGRAM_BOT_TOKEN`.
+
+При повторных открытиях обновляются `username` и `firstName`, а
+`referredByCode` не перезаписывается — кто пригласил, тот и остаётся.
+
+### Реферальные ссылки
+
+Telegram кладёт в `start_param` то, что указано в ссылке на Mini App:
+
+```
+https://t.me/ваш_бот/имя_приложения?startapp=КОД
+```
+
+Значение сохраняется в поле `referredByCode` при создании пользователя.
+Начисление наград — отдельная задача.
+
+### Как получить и вставить токен бота
+
+1. Откройте [@BotFather](https://t.me/BotFather) → `/mybots` → выберите бота →
+   **API Token**. (Для нового бота: `/newbot` → токен приходит сразу.)
+   Токен выглядит как `8123456789:AAH...` — это пароль от бота, его нельзя
+   публиковать и коммитить.
+2. Вставьте его в `server/.env`, в кавычки:
+
+   ```
+   TELEGRAM_BOT_TOKEN="8123456789:AAH..."
+   ```
+
+3. Перезапустите `npm run dev` — переменные читаются при старте.
+   Если токен не задан, при старте сервера в консоли появится предупреждение.
+
+Токен нужен только серверу. На клиент он не передаётся и в бандл не попадает.
+
+### Как проверить, что пользователь появился в базе
+
+1. Запустите `npm run dev`, поднимите туннель и откройте Mini App в Telegram.
+2. На карточке должно появиться «Аккаунт создан» (при первом открытии) или
+   «Аккаунт подтверждён» (при повторных).
+3. Посмотрите строку в базе:
+
+   ```bash
+   npm run db:studio
+   ```
+
+   http://localhost:5555 → таблица `User`. Там будут ваш `telegramId`,
+   `username`, `firstName` и `referredByCode` (если заходили по ссылке с
+   `?startapp=КОД`).
+
+Проверить реферальную ссылку: откройте
+`https://t.me/ваш_бот/имя_приложения?startapp=TEST123` — у нового пользователя
+в `referredByCode` окажется `TEST123`.
+
+> В режиме `npm run dev:mock` карточка покажет «initData не прошли проверку»:
+> мок подписывает данные фиктивным ключом, и сервер их справедливо отвергает.
+> Это ожидаемо — полноценная авторизация проверяется только внутри Telegram.
+
+## Деплой на Vercel
+
+Клиент и API живут на одном домене: статика собирается из `client/dist`, а весь
+`/api/*` обслуживает одна serverless-функция [api/index.ts](api/index.ts),
+которая переиспользует то же Express-приложение, что и локальный сервер
+([server/src/app.ts](server/src/app.ts)). Правила сборки — в
+[vercel.json](vercel.json).
+
+Благодаря общему домену фронтенду не нужен отдельный адрес API и не нужен CORS,
+а в BotFather адрес прописывается один раз.
+
+### Первый деплой
+
+**1. Создайте пустой репозиторий на GitHub** (без README и .gitignore) и
+подключите его:
+
+```bash
+git remote add origin https://github.com/ВАШ_ЛОГИН/doncoin.git
+```
+
+```bash
+git push -u origin main
+```
+
+**2. Импортируйте проект в Vercel:** [vercel.com/new](https://vercel.com/new) →
+войти через GitHub → **Import** напротив репозитория.
+
+Настройки сборки Vercel возьмёт из `vercel.json`, менять их не нужно
+(Framework Preset — `Other`).
+
+**3. Добавьте переменные окружения** в том же экране импорта
+(**Environment Variables**) или потом в **Settings → Environment Variables**:
+
+| Переменная | Значение |
+| --- | --- |
+| `DATABASE_URL` | строка подключения Neon — возьмите вариант **с пулингом** (в хосте есть `-pooler`) |
+| `TELEGRAM_BOT_TOKEN` | токен бота из @BotFather |
+
+Пулинг важен: serverless-функции создают много коротких подключений, и без
+пулера база быстро упрётся в лимит соединений.
+
+**4. Нажмите Deploy.** Через пару минут получите адрес вида
+`https://doncoin.vercel.app`.
+
+**5. Пропишите этот адрес в BotFather** — `/mybots` → бот →
+**Bot Settings → Menu Button → Edit menu button URL**. Больше менять его не
+придётся: адрес постоянный.
+
+### Проверка после деплоя
+
+```bash
+curl https://ВАШ_ПРОЕКТ.vercel.app/api/health
+```
+
+Должно вернуться `{"status":"ok"}`. Затем откройте Mini App в Telegram —
+на карточке появится «Аккаунт создан» или «Аккаунт подтверждён».
+
+Логи функции: Vercel → проект → **Logs** (там же видны ошибки Prisma и 401 от
+проверки подписи).
+
+### Обновления
+
+Каждый `git push` в `main` автоматически пересобирает прод. Ветки и pull
+request'ы получают отдельные превью-адреса — их удобно скармливать BotFather
+во втором тестовом боте.
+
+### Миграции базы
+
+Vercel не применяет миграции автоматически. База одна и та же (Neon), поэтому
+после изменения схемы применяйте их локально:
+
+```bash
+npm run db:migrate
+```
+
+Если заведёте отдельную прод-базу — там будет `npm run db:deploy -w server` с
+её `DATABASE_URL`.
+
+### Локальная разработка после деплоя
+
+Ничего не меняется: `npm run dev` поднимает Express на `:3000` и Vite на
+`:5173` с прокси `/api`. Туннель нужен, только если хотите отлаживать
+незадеплоенные правки прямо в Telegram.

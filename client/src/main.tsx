@@ -2,6 +2,15 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
+import { initTelegram } from './telegram/init';
+import { applyTelegramMock } from './telegram/mockEnv';
+
+// Эмуляция Telegram — только при VITE_TG_MOCK=1, иначе no-op.
+applyTelegramMock();
+
+// SDK инициализируем до рендера: внутри Telegram сразу отдаём expand и цвета,
+// в браузере вызов безопасно возвращает false.
+initTelegram();
 
 const rootElement = document.getElementById('root');
 

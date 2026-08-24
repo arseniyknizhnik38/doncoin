@@ -1,0 +1,37 @@
+import cors from 'cors';
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from 'express';
+import { authRouter } from './routes/auth.js';
+
+/**
+ * Express-приложение без вызова listen — используется и локальным сервером
+ * (src/index.ts), и serverless-функцией Vercel (api/index.ts).
+ */
+export function createApp() {
+  const app = express();
+
+  app.use(cors());
+  app.use(express.json());
+
+  app.get('/api/health', (_req: Request, res: Response) => {
+    res.json({ status: 'ok' });
+  });
+
+  app.use('/api/auth', authRouter);
+
+  // 404 for unknown API routes
+  app.use('/api', (_req: Request, res: Response) => {
+    res.status(404).json({ error: 'Not Found' });
+  });
+
+  // Ошибки обработчиков (включая асинхронные — Express 5 их пробрасывает сюда).
+  app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error('[server] unhandled error', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  });
+
+  return app;
+}

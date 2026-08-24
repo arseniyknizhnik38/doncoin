@@ -1,0 +1,16 @@
+{
+  "//": "Конфиг для serverless-функции api/ (Vercel ищет tsconfig в корне проекта). Клиент и сервер используют свои tsconfig.json.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["api/**/*.ts"]
+}

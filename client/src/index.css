@@ -1,7 +1,24 @@
 @import 'tailwindcss';
 
+/* Палитра DONCOIN: тёмная база, бордовые и золотые акценты. */
+@theme {
+  --color-don-black: #0a0a0a;
+  --color-don-ink: #141110;
+  --color-don-blood: #7b1e2b;
+  --color-don-blood-deep: #4a1119;
+  --color-don-blood-light: #d9707f;
+  --color-don-gold: #e8b448;
+  --color-don-gold-soft: #f5d68a;
+}
+
 html,
 body,
 #root {
   height: 100%;
+}
+
+body {
+  background-color: var(--color-don-black);
+  /* Внутри Telegram переменную задаёт SDK (viewport.bindCssVars). */
+  min-height: var(--tg-viewport-stable-height, 100dvh);
 }
