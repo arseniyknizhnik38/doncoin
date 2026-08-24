@@ -1,0 +1,23 @@
+// Prisma schema for DONCOIN
+// Docs: https://pris.ly/d/prisma-schema
+//
+// The connection string is NOT read from this file in Prisma 7 —
+// it comes from `prisma.config.ts`, which loads DATABASE_URL from server/.env
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id         String   @id @default(uuid())
+  telegramId String   @unique
+  username   String?
+  firstName  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
