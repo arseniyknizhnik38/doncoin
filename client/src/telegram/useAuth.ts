@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { initDataRaw, useSignal } from '@telegram-apps/sdk-react';
+import type { GameState } from '../game/types';
 import { isTelegramEnv } from './init';
 
 export interface AuthUser {
@@ -19,6 +20,10 @@ export interface AuthState {
   /** true — пользователь создан прямо сейчас, при первом открытии. */
   isNew: boolean;
   error: string | null;
+  /** Игровое состояние на момент входа. */
+  state: GameState | null;
+  /** Сырые initData — нужны как токен для игровых запросов. */
+  initDataRaw: string | undefined;
 }
 
 /**
@@ -28,11 +33,12 @@ export interface AuthState {
 export function useAuth(): AuthState {
   // Сигнал, а не useRawInitData(): тот бросает исключение вне Telegram.
   const rawInitData = useSignal(initDataRaw);
-  const [state, setState] = useState<AuthState>({
+  const [state, setState] = useState<Omit<AuthState, 'initDataRaw'>>({
     status: 'idle',
     user: null,
     isNew: false,
     error: null,
+    state: null,
   });
 
   useEffect(() => {
@@ -61,6 +67,7 @@ export function useAuth(): AuthState {
           user: payload.user as AuthUser,
           isNew: Boolean(payload.isNew),
           error: null,
+          state: (payload.state ?? null) as GameState | null,
         });
       })
       .catch((error: unknown) => {
@@ -72,11 +79,12 @@ export function useAuth(): AuthState {
           user: null,
           isNew: false,
           error: error instanceof Error ? error.message : 'Неизвестная ошибка',
+          state: null,
         });
       });
 
     return () => controller.abort();
   }, [rawInitData]);
 
-  return state;
+  return { ...state, initDataRaw: rawInitData };
 }

@@ -5,6 +5,7 @@ import express, {
   type Response,
 } from 'express';
 import { authRouter } from './routes/auth.js';
+import { gameRouter } from './routes/game.js';
 
 /**
  * Express-приложение без вызова listen — используется и локальным сервером
@@ -21,6 +22,7 @@ export function createApp() {
   });
 
   app.use('/api/auth', authRouter);
+  app.use('/api/game', gameRouter);
 
   // 404 for unknown API routes
   app.use('/api', (_req: Request, res: Response) => {

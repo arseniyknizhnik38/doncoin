@@ -1,0 +1,63 @@
+import { TapCoin } from './TapCoin';
+import type { GameState } from './types';
+
+interface GameScreenProps {
+  displayName: string | null;
+  state: GameState;
+  error: string | null;
+  onTap: () => boolean;
+}
+
+const formatBalance = (balance: string) =>
+  Number(balance).toLocaleString('ru-RU');
+
+export function GameScreen({ displayName, state, error, onTap }: GameScreenProps) {
+  const energyPercent = Math.round((state.energy / state.energyMax) * 100);
+  const empty = state.energy < 1;
+
+  return (
+    <div className="relative flex w-full max-w-md flex-1 flex-col items-center justify-between gap-6 py-6">
+      <header className="flex w-full flex-col items-center gap-1">
+        <p className="text-[11px] tracking-[0.3em] text-neutral-500 uppercase">
+          {displayName ?? 'Дон'}
+        </p>
+        <div className="flex items-baseline gap-2">
+          <span className="text-5xl font-black text-don-gold tabular-nums drop-shadow-[0_0_24px_rgba(232,180,72,0.3)]">
+            {formatBalance(state.balance)}
+          </span>
+          <span className="text-sm tracking-[0.2em] text-neutral-500 uppercase">DON</span>
+        </div>
+      </header>
+
+      <TapCoin coinsPerTap={state.coinsPerTap} disabled={empty} onTap={onTap} />
+
+      <footer className="flex w-full flex-col gap-2 px-2">
+        <div className="flex items-center justify-between text-xs tracking-wider text-neutral-400">
+          <span>
+            Энергия{' '}
+            <span className="text-don-gold-soft tabular-nums">
+              {state.energy} / {state.energyMax}
+            </span>
+          </span>
+          <span className="text-neutral-500">+{state.coinsPerTap} за тап</span>
+        </div>
+
+        <div className="h-3 w-full overflow-hidden rounded-full border border-don-blood/50 bg-black/60">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-don-blood via-don-gold to-don-gold-soft transition-[width] duration-300"
+            style={{ width: `${energyPercent}%` }}
+          />
+        </div>
+
+        {empty && (
+          <p className="text-center text-xs tracking-wider text-don-blood-light">
+            Энергия кончилась — восстанавливается {state.energyPerSecond}/сек
+          </p>
+        )}
+        {error && (
+          <p className="text-center text-xs tracking-wider text-don-blood-light">{error}</p>
+        )}
+      </footer>
+    </div>
+  );
+}

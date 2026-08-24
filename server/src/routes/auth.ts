@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express';
-import { prisma } from '../lib/prisma.js';
+import { toGameState } from '../lib/game.js';
 import { InitDataError, validateInitData } from '../lib/telegram.js';
+import { upsertUserFromTelegram } from '../lib/users.js';
 
 export const authRouter = Router();
 
@@ -39,31 +40,10 @@ authRouter.post('/telegram', async (req: Request, res: Response) => {
     throw error;
   }
 
-  const { user: tgUser, startParam } = parsed;
-  const telegramId = String(tgUser.id);
-
-  const existing = await prisma.user.findUnique({ where: { telegramId } });
-
-  // referredByCode пишем только при создании: кто пригласил — не меняется.
-  const user = existing
-    ? await prisma.user.update({
-        where: { telegramId },
-        data: {
-          username: tgUser.username ?? null,
-          firstName: tgUser.first_name ?? null,
-        },
-      })
-    : await prisma.user.create({
-        data: {
-          telegramId,
-          username: tgUser.username ?? null,
-          firstName: tgUser.first_name ?? null,
-          referredByCode: startParam,
-        },
-      });
+  const { user, isNew } = await upsertUserFromTelegram(parsed);
 
   res.json({
-    isNew: !existing,
+    isNew,
     user: {
       id: user.id,
       telegramId: user.telegramId,
@@ -72,5 +52,6 @@ authRouter.post('/telegram', async (req: Request, res: Response) => {
       referredByCode: user.referredByCode,
       createdAt: user.createdAt,
     },
+    state: toGameState(user),
   });
 });

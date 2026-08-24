@@ -22,3 +22,19 @@ body {
   /* Внутри Telegram переменную задаёт SDK (viewport.bindCssVars). */
   min-height: var(--tg-viewport-stable-height, 100dvh);
 }
+
+/* Всплывающее «+1» над монетой */
+@keyframes float-up {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -90px) scale(1.25);
+  }
+}
+
+@theme {
+  --animate-float-up: float-up 0.8s ease-out forwards;
+}
