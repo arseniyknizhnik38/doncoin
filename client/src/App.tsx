@@ -1,17 +1,29 @@
+import { useState } from 'react';
 import { GameScreen } from './game/GameScreen';
 import { useGame } from './game/useGame';
+import { FriendsScreen } from './referrals/FriendsScreen';
+import { useReferrals } from './referrals/useReferrals';
 import { useAuth } from './telegram/useAuth';
 import { useTelegram } from './telegram/useTelegram';
+
+type Tab = 'game' | 'friends';
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'game', label: 'Игра' },
+  { id: 'friends', label: 'Семья' },
+];
 
 export default function App() {
   const { isTelegram, displayName } = useTelegram();
   const auth = useAuth();
   const game = useGame(auth.initDataRaw, auth.state);
+  const referrals = useReferrals(auth.initDataRaw);
+  const [tab, setTab] = useState<Tab>('game');
 
-  const showGame = isTelegram && auth.status === 'authorized' && game.state;
+  const ready = isTelegram && auth.status === 'authorized' && game.state;
 
   return (
-    <main className="relative flex min-h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center justify-center overflow-hidden bg-don-black px-6 text-center">
+    <main className="relative flex min-h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden bg-don-black px-6 text-center">
       {/* Бордовое свечение и золотая линия — «премиальная мафиозная» подложка */}
       <div
         aria-hidden
@@ -22,15 +34,42 @@ export default function App() {
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-don-gold/50 to-transparent"
       />
 
-      {showGame && game.state ? (
-        <GameScreen
-          displayName={displayName}
-          state={game.state}
-          error={game.error}
-          onTap={game.tap}
-        />
+      {ready && game.state ? (
+        <>
+          {tab === 'game' ? (
+            <GameScreen
+              displayName={displayName}
+              state={game.state}
+              error={game.error}
+              onTap={game.tap}
+            />
+          ) : (
+            <FriendsScreen
+              data={referrals.data}
+              loading={referrals.loading}
+              error={referrals.error}
+            />
+          )}
+
+          <nav className="relative mb-4 flex w-full max-w-md gap-2 rounded-xl border border-don-blood/40 bg-don-ink/80 p-1.5">
+            {TABS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setTab(item.id)}
+                className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold tracking-wider transition-colors ${
+                  tab === item.id
+                    ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
+                    : 'text-neutral-500'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </>
       ) : (
-        <div className="relative flex flex-col items-center">
+        <div className="relative flex flex-1 flex-col items-center justify-center">
           <h1 className="text-6xl font-black tracking-[0.2em] text-don-gold drop-shadow-[0_0_28px_rgba(232,180,72,0.28)] sm:text-8xl">
             DONCOIN
           </h1>

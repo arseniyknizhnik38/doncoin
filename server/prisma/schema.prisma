@@ -19,8 +19,19 @@ model User {
   username   String?
   firstName  String?
 
+  /// Собственный код приглашения, попадает в ссылку ?startapp=КОД
+  referralCode String @unique
+
   /// start_param из реферальной ссылки, записывается один раз при создании
   referredByCode String?
+
+  /// Кто пригласил — связь, разобранная из referredByCode при регистрации
+  referredById String?
+  referredBy   User?   @relation("Referrals", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals    User[]  @relation("Referrals")
+
+  /// Сколько монет получено с приглашённых
+  referralEarned BigInt @default(0)
   /// Игровой баланс. BigInt — чтобы не упереться в потолок Int при апгрейдах.
   balance BigInt @default(0)
 
