@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express';
-import { toGameState } from '../lib/game.js';
+import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { InitDataError, validateInitData } from '../lib/telegram.js';
 import { upsertUserFromTelegram } from '../lib/users.js';
 
@@ -42,6 +42,10 @@ authRouter.post('/telegram', async (req: Request, res: Response) => {
 
   const { user, isNew } = await upsertUserFromTelegram(parsed);
 
+  // Энергия в базе — на момент последнего запроса. Пересчитываем на сейчас,
+  // иначе после паузы игрок увидел бы старое значение.
+  const { energy } = regenerateEnergy(user, new Date());
+
   res.json({
     isNew,
     user: {
@@ -52,6 +56,6 @@ authRouter.post('/telegram', async (req: Request, res: Response) => {
       referredByCode: user.referredByCode,
       createdAt: user.createdAt,
     },
-    state: toGameState(user),
+    state: toGameState({ ...user, energy }),
   });
 });

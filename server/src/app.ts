@@ -31,8 +31,16 @@ export function createApp() {
 
   // Ошибки обработчиков (включая асинхронные — Express 5 их пробрасывает сюда).
   app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('[server] unhandled error', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    // У ошибок парсера тела есть свой статус (битый JSON — это 400, не 500).
+    const status = (error as { status?: number }).status ?? 500;
+
+    if (status >= 500) {
+      console.error('[server] unhandled error', error);
+    }
+
+    res.status(status).json({
+      error: status === 400 ? 'Некорректное тело запроса' : 'Internal Server Error',
+    });
   });
 
   return app;

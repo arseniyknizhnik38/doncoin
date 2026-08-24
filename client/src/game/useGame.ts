@@ -81,6 +81,9 @@ export function useGame(
           Authorization: `tma ${initDataRaw}`,
         },
         body: JSON.stringify({ taps }),
+        // Запрос переживёт закрытие страницы — иначе прощальный flush
+        // отменился бы вместе с ней.
+        keepalive: true,
       });
 
       const payload = await response.json().catch(() => null);
@@ -89,8 +92,19 @@ export function useGame(
         throw new Error(payload?.error ?? `Ошибка ${response.status}`);
       }
 
-      // Ответ сервера авторитетен: он учитывает и энергию, и награду.
-      commitState(payload.state as GameState);
+      // Ответ сервера авторитетен, но он не знает о тапах, сделанных пока
+      // запрос летел. Накладываем их сверху, иначе баланс на экране прыгал бы
+      // назад при быстром тапании.
+      const serverState = payload.state as GameState;
+      const stillPending = pendingTaps.current;
+
+      commitState({
+        ...serverState,
+        balance: String(
+          Number(serverState.balance) + stillPending * serverState.coinsPerTap,
+        ),
+        energy: Math.max(0, serverState.energy - stillPending),
+      });
       setError(null);
     } catch (cause) {
       // Тапы, которые не долетели, не возвращаем в очередь: сервер всё равно
@@ -103,8 +117,22 @@ export function useGame(
 
   useEffect(() => {
     const timer = setInterval(() => void flush(), FLUSH_INTERVAL_MS);
+
+    // Telegram может закрыть приложение в любой момент — досылаем накопленное,
+    // иначе последние до 700 мс тапов пропали бы.
+    const flushOnHide = () => {
+      if (document.visibilityState === 'hidden') {
+        void flush();
+      }
+    };
+
+    document.addEventListener('visibilitychange', flushOnHide);
+    window.addEventListener('pagehide', flushOnHide);
+
     return () => {
       clearInterval(timer);
+      document.removeEventListener('visibilitychange', flushOnHide);
+      window.removeEventListener('pagehide', flushOnHide);
       void flush();
     };
   }, [flush]);
