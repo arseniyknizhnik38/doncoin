@@ -4,12 +4,31 @@ import { prisma } from './prisma.js';
 /** Максимум тапов в одном запросе — клиент шлёт их пачками. */
 export const MAX_TAPS_PER_REQUEST = 50;
 
+/**
+ * Сколько тапов даёт одну единицу Respect.
+ *
+ * Начисление детерминированное, а не «шанс с каждого тапа»: тапы приходят
+ * пачками до 50 штук, и случайный бросок на пачку давал бы другое
+ * распределение, чем бросок на каждый тап. Остаток хранится в
+ * respectProgress, поэтому результат не зависит от размера пачки и от того,
+ * закрыл ли игрок приложение посреди серии.
+ *
+ * Respect намеренно не зависит от апгрейдов: DONC растёт от прокачки,
+ * а Respect измеряет только вложенный труд.
+ */
+export const TAPS_PER_RESPECT = 50;
+
 export interface GameState {
   balance: string;
   energy: number;
   energyMax: number;
   energyPerSecond: number;
   coinsPerTap: number;
+  respect: number;
+  /** Тапов накоплено в счёт следующей единицы Respect. */
+  respectProgress: number;
+  /** Сколько тапов нужно на одну единицу Respect. */
+  tapsPerRespect: number;
 }
 
 interface EnergySnapshot {
@@ -47,6 +66,8 @@ export function toGameState(user: {
   energyMax: number;
   energyPerSecond: number;
   coinsPerTap: number;
+  respect: number;
+  respectProgress: number;
 }): GameState {
   return {
     // BigInt не сериализуется в JSON — отдаём строкой.
@@ -55,6 +76,9 @@ export function toGameState(user: {
     energyMax: user.energyMax,
     energyPerSecond: user.energyPerSecond,
     coinsPerTap: user.coinsPerTap,
+    respect: user.respect,
+    respectProgress: user.respectProgress,
+    tapsPerRespect: TAPS_PER_RESPECT,
   };
 }
 
@@ -63,6 +87,8 @@ export interface TapResult {
   /** Сколько тапов реально засчитано (могло упереться в энергию). */
   accepted: number;
   awarded: number;
+  /** Сколько единиц Respect начислено этим запросом. */
+  respectAwarded: number;
 }
 
 interface TapRow {
@@ -71,7 +97,10 @@ interface TapRow {
   energyMax: number;
   energyPerSecond: number;
   coinsPerTap: number;
+  respect: number;
+  respectProgress: number;
   accepted: number;
+  respectAwarded: number;
 }
 
 /**
@@ -105,14 +134,23 @@ export async function applyTaps(
       SELECT
         t.id,
         t.n,
-        LEAST(u."energyMax", u.energy + t.n * u."energyPerSecond") AS regen_energy
+        r.regen_energy,
+        LEAST(${requestedTaps}::int, r.regen_energy) AS accepted,
+        u."respectProgress" + LEAST(${requestedTaps}::int, r.regen_energy) AS respect_pool
       FROM ticks t
       JOIN "User" u ON u.id = t.id
+      CROSS JOIN LATERAL (
+        SELECT LEAST(u."energyMax", u.energy + t.n * u."energyPerSecond") AS regen_energy
+      ) r
     )
     UPDATE "User" u
     SET
-      energy = c.regen_energy - LEAST(${requestedTaps}::int, c.regen_energy),
-      balance = u.balance + LEAST(${requestedTaps}::int, c.regen_energy)::bigint * u."coinsPerTap",
+      energy = c.regen_energy - c.accepted,
+      balance = u.balance + c.accepted::bigint * u."coinsPerTap",
+      -- Respect: одна единица за каждые TAPS_PER_RESPECT тапов,
+      -- незавершённый остаток переносится в respectProgress.
+      respect = u.respect + c.respect_pool / ${TAPS_PER_RESPECT}::int,
+      "respectProgress" = c.respect_pool % ${TAPS_PER_RESPECT}::int,
       "energyUpdatedAt" = CASE
         WHEN c.regen_energy >= u."energyMax" THEN now()
         ELSE u."energyUpdatedAt" + make_interval(secs => c.n)
@@ -126,7 +164,10 @@ export async function applyTaps(
       u."energyMax" AS "energyMax",
       u."energyPerSecond" AS "energyPerSecond",
       u."coinsPerTap" AS "coinsPerTap",
-      LEAST(${requestedTaps}::int, c.regen_energy) AS accepted
+      u.respect,
+      u."respectProgress" AS "respectProgress",
+      c.accepted,
+      c.respect_pool / ${TAPS_PER_RESPECT}::int AS "respectAwarded"
   `;
 
   const row = rows[0];
@@ -141,12 +182,16 @@ export async function applyTaps(
   return {
     accepted,
     awarded: accepted * Number(row.coinsPerTap),
+    respectAwarded: Number(row.respectAwarded),
     state: {
       balance: BigInt(row.balance).toString(),
       energy: Number(row.energy),
       energyMax: Number(row.energyMax),
       energyPerSecond: Number(row.energyPerSecond),
       coinsPerTap: Number(row.coinsPerTap),
+      respect: Number(row.respect),
+      respectProgress: Number(row.respectProgress),
+      tapsPerRespect: TAPS_PER_RESPECT,
     },
   };
 }

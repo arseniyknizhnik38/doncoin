@@ -1,6 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GameState } from './types';
 
+/**
+ * Двигает Respect на `taps` тапов — той же арифметикой, что и сервер:
+ * целые единицы начисляются, остаток копится в respectProgress.
+ */
+function advanceRespect(state: GameState, taps: number) {
+  const pool = state.respectProgress + taps;
+
+  return {
+    respect: state.respect + Math.floor(pool / state.tapsPerRespect),
+    respectProgress: pool % state.tapsPerRespect,
+  };
+}
+
 /** Как часто накопленные тапы уходят на сервер. */
 const FLUSH_INTERVAL_MS = 700;
 /** Должно совпадать с MAX_TAPS_PER_REQUEST на сервере. */
@@ -81,6 +94,7 @@ export function useGame(
           Number(serverState.balance) + stillPending * serverState.coinsPerTap,
         ),
         energy: Math.max(0, serverState.energy - stillPending),
+        ...advanceRespect(serverState, stillPending),
       });
     },
     [commitState],
@@ -161,6 +175,7 @@ export function useGame(
       ...current,
       balance: String(Number(current.balance) + current.coinsPerTap),
       energy: current.energy - 1,
+      ...advanceRespect(current, 1),
     });
 
     return true;

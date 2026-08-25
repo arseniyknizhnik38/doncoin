@@ -2,6 +2,10 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
+// Куда dev-сервер проксирует /api. Меняется переменной API_PROXY_TARGET —
+// пригодится, если порт 3000 занят другим процессом.
+const API_TARGET = process.env.API_PROXY_TARGET ?? 'http://localhost:3000';
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
@@ -20,7 +24,7 @@ export default defineConfig({
     proxy: {
       // Forward API calls to the Express server during development
       '/api': {
-        target: 'http://localhost:3000',
+        target: API_TARGET,
         changeOrigin: true,
       },
     },

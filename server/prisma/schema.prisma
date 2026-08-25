@@ -45,6 +45,11 @@ model User {
   /// Сколько монет даёт один тап. Пересчитывается при покупке апгрейда.
   coinsPerTap Int @default(1)
 
+  /// Repect — медленная «репутационная» валюта: +1 за каждые N тапов.
+  respect Int @default(0)
+  /// Тапы, накопленные в счёт следующей единицы Respect (остаток от деления).
+  respectProgress Int @default(0)
+
   /// Купленные уровни улучшений. Рабочие значения выше выводятся из них
   /// формулами из server/src/lib/upgrades.ts.
   tapLevel    Int @default(0)
