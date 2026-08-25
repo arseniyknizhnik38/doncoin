@@ -42,8 +42,14 @@ model User {
   /// Момент последнего пересчёта энергии; служит и меткой версии при записи.
   energyUpdatedAt DateTime @default(now())
 
-  /// Сколько монет даёт один тап (будет расти от апгрейдов).
+  /// Сколько монет даёт один тап. Пересчитывается при покупке апгрейда.
   coinsPerTap Int @default(1)
+
+  /// Купленные уровни улучшений. Рабочие значения выше выводятся из них
+  /// формулами из server/src/lib/upgrades.ts.
+  tapLevel    Int @default(0)
+  energyLevel Int @default(0)
+  regenLevel  Int @default(0)
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

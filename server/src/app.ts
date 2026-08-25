@@ -7,6 +7,7 @@ import express, {
 import { authRouter } from './routes/auth.js';
 import { gameRouter } from './routes/game.js';
 import { referralsRouter } from './routes/referrals.js';
+import { upgradesRouter } from './routes/upgrades.js';
 
 /**
  * Express-приложение без вызова listen — используется и локальным сервером
@@ -25,6 +26,7 @@ export function createApp() {
   app.use('/api/auth', authRouter);
   app.use('/api/game', gameRouter);
   app.use('/api/referrals', referralsRouter);
+  app.use('/api/upgrades', upgradesRouter);
 
   // 404 for unknown API routes
   app.use('/api', (_req: Request, res: Response) => {

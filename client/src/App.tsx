@@ -4,12 +4,15 @@ import { useGame } from './game/useGame';
 import { FriendsScreen } from './referrals/FriendsScreen';
 import { useReferrals } from './referrals/useReferrals';
 import { useAuth } from './telegram/useAuth';
+import { ShopScreen } from './upgrades/ShopScreen';
+import { useUpgrades } from './upgrades/useUpgrades';
 import { useTelegram } from './telegram/useTelegram';
 
-type Tab = 'game' | 'friends';
+type Tab = 'game' | 'shop' | 'friends';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'game', label: 'Игра' },
+  { id: 'shop', label: 'Империя' },
   { id: 'friends', label: 'Семья' },
 ];
 
@@ -17,7 +20,12 @@ export default function App() {
   const { isTelegram, displayName } = useTelegram();
   const auth = useAuth();
   const game = useGame(auth.initDataRaw, auth.state);
-  const referrals = useReferrals(auth.initDataRaw);
+  // Каталог и рефералку запрашиваем только после успешного входа: до него
+  // пользователя в базе ещё нет, и запрос вернул бы «пользователь не найден».
+  const authorizedInitData =
+    auth.status === 'authorized' ? auth.initDataRaw : undefined;
+  const referrals = useReferrals(authorizedInitData);
+  const upgrades = useUpgrades(authorizedInitData, game.applyServerState);
   const [tab, setTab] = useState<Tab>('game');
 
   const ready = isTelegram && auth.status === 'authorized' && game.state;
@@ -43,6 +51,15 @@ export default function App() {
               error={game.error}
               onTap={game.tap}
             />
+          ) : tab === 'shop' ? (
+            <ShopScreen
+              upgrades={upgrades.upgrades}
+              state={game.state}
+              loading={upgrades.loading}
+              buying={upgrades.buying}
+              error={upgrades.error}
+              onBuy={upgrades.buy}
+            />
           ) : (
             <FriendsScreen
               data={referrals.data}
@@ -57,7 +74,7 @@ export default function App() {
                 key={item.id}
                 type="button"
                 onClick={() => setTab(item.id)}
-                className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold tracking-wider transition-colors ${
+                className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold tracking-wider transition-colors ${
                   tab === item.id
                     ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
                     : 'text-neutral-500'

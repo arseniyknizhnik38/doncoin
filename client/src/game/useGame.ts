@@ -10,6 +10,8 @@ export interface GameApi {
   state: GameState | null;
   /** Тап засчитывается локально сразу, на сервер уходит пачкой. */
   tap: () => boolean;
+  /** Принять состояние, пришедшее от других запросов (например, покупки). */
+  applyServerState: (state: GameState) => void;
   error: string | null;
 }
 
@@ -64,6 +66,26 @@ export function useGame(
     return () => clearInterval(timer);
   }, [commitState]);
 
+  /**
+   * Накладывает авторитетное состояние сервера поверх тапов, которые ещё не
+   * отправлены. Используется и при синхронизации тапов, и после покупок
+   * в магазине — там баланс и параметры тоже меняются на сервере.
+   */
+  const applyServerState = useCallback(
+    (serverState: GameState) => {
+      const stillPending = pendingTaps.current;
+
+      commitState({
+        ...serverState,
+        balance: String(
+          Number(serverState.balance) + stillPending * serverState.coinsPerTap,
+        ),
+        energy: Math.max(0, serverState.energy - stillPending),
+      });
+    },
+    [commitState],
+  );
+
   const flush = useCallback(async () => {
     if (inFlight.current || pendingTaps.current === 0 || !initDataRaw) {
       return;
@@ -93,18 +115,8 @@ export function useGame(
       }
 
       // Ответ сервера авторитетен, но он не знает о тапах, сделанных пока
-      // запрос летел. Накладываем их сверху, иначе баланс на экране прыгал бы
-      // назад при быстром тапании.
-      const serverState = payload.state as GameState;
-      const stillPending = pendingTaps.current;
-
-      commitState({
-        ...serverState,
-        balance: String(
-          Number(serverState.balance) + stillPending * serverState.coinsPerTap,
-        ),
-        energy: Math.max(0, serverState.energy - stillPending),
-      });
+      // запрос летел, — их накладываем сверху.
+      applyServerState(payload.state as GameState);
       setError(null);
     } catch (cause) {
       // Тапы, которые не долетели, не возвращаем в очередь: сервер всё равно
@@ -113,7 +125,7 @@ export function useGame(
     } finally {
       inFlight.current = false;
     }
-  }, [initDataRaw, commitState]);
+  }, [initDataRaw, applyServerState]);
 
   useEffect(() => {
     const timer = setInterval(() => void flush(), FLUSH_INTERVAL_MS);
@@ -154,5 +166,5 @@ export function useGame(
     return true;
   }, [commitState]);
 
-  return { state, tap, error };
+  return { state, tap, applyServerState, error };
 }
