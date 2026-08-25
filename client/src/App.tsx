@@ -14,7 +14,7 @@ type Tab = 'game' | 'shop' | 'clan' | 'friends';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'game', label: 'Игра' },
-  { id: 'shop', label: 'Империя' },
+  { id: 'shop', label: 'Дело' },
   { id: 'clan', label: 'Клан' },
   { id: 'friends', label: 'Семья' },
 ];

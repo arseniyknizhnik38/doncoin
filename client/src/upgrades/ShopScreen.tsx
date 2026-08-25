@@ -24,7 +24,7 @@ export function ShopScreen({
     <div className="flex w-full max-w-md flex-1 flex-col gap-4 overflow-y-auto py-6">
       <header className="text-center">
         <h2 className="text-2xl font-black tracking-[0.2em] text-don-gold uppercase">
-          Империя
+          Наше дело
         </h2>
         <p className="mt-2 text-sm text-neutral-400">
           В казне{' '}

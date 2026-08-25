@@ -590,7 +590,7 @@ Mini App:
 
 ### На клиенте
 
-Вкладка **Империя** ([client/src/upgrades/ShopScreen.tsx](client/src/upgrades/ShopScreen.tsx)).
+Вкладка **Дело** ([client/src/upgrades/ShopScreen.tsx](client/src/upgrades/ShopScreen.tsx)).
 Ответ на покупку содержит и новое игровое состояние — оно сразу уезжает в
 `useGame`, поэтому на вкладке «Игра» баланс и «+N за тап» обновляются без
 перезагрузки.
