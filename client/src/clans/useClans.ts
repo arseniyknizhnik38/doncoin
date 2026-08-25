@@ -14,7 +14,7 @@ export interface ClansApi {
 }
 
 export function useClans(
-  initDataRaw: string | undefined,
+  token: string | null,
   onStateChange: (state: GameState) => void,
 ): ClansApi {
   const [data, setData] = useState<ClansData | null>(null);
@@ -24,7 +24,7 @@ export function useClans(
   const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
-    if (!initDataRaw) {
+    if (!token) {
       return;
     }
 
@@ -32,7 +32,7 @@ export function useClans(
     setLoading(true);
 
     fetch('/api/clans', {
-      headers: { Authorization: `tma ${initDataRaw}` },
+      headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
     })
       .then(async (response) => {
@@ -57,12 +57,12 @@ export function useClans(
       });
 
     return () => controller.abort();
-  }, [initDataRaw, reloadToken]);
+  }, [token, reloadToken]);
 
   /** Общая обёртка для действий: они все возвращают новое состояние клана. */
   const act = useCallback(
     (path: string, body?: unknown) => {
-      if (!initDataRaw || busy) {
+      if (!token || busy) {
         return;
       }
 
@@ -71,7 +71,7 @@ export function useClans(
       fetch(`/api/clans${path}`, {
         method: 'POST',
         headers: {
-          Authorization: `tma ${initDataRaw}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: body === undefined ? undefined : JSON.stringify(body),
@@ -100,7 +100,7 @@ export function useClans(
         })
         .finally(() => setBusy(false));
     },
-    [initDataRaw, busy, onStateChange],
+    [token, busy, onStateChange],
   );
 
   return {

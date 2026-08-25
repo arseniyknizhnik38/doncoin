@@ -22,14 +22,17 @@ const TABS: { id: Tab; label: string }[] = [
 export default function App() {
   const { isTelegram, displayName } = useTelegram();
   const auth = useAuth();
-  const game = useGame(auth.initDataRaw, auth.state);
-  // Каталог и рефералку запрашиваем только после успешного входа: до него
-  // пользователя в базе ещё нет, и запрос вернул бы «пользователь не найден».
-  const authorizedInitData =
-    auth.status === 'authorized' ? auth.initDataRaw : undefined;
-  const referrals = useReferrals(authorizedInitData);
-  const upgrades = useUpgrades(authorizedInitData, game.applyServerState);
-  const clans = useClans(authorizedInitData, game.applyServerState);
+  const game = useGame(
+    auth.status === 'authorized' ? auth.sessionToken : null,
+    auth.state,
+    auth.reauth,
+  );
+  // Запрашиваем данные только после успешного входа: до него пользователя
+  // в базе ещё нет, да и сессионного токена тоже.
+  const sessionToken = auth.status === 'authorized' ? auth.sessionToken : null;
+  const referrals = useReferrals(sessionToken);
+  const upgrades = useUpgrades(sessionToken, game.applyServerState);
+  const clans = useClans(sessionToken, game.applyServerState);
   const [tab, setTab] = useState<Tab>('game');
 
   const ready = isTelegram && auth.status === 'authorized' && game.state;

@@ -8,7 +8,7 @@ export interface ReferralsState {
   reload: () => void;
 }
 
-export function useReferrals(initDataRaw: string | undefined): ReferralsState {
+export function useReferrals(token: string | null): ReferralsState {
   const [data, setData] = useState<ReferralsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +17,7 @@ export function useReferrals(initDataRaw: string | undefined): ReferralsState {
   const reload = useCallback(() => setAttempt((value) => value + 1), []);
 
   useEffect(() => {
-    if (!initDataRaw) {
+    if (!token) {
       return;
     }
 
@@ -25,7 +25,7 @@ export function useReferrals(initDataRaw: string | undefined): ReferralsState {
     setLoading(true);
 
     fetch('/api/referrals', {
-      headers: { Authorization: `tma ${initDataRaw}` },
+      headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
     })
       .then(async (response) => {
@@ -50,7 +50,7 @@ export function useReferrals(initDataRaw: string | undefined): ReferralsState {
       });
 
     return () => controller.abort();
-  }, [initDataRaw, attempt]);
+  }, [token, attempt]);
 
   return { data, loading, error, reload };
 }

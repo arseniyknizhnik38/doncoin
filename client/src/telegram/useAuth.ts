@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { initDataRaw, useSignal } from '@telegram-apps/sdk-react';
 import type { GameState } from '../game/types';
 import { isTelegramEnv } from './init';
@@ -22,8 +22,12 @@ export interface AuthState {
   error: string | null;
   /** Игровое состояние на момент входа. */
   state: GameState | null;
-  /** Сырые initData — нужны как токен для игровых запросов. */
+  /** Сырые initData — нужны для повторного входа. */
   initDataRaw: string | undefined;
+  /** Сессионный токен для игровых запросов. */
+  sessionToken: string | null;
+  /** Войти заново — например, когда сессия истекла. */
+  reauth: () => void;
 }
 
 /**
@@ -33,13 +37,19 @@ export interface AuthState {
 export function useAuth(): AuthState {
   // Сигнал, а не useRawInitData(): тот бросает исключение вне Telegram.
   const rawInitData = useSignal(initDataRaw);
-  const [state, setState] = useState<Omit<AuthState, 'initDataRaw'>>({
+  const [state, setState] = useState<
+    Omit<AuthState, 'initDataRaw' | 'reauth'>
+  >({
     status: 'idle',
     user: null,
     isNew: false,
     error: null,
     state: null,
+    sessionToken: null,
   });
+  const [attempt, setAttempt] = useState(0);
+
+  const reauth = useCallback(() => setAttempt((value) => value + 1), []);
 
   useEffect(() => {
     if (!isTelegramEnv() || !rawInitData) {
@@ -68,6 +78,7 @@ export function useAuth(): AuthState {
           isNew: Boolean(payload.isNew),
           error: null,
           state: (payload.state ?? null) as GameState | null,
+          sessionToken: (payload.session?.token ?? null) as string | null,
         });
       })
       .catch((error: unknown) => {
@@ -80,11 +91,12 @@ export function useAuth(): AuthState {
           isNew: false,
           error: error instanceof Error ? error.message : 'Неизвестная ошибка',
           state: null,
+          sessionToken: null,
         });
       });
 
     return () => controller.abort();
-  }, [rawInitData]);
+  }, [rawInitData, attempt]);
 
-  return { ...state, initDataRaw: rawInitData };
+  return { ...state, initDataRaw: rawInitData, reauth };
 }

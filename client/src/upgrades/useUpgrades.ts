@@ -17,7 +17,7 @@ export interface UpgradesApi {
  * игры обновились сразу после покупки.
  */
 export function useUpgrades(
-  initDataRaw: string | undefined,
+  token: string | null,
   onStateChange: (state: GameState) => void,
 ): UpgradesApi {
   const [upgrades, setUpgrades] = useState<UpgradeView[] | null>(null);
@@ -26,7 +26,7 @@ export function useUpgrades(
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!initDataRaw) {
+    if (!token) {
       return;
     }
 
@@ -34,7 +34,7 @@ export function useUpgrades(
     setLoading(true);
 
     fetch('/api/upgrades', {
-      headers: { Authorization: `tma ${initDataRaw}` },
+      headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
     })
       .then(async (response) => {
@@ -59,11 +59,11 @@ export function useUpgrades(
       });
 
     return () => controller.abort();
-  }, [initDataRaw]);
+  }, [token]);
 
   const buy = useCallback(
     (id: string) => {
-      if (!initDataRaw || buying) {
+      if (!token || buying) {
         return;
       }
 
@@ -71,7 +71,7 @@ export function useUpgrades(
 
       fetch(`/api/upgrades/${id}/buy`, {
         method: 'POST',
-        headers: { Authorization: `tma ${initDataRaw}` },
+        headers: { Authorization: `Bearer ${token}` },
       })
         .then(async (response) => {
           const payload = await response.json().catch(() => null);
@@ -89,7 +89,7 @@ export function useUpgrades(
         })
         .finally(() => setBuying(null));
     },
-    [initDataRaw, buying, onStateChange],
+    [token, buying, onStateChange],
   );
 
   return { upgrades, loading, buying, error, buy };

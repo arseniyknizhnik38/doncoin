@@ -1,26 +1,27 @@
 import type { NextFunction, Request, Response } from 'express';
-import { InitDataError, type TelegramUser, validateInitData } from '../lib/telegram.js';
+import { InitDataError, validateInitData } from '../lib/telegram.js';
+import { SessionError, verifySessionToken } from '../lib/session.js';
 
 export interface AuthLocals {
-  telegramUser: TelegramUser;
-}
-
-export function getTelegramUser(res: Response): TelegramUser {
-  return (res.locals as AuthLocals).telegramUser;
+  telegramId: string;
 }
 
 export function getTelegramId(res: Response): string {
-  return String(getTelegramUser(res).id);
+  return (res.locals as AuthLocals).telegramId;
 }
 
 /**
- * Авторизация игровых запросов. Клиент шлёт те же initData, что и при входе:
+ * Авторизация игровых запросов. Принимаем два варианта заголовка:
  *
- *   Authorization: tma <raw initData>
+ *   Authorization: Bearer <сессионный токен>   — основной
+ *   Authorization: tma <raw initData>          — запасной
  *
- * Подпись проверяется на каждом запросе — сервер не доверяет клиенту ничего,
- * включая telegramId. В базу здесь не ходим: пользователя достают сами
- * обработчики тем же запросом, которым читают или пишут игровое состояние.
+ * Сессионный токен выдаётся при входе и живёт неделю. Запасной вариант
+ * оставлен для уже открытых вкладок со старой версией клиента: они
+ * продолжают работать, пока пользователь не перезапустит приложение.
+ *
+ * В базу здесь не ходим: пользователя достают сами обработчики тем же
+ * запросом, которым читают или пишут состояние.
  */
 export function requireTelegramAuth(
   req: Request,
@@ -35,21 +36,43 @@ export function requireTelegramAuth(
   }
 
   const header = req.get('authorization') ?? '';
-  const [scheme, raw] = header.split(' ');
+  const separator = header.indexOf(' ');
+  const scheme = header.slice(0, separator);
+  const value = header.slice(separator + 1);
 
-  if (scheme !== 'tma' || !raw) {
-    res.status(401).json({ error: 'Ожидался заголовок Authorization: tma <initData>' });
+  if (!value) {
+    res.status(401).json({ error: 'Нужен заголовок Authorization', code: 'NO_AUTH' });
     return;
   }
 
   try {
-    (res.locals as AuthLocals).telegramUser = validateInitData(raw, botToken).user;
-    next();
+    if (scheme === 'Bearer') {
+      (res.locals as AuthLocals).telegramId = verifySessionToken(value, botToken).sub;
+      next();
+      return;
+    }
+
+    if (scheme === 'tma') {
+      (res.locals as AuthLocals).telegramId = String(
+        validateInitData(value, botToken).user.id,
+      );
+      next();
+      return;
+    }
+
+    res.status(401).json({ error: 'Неизвестная схема авторизации', code: 'NO_AUTH' });
   } catch (error) {
+    if (error instanceof SessionError) {
+      // EXPIRED — сигнал клиенту, что нужно заново пройти вход.
+      res.status(401).json({ error: 'Сессия истекла, войдите заново', code: error.code });
+      return;
+    }
+
     if (error instanceof InitDataError) {
       res.status(401).json({ error: 'initData не прошли проверку', code: error.code });
       return;
     }
+
     next(error);
   }
 }

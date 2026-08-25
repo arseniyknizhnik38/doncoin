@@ -9,11 +9,13 @@ import {
   parseDonation,
 } from '../lib/clans.js';
 import { prisma } from '../lib/prisma.js';
+import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
 
 export const clansRouter = Router();
 
 clansRouter.use(requireTelegramAuth);
+clansRouter.use(writeRateLimit());
 
 const memberSelect = {
   firstName: true,

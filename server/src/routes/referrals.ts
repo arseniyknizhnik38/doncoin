@@ -1,11 +1,13 @@
 import { Router, type Request, type Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { INVITEE_REWARD, INVITER_REWARD } from '../lib/referrals.js';
+import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
 
 export const referralsRouter = Router();
 
 referralsRouter.use(requireTelegramAuth);
+referralsRouter.use(writeRateLimit());
 
 /** Сколько приглашённых показываем списком. */
 const INVITED_LIMIT = 50;

@@ -3,11 +3,13 @@ import type { User } from '../generated/prisma/client.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
 import { describeUpgrades, findUpgrade } from '../lib/upgrades.js';
+import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
 
 export const upgradesRouter = Router();
 
 upgradesRouter.use(requireTelegramAuth);
+upgradesRouter.use(writeRateLimit());
 
 const USER_NOT_FOUND = {
   error: 'Пользователь не найден, выполните вход заново',

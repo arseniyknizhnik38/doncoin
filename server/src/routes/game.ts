@@ -6,11 +6,13 @@ import {
   toGameState,
 } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
+import { gameRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
 
 export const gameRouter = Router();
 
 gameRouter.use(requireTelegramAuth);
+gameRouter.use(gameRateLimit());
 
 const USER_NOT_FOUND = {
   error: 'Пользователь не найден, выполните вход заново',

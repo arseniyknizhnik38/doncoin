@@ -1,7 +1,9 @@
 import { Router, type Request, type Response } from 'express';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
+import { createSessionToken } from '../lib/session.js';
 import { InitDataError, validateInitData } from '../lib/telegram.js';
 import { upsertUserFromTelegram } from '../lib/users.js';
+import { authRateLimit } from '../middleware/rateLimit.js';
 
 export const authRouter = Router();
 
@@ -11,7 +13,7 @@ export const authRouter = Router();
  *
  * Проверяет подпись, затем находит или создаёт пользователя.
  */
-authRouter.post('/telegram', async (req: Request, res: Response) => {
+authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response) => {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
 
   if (!botToken) {
@@ -46,8 +48,12 @@ authRouter.post('/telegram', async (req: Request, res: Response) => {
   // иначе после паузы игрок увидел бы старое значение.
   const { energy } = regenerateEnergy(user, new Date());
 
+  const session = createSessionToken(user.telegramId, botToken);
+
   res.json({
     isNew,
+    // Дальнейшие запросы идут с этим токеном, а не с initData.
+    session: { token: session.token, expiresAt: session.expiresAt },
     user: {
       id: user.id,
       telegramId: user.telegramId,

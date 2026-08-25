@@ -36,8 +36,10 @@ export interface GameApi {
  * клиенте ничего не даёт, а лаг до базы не портит ощущение от нажатий.
  */
 export function useGame(
-  initDataRaw: string | undefined,
+  token: string | null,
   initialState: GameState | null,
+  /** Вызывается, когда сервер отверг сессию — нужно войти заново. */
+  onSessionExpired?: () => void,
 ): GameApi {
   const [state, setState] = useState<GameState | null>(initialState);
   const [error, setError] = useState<string | null>(null);
@@ -104,7 +106,7 @@ export function useGame(
   );
 
   const flush = useCallback(async () => {
-    if (inFlight.current || pendingTaps.current === 0 || !initDataRaw) {
+    if (inFlight.current || pendingTaps.current === 0 || !token) {
       return;
     }
 
@@ -117,7 +119,7 @@ export function useGame(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `tma ${initDataRaw}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ taps }),
         // Запрос переживёт закрытие страницы — иначе прощальный flush
@@ -128,6 +130,11 @@ export function useGame(
       const payload = await response.json().catch(() => null);
 
       if (!response.ok) {
+        // 401 — истёк сессионный токен: молча перевходим, тапы не теряем.
+        if (response.status === 401) {
+          onSessionExpired?.();
+        }
+
         throw new Error(payload?.error ?? `Ошибка ${response.status}`);
       }
 
@@ -142,7 +149,7 @@ export function useGame(
     } finally {
       inFlight.current = false;
     }
-  }, [initDataRaw, applyServerState]);
+  }, [token, applyServerState, onSessionExpired]);
 
   useEffect(() => {
     const timer = setInterval(() => void flush(), FLUSH_INTERVAL_MS);
