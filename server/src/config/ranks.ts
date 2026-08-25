@@ -93,6 +93,17 @@ export interface RankView {
   } | null;
 }
 
+/** Первый ранг, с которого открываются кланы. */
+export function clanRank(): RankDefinition {
+  const rank = RANKS.find((item) => item.canJoinClan);
+
+  if (!rank) {
+    throw new Error('В конфиге нет ранга с доступом к кланам');
+  }
+
+  return rank;
+}
+
 /**
  * Определяет ранг по балансу. Идём с конца — первый порог, который взят,
  * и есть текущий ранг.

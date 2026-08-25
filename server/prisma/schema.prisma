@@ -56,6 +56,31 @@ model User {
   energyLevel Int @default(0)
   regenLevel  Int @default(0)
 
+  /// Клан игрока и его вклад в общую казну.
+  clanId          String?
+  clan            Clan?     @relation("ClanMembers", fields: [clanId], references: [id], onDelete: SetNull)
+  clanJoinedAt    DateTime?
+  clanContributed BigInt    @default(0)
+
+  /// Клан, которым игрок владеет (у клана ровно один владелец).
+  ownedClan Clan? @relation("ClanOwner")
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Clan {
+  id   String @id @default(uuid())
+  name String @unique
+
+  /// Общая казна, пополняется взносами участников.
+  treasury BigInt @default(0)
+
+  ownerId String @unique
+  owner   User   @relation("ClanOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+
+  members User[] @relation("ClanMembers")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

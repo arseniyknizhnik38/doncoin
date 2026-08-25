@@ -4,7 +4,9 @@ import express, {
   type Request,
   type Response,
 } from 'express';
+import { ClanError } from './lib/clans.js';
 import { authRouter } from './routes/auth.js';
+import { clansRouter } from './routes/clans.js';
 import { gameRouter } from './routes/game.js';
 import { referralsRouter } from './routes/referrals.js';
 import { upgradesRouter } from './routes/upgrades.js';
@@ -27,6 +29,7 @@ export function createApp() {
   app.use('/api/game', gameRouter);
   app.use('/api/referrals', referralsRouter);
   app.use('/api/upgrades', upgradesRouter);
+  app.use('/api/clans', clansRouter);
 
   // 404 for unknown API routes
   app.use('/api', (_req: Request, res: Response) => {
@@ -35,6 +38,13 @@ export function createApp() {
 
   // Ошибки обработчиков (включая асинхронные — Express 5 их пробрасывает сюда).
   app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+    // Ошибки игровых правил несут собственный статус и код — их текст
+    // предназначен игроку. Всё остальное наружу не раскрываем.
+    if (error instanceof ClanError) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
+
     // У ошибок парсера тела есть свой статус (битый JSON — это 400, не 500).
     const status = (error as { status?: number }).status ?? 500;
 

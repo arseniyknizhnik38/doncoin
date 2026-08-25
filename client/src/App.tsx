@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ClanScreen } from './clans/ClanScreen';
+import { useClans } from './clans/useClans';
 import { GameScreen } from './game/GameScreen';
 import { useGame } from './game/useGame';
 import { FriendsScreen } from './referrals/FriendsScreen';
@@ -8,11 +10,12 @@ import { ShopScreen } from './upgrades/ShopScreen';
 import { useUpgrades } from './upgrades/useUpgrades';
 import { useTelegram } from './telegram/useTelegram';
 
-type Tab = 'game' | 'shop' | 'friends';
+type Tab = 'game' | 'shop' | 'clan' | 'friends';
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'game', label: 'Игра' },
   { id: 'shop', label: 'Империя' },
+  { id: 'clan', label: 'Клан' },
   { id: 'friends', label: 'Семья' },
 ];
 
@@ -26,6 +29,7 @@ export default function App() {
     auth.status === 'authorized' ? auth.initDataRaw : undefined;
   const referrals = useReferrals(authorizedInitData);
   const upgrades = useUpgrades(authorizedInitData, game.applyServerState);
+  const clans = useClans(authorizedInitData, game.applyServerState);
   const [tab, setTab] = useState<Tab>('game');
 
   const ready = isTelegram && auth.status === 'authorized' && game.state;
@@ -60,6 +64,8 @@ export default function App() {
               error={upgrades.error}
               onBuy={upgrades.buy}
             />
+          ) : tab === 'clan' ? (
+            <ClanScreen clans={clans} />
           ) : (
             <FriendsScreen
               data={referrals.data}
@@ -74,7 +80,7 @@ export default function App() {
                 key={item.id}
                 type="button"
                 onClick={() => setTab(item.id)}
-                className={`flex-1 rounded-lg px-3 py-2.5 text-sm font-semibold tracking-wider transition-colors ${
+                className={`flex-1 rounded-lg px-2 py-2.5 text-xs font-semibold tracking-wider transition-colors sm:text-sm ${
                   tab === item.id
                     ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
                     : 'text-neutral-500'
