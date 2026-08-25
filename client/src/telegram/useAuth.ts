@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { initDataRaw, useSignal } from '@telegram-apps/sdk-react';
 import type { GameState } from '../game/types';
+import type { DailyStatus, OfflineEarnings } from '../rewards/types';
 import { isTelegramEnv } from './init';
 
 export interface AuthUser {
@@ -26,6 +27,10 @@ export interface AuthState {
   initDataRaw: string | undefined;
   /** Сессионный токен для игровых запросов. */
   sessionToken: string | null;
+  /** Что накапало, пока игрока не было. */
+  offline: OfflineEarnings | null;
+  /** Состояние ежедневного бонуса на момент входа. */
+  daily: DailyStatus | null;
   /** Войти заново — например, когда сессия истекла. */
   reauth: () => void;
 }
@@ -46,6 +51,8 @@ export function useAuth(): AuthState {
     error: null,
     state: null,
     sessionToken: null,
+    offline: null,
+    daily: null,
   });
   const [attempt, setAttempt] = useState(0);
 
@@ -72,14 +79,22 @@ export function useAuth(): AuthState {
           throw new Error(payload?.error ?? `Ошибка ${response.status}`);
         }
 
-        setState({
+        const offline = (payload.offline ?? null) as OfflineEarnings | null;
+
+        setState((prev) => ({
           status: 'authorized',
           user: payload.user as AuthUser,
           isNew: Boolean(payload.isNew),
           error: null,
           state: (payload.state ?? null) as GameState | null,
           sessionToken: (payload.session?.token ?? null) as string | null,
-        });
+          // Повторный вход (перевход после 401 или двойной вызов эффекта
+          // в StrictMode) возвращает нулевой оффлайн-доход — не затираем им
+          // то, что реально начислили в этой сессии.
+          offline:
+            offline && Number(offline.earned) > 0 ? offline : prev.offline,
+          daily: (payload.daily ?? null) as DailyStatus | null,
+        }));
       })
       .catch((error: unknown) => {
         if (controller.signal.aborted) {
@@ -92,6 +107,8 @@ export function useAuth(): AuthState {
           error: error instanceof Error ? error.message : 'Неизвестная ошибка',
           state: null,
           sessionToken: null,
+          offline: null,
+          daily: null,
         });
       });
 

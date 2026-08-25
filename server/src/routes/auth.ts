@@ -1,5 +1,7 @@
 import { Router, type Request, type Response } from 'express';
+import { DAILY_STREAK_CAP, computeOfflineEarnings, dailyStatus } from '../config/rewards.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
+import { prisma } from '../lib/prisma.js';
 import { createSessionToken } from '../lib/session.js';
 import { InitDataError, validateInitData } from '../lib/telegram.js';
 import { upsertUserFromTelegram } from '../lib/users.js';
@@ -42,11 +44,34 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
     throw error;
   }
 
-  const { user, isNew } = await upsertUserFromTelegram(parsed);
+  const { user: stored, isNew } = await upsertUserFromTelegram(parsed);
+  const now = new Date();
+
+  // Пока игрока не было, «семья работала». Начисляем сразу при входе, а не
+  // по кнопке: одна запись в базу вместо двух, и деньги нельзя потерять,
+  // закрыв приложение до нажатия.
+  const offline = isNew
+    ? { earned: 0n, hours: 0, capped: false }
+    : computeOfflineEarnings(stored, now);
+
+  const user =
+    offline.earned > 0n
+      ? await prisma.user.update({
+          where: { id: stored.id },
+          data: {
+            balance: { increment: offline.earned },
+            totalEarned: { increment: offline.earned },
+            lastSeenAt: now,
+          },
+        })
+      : await prisma.user.update({
+          where: { id: stored.id },
+          data: { lastSeenAt: now },
+        });
 
   // Энергия в базе — на момент последнего запроса. Пересчитываем на сейчас,
   // иначе после паузы игрок увидел бы старое значение.
-  const { energy } = regenerateEnergy(user, new Date());
+  const { energy } = regenerateEnergy(user, now);
 
   const session = createSessionToken(user.telegramId, botToken);
 
@@ -63,5 +88,11 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
       createdAt: user.createdAt,
     },
     state: toGameState({ ...user, energy }),
+    offline: {
+      earned: offline.earned.toString(),
+      hours: Number(offline.hours.toFixed(2)),
+      capped: offline.capped,
+    },
+    daily: { ...dailyStatus(user, now), streakCap: DAILY_STREAK_CAP },
   });
 });

@@ -1,3 +1,4 @@
+import type React from 'react';
 import { RankProgress } from './RankProgress';
 import { TapCoin } from './TapCoin';
 import type { GameState } from './types';
@@ -7,6 +8,8 @@ interface GameScreenProps {
   state: GameState;
   error: string | null;
   onTap: () => boolean;
+  /** Плашка оффлайн-дохода и ежедневного бонуса. */
+  rewards?: React.ReactNode;
 }
 
 const formatBalance = (balance: string) =>
@@ -24,7 +27,7 @@ function StarIcon() {
   );
 }
 
-export function GameScreen({ displayName, state, error, onTap }: GameScreenProps) {
+export function GameScreen({ displayName, state, error, onTap, rewards }: GameScreenProps) {
   const energyPercent = Math.round((state.energy / state.energyMax) * 100);
   const empty = state.energy < 1;
 
@@ -61,6 +64,8 @@ export function GameScreen({ displayName, state, error, onTap }: GameScreenProps
           </span>
         </div>
       </header>
+
+      {rewards}
 
       <TapCoin coinsPerTap={state.coinsPerTap} disabled={empty} onTap={onTap} />
 

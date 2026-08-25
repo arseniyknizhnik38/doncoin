@@ -61,6 +61,14 @@ model User {
   energyLevel Int @default(0)
   regenLevel  Int @default(0)
 
+  /// Когда игрок последний раз что-то делал. От этого считается
+  /// оффлайн-доход, поэтому обновляется и при входе, и при тапах.
+  lastSeenAt DateTime @default(now())
+
+  /// Ежедневный бонус: длина серии и время последнего получения.
+  dailyStreak Int       @default(0)
+  lastDailyAt DateTime?
+
   /// Клан игрока и его вклад в общую казну.
   clanId          String?
   clan            Clan?     @relation("ClanMembers", fields: [clanId], references: [id], onDelete: SetNull)

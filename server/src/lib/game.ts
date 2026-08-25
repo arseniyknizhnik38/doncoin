@@ -165,6 +165,7 @@ export async function applyTaps(
         WHEN c.regen_energy >= u."energyMax" THEN now()
         ELSE u."energyUpdatedAt" + make_interval(secs => c.n)
       END,
+      "lastSeenAt" = now(),
       "updatedAt" = now()
     FROM calc c
     WHERE u.id = c.id

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ClanScreen } from './clans/ClanScreen';
+import { RewardsBar } from './rewards/RewardsBar';
+import { useDaily } from './rewards/useDaily';
 import { useClans } from './clans/useClans';
 import { GameScreen } from './game/GameScreen';
 import { useGame } from './game/useGame';
@@ -33,6 +35,7 @@ export default function App() {
   const referrals = useReferrals(sessionToken);
   const upgrades = useUpgrades(sessionToken, game.applyServerState);
   const clans = useClans(sessionToken, game.applyServerState);
+  const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
   const [tab, setTab] = useState<Tab>('game');
 
   const ready = isTelegram && auth.status === 'authorized' && game.state;
@@ -57,6 +60,7 @@ export default function App() {
               state={game.state}
               error={game.error}
               onTap={game.tap}
+              rewards={<RewardsBar offline={auth.offline} daily={daily} />}
             />
           ) : tab === 'shop' ? (
             <ShopScreen
