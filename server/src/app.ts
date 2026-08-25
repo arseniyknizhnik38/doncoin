@@ -9,6 +9,7 @@ import { authRouter } from './routes/auth.js';
 import { clansRouter } from './routes/clans.js';
 import { dailyRouter } from './routes/daily.js';
 import { gameRouter } from './routes/game.js';
+import { leaderboardRouter } from './routes/leaderboard.js';
 import { referralsRouter } from './routes/referrals.js';
 import { upgradesRouter } from './routes/upgrades.js';
 
@@ -32,6 +33,7 @@ export function createApp() {
   app.use('/api/upgrades', upgradesRouter);
   app.use('/api/clans', clansRouter);
   app.use('/api/daily', dailyRouter);
+  app.use('/api/leaderboard', leaderboardRouter);
 
   // 404 for unknown API routes
   app.use('/api', (_req: Request, res: Response) => {
