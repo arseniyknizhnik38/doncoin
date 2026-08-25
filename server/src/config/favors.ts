@@ -39,6 +39,16 @@ export function weekNumber(date: Date): number {
 
 export const FAVOR_CATALOG: readonly FavorSeed[] = [
   {
+    title: 'Проверь, что пришло с той стороны границы',
+    channelName: 'Матрёшка Экспресс 🪆',
+    channelUrl: 'https://t.me/matryoshkaexpress',
+    // У публичных каналов Bot API принимает @username как chat_id — значит
+    // будущая проверка подписки заработает без выяснения числового ID.
+    channelChatId: '@matryoshkaexpress',
+    rewardDonc: 50_000n,
+    familyXpReward: 20,
+  },
+  {
     title: 'Загляни к партнёрам',
     channelName: 'DONCOIN News',
     channelUrl: 'https://t.me/doncoin_news',
