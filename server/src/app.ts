@@ -11,6 +11,7 @@ import { dailyRouter } from './routes/daily.js';
 import { gameRouter } from './routes/game.js';
 import { leaderboardRouter } from './routes/leaderboard.js';
 import { referralsRouter } from './routes/referrals.js';
+import { tasksRouter } from './routes/tasks.js';
 import { upgradesRouter } from './routes/upgrades.js';
 
 /**
@@ -34,6 +35,7 @@ export function createApp() {
   app.use('/api/clans', clansRouter);
   app.use('/api/daily', dailyRouter);
   app.use('/api/leaderboard', leaderboardRouter);
+  app.use('/api/tasks', tasksRouter);
 
   // 404 for unknown API routes
   app.use('/api', (_req: Request, res: Response) => {

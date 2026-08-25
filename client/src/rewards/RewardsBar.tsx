@@ -5,6 +5,9 @@ import type { OfflineEarnings } from './types';
 interface RewardsBarProps {
   offline: OfflineEarnings | null;
   daily: DailyApi;
+  /** Сколько наград за задания можно забрать. */
+  tasksReady: number;
+  onOpenTasks: () => void;
 }
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
@@ -19,14 +22,12 @@ const formatHours = (hours: number) => {
 };
 
 /** Плашка «пока вас не было» и кнопка ежедневного бонуса. */
-export function RewardsBar({ offline, daily }: RewardsBarProps) {
+export function RewardsBar({ offline, daily, tasksReady, onOpenTasks }: RewardsBarProps) {
   const [offlineHidden, setOfflineHidden] = useState(false);
   const showOffline = offline !== null && Number(offline.earned) > 0 && !offlineHidden;
   const status = daily.status;
 
-  if (!showOffline && !status?.available && !daily.justClaimed) {
-    return null;
-  }
+
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -70,6 +71,18 @@ export function RewardsBar({ offline, daily }: RewardsBarProps) {
           </button>
         )
       )}
+
+      <button
+        type="button"
+        onClick={onOpenTasks}
+        className={`w-full rounded-xl border px-4 py-2 text-sm ${
+          tasksReady > 0
+            ? 'border-don-gold/50 bg-don-ink text-don-gold-soft'
+            : 'border-don-blood/40 bg-don-ink/60 text-neutral-400'
+        }`}
+      >
+        Задания{tasksReady > 0 ? ` · готово ${tasksReady}` : ''}
+      </button>
 
       {daily.error && (
         <p className="text-center text-xs tracking-wider text-don-blood-light">

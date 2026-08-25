@@ -9,6 +9,8 @@ import { useLeaderboard } from './leaderboard/useLeaderboard';
 import { useGame } from './game/useGame';
 import { FriendsScreen } from './referrals/FriendsScreen';
 import { useReferrals } from './referrals/useReferrals';
+import { TasksPanel } from './tasks/TasksPanel';
+import { useTasks } from './tasks/useTasks';
 import { useAuth } from './telegram/useAuth';
 import { ShopScreen } from './upgrades/ShopScreen';
 import { useUpgrades } from './upgrades/useUpgrades';
@@ -57,6 +59,8 @@ export default function App() {
   const clans = useClans(sessionToken, refreshKeys.clan, game.applyServerState);
   const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
   const board = useLeaderboard(sessionToken, refreshKeys.top);
+  const tasks = useTasks(sessionToken, game.applyServerState);
+  const [tasksOpen, setTasksOpen] = useState(false);
   const ready = isTelegram && auth.status === 'authorized' && game.state;
 
   return (
@@ -79,7 +83,17 @@ export default function App() {
               state={game.state}
               error={game.error}
               onTap={game.tap}
-              rewards={<RewardsBar offline={auth.offline} daily={daily} />}
+              rewards={
+                <RewardsBar
+                  offline={auth.offline}
+                  daily={daily}
+                  tasksReady={tasks.readyCount}
+                  onOpenTasks={() => {
+                    tasks.reload();
+                    setTasksOpen(true);
+                  }}
+                />
+              }
             />
           ) : tab === 'shop' ? (
             <ShopScreen
@@ -118,6 +132,9 @@ export default function App() {
               </button>
             ))}
           </nav>
+          {tasksOpen && (
+            <TasksPanel tasks={tasks} onClose={() => setTasksOpen(false)} />
+          )}
         </>
       ) : (
         <div className="relative flex flex-1 flex-col items-center justify-center">
