@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
+import { useBusinesses } from './businesses/useBusinesses';
 import { ClanScreen } from './clans/ClanScreen';
+import { DealScreen } from './deal/DealScreen';
 import { RewardsBar } from './rewards/RewardsBar';
 import { useDaily } from './rewards/useDaily';
 import { useClans } from './clans/useClans';
@@ -13,7 +15,6 @@ import { TasksPanel } from './tasks/TasksPanel';
 import { ErrorState } from './ui/States';
 import { useTasks } from './tasks/useTasks';
 import { useAuth } from './telegram/useAuth';
-import { ShopScreen } from './upgrades/ShopScreen';
 import { useUpgrades } from './upgrades/useUpgrades';
 import { useTelegram } from './telegram/useTelegram';
 
@@ -58,6 +59,7 @@ export default function App() {
   const referrals = useReferrals(sessionToken);
   const upgrades = useUpgrades(sessionToken, refreshKeys.shop, game.applyServerState);
   const clans = useClans(sessionToken, refreshKeys.clan, game.applyServerState);
+  const businesses = useBusinesses(sessionToken, refreshKeys.shop, game.applyServerState);
   const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
   const board = useLeaderboard(sessionToken, refreshKeys.top);
   const tasks = useTasks(sessionToken, game.applyServerState);
@@ -107,14 +109,10 @@ export default function App() {
               }
             />
           ) : tab === 'shop' ? (
-            <ShopScreen
-              upgrades={upgrades.upgrades}
+            <DealScreen
+              upgrades={upgrades}
+              businesses={businesses}
               state={game.state}
-              loading={upgrades.loading}
-              buying={upgrades.buying}
-              error={upgrades.error}
-              onBuy={upgrades.buy}
-              onRetry={upgrades.reload}
             />
           ) : tab === 'clan' ? (
             <ClanScreen clans={clans} />

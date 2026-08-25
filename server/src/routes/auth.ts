@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { DAILY_STREAK_CAP, computeOfflineEarnings, dailyStatus } from '../config/rewards.js';
+import { collectBusinessIncome } from '../lib/businesses.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
 import { createSessionToken } from '../lib/session.js';
@@ -69,9 +70,19 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
           data: { lastSeenAt: now },
         });
 
+  // Бизнесы работают независимо от тапов — начисляем их доход тем же входом.
+  const business = isNew
+    ? { earned: 0n, perHour: 0n }
+    : await collectBusinessIncome(user, now);
+
+  const withBusiness =
+    business.earned > 0n
+      ? { ...user, balance: user.balance + business.earned, totalEarned: user.totalEarned + business.earned }
+      : user;
+
   // Энергия в базе — на момент последнего запроса. Пересчитываем на сейчас,
   // иначе после паузы игрок увидел бы старое значение.
-  const { energy } = regenerateEnergy(user, now);
+  const { energy } = regenerateEnergy(withBusiness, now);
 
   const session = createSessionToken(user.telegramId, botToken);
 
@@ -87,12 +98,16 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
       referredByCode: user.referredByCode,
       createdAt: user.createdAt,
     },
-    state: toGameState({ ...user, energy }),
+    state: toGameState({ ...withBusiness, energy }),
     offline: {
       earned: offline.earned.toString(),
       hours: Number(offline.hours.toFixed(2)),
       capped: offline.capped,
     },
-    daily: { ...dailyStatus(user, now), streakCap: DAILY_STREAK_CAP },
+    daily: { ...dailyStatus(withBusiness, now), streakCap: DAILY_STREAK_CAP },
+    business: {
+      earned: business.earned.toString(),
+      perHour: business.perHour.toString(),
+    },
   });
 });

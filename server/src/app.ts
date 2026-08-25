@@ -4,8 +4,10 @@ import express, {
   type Request,
   type Response,
 } from 'express';
+import { BusinessError } from './lib/businesses.js';
 import { ClanError } from './lib/clans.js';
 import { authRouter } from './routes/auth.js';
+import { businessesRouter } from './routes/businesses.js';
 import { clansRouter } from './routes/clans.js';
 import { dailyRouter } from './routes/daily.js';
 import { gameRouter } from './routes/game.js';
@@ -32,6 +34,7 @@ export function createApp() {
   app.use('/api/game', gameRouter);
   app.use('/api/referrals', referralsRouter);
   app.use('/api/upgrades', upgradesRouter);
+  app.use('/api/businesses', businessesRouter);
   app.use('/api/clans', clansRouter);
   app.use('/api/daily', dailyRouter);
   app.use('/api/leaderboard', leaderboardRouter);
@@ -46,6 +49,11 @@ export function createApp() {
   app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
     // Ошибки игровых правил несут собственный статус и код — их текст
     // предназначен игроку. Всё остальное наружу не раскрываем.
+    if (error instanceof BusinessError) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
+
     if (error instanceof ClanError) {
       res.status(error.status).json({ error: error.message, code: error.code });
       return;

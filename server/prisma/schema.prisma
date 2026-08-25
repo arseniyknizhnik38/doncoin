@@ -73,6 +73,10 @@ model User {
   dailyStreak Int       @default(0)
   lastDailyAt DateTime?
 
+  /// Бизнесы игрока и момент последнего начисления дохода с них.
+  businesses          UserBusiness[]
+  businessCollectedAt DateTime      @default(now())
+
   /// Клан игрока и его вклад в общую казну.
   clanId          String?
   clan            Clan?     @relation("ClanMembers", fields: [clanId], references: [id], onDelete: SetNull)
@@ -87,6 +91,51 @@ model User {
 
   /// Лидерборд сортирует и считает позицию по этому полю.
   @@index([totalEarned])
+}
+
+/// Каталог бизнесов — общий для всех, наполняется seed-скриптом.
+model Business {
+  id   String @id @default(uuid())
+  /// Устойчивый ключ: по нему seed обновляет запись, не плодя дубли.
+  slug String @unique
+
+  name        String
+  description String
+  category    String
+
+  baseCost          BigInt
+  baseIncomePerHour BigInt
+  /// Во сколько раз дорожает каждый следующий уровень.
+  costMultiplier Float @default(1.15)
+
+  /// Порядок в каталоге — от дешёвых к дорогим.
+  sortOrder Int @default(0)
+
+  owners UserBusiness[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sortOrder])
+}
+
+/// Уровень конкретного бизнеса у конкретного игрока. 0 — не куплен.
+model UserBusiness {
+  id String @id @default(uuid())
+
+  userId     String
+  businessId String
+
+  level       Int      @default(0)
+  purchasedAt DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, businessId])
+  @@index([userId])
 }
 
 model Clan {
