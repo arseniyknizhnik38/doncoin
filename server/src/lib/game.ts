@@ -1,4 +1,5 @@
 import type { User } from '../generated/prisma/client.js';
+import { type RankView, resolveRank } from '../config/ranks.js';
 import { prisma } from './prisma.js';
 
 /** Максимум тапов в одном запросе — клиент шлёт их пачками. */
@@ -29,6 +30,8 @@ export interface GameState {
   respectProgress: number;
   /** Сколько тапов нужно на одну единицу Respect. */
   tapsPerRespect: number;
+  /** Ранг вычисляется из баланса, в базе не хранится. */
+  rank: RankView;
 }
 
 interface EnergySnapshot {
@@ -79,6 +82,7 @@ export function toGameState(user: {
     respect: user.respect,
     respectProgress: user.respectProgress,
     tapsPerRespect: TAPS_PER_RESPECT,
+    rank: resolveRank(user.balance),
   };
 }
 
@@ -178,13 +182,14 @@ export async function applyTaps(
   }
 
   const accepted = Number(row.accepted);
+  const balance = BigInt(row.balance);
 
   return {
     accepted,
     awarded: accepted * Number(row.coinsPerTap),
     respectAwarded: Number(row.respectAwarded),
     state: {
-      balance: BigInt(row.balance).toString(),
+      balance: balance.toString(),
       energy: Number(row.energy),
       energyMax: Number(row.energyMax),
       energyPerSecond: Number(row.energyPerSecond),
@@ -192,6 +197,7 @@ export async function applyTaps(
       respect: Number(row.respect),
       respectProgress: Number(row.respectProgress),
       tapsPerRespect: TAPS_PER_RESPECT,
+      rank: resolveRank(balance),
     },
   };
 }

@@ -1,3 +1,4 @@
+import { RankProgress } from './RankProgress';
 import { TapCoin } from './TapCoin';
 import type { GameState } from './types';
 
@@ -29,10 +30,12 @@ export function GameScreen({ displayName, state, error, onTap }: GameScreenProps
 
   return (
     <div className="relative flex w-full max-w-md flex-1 flex-col items-center justify-between gap-6 py-6">
-      <header className="flex w-full flex-col items-center gap-2">
+      <header className="flex w-full flex-col items-center gap-2 px-2">
         <p className="text-[11px] tracking-[0.3em] text-neutral-500 uppercase">
           {displayName ?? 'Дон'}
         </p>
+
+        <RankProgress rank={state.rank} balance={state.balance} />
 
         <div className="flex items-center gap-4">
           <div className="flex items-baseline gap-2">
