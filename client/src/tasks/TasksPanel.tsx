@@ -1,3 +1,4 @@
+import { ErrorState, SkeletonList } from '../ui/States';
 import type { TasksApi } from './useTasks';
 
 interface TasksPanelProps {
@@ -26,16 +27,18 @@ export function TasksPanel({ tasks, onClose }: TasksPanelProps) {
           </button>
         </header>
 
-        {tasks.error && (
+        {tasks.error && tasks.tasks && (
           <p className="text-center text-xs tracking-wider text-don-blood-light">
             {tasks.error}
           </p>
         )}
 
         {!tasks.tasks ? (
-          <p className="mt-6 text-center text-sm tracking-wider text-neutral-500">
-            {tasks.loading ? 'Загружаем…' : 'Нет данных'}
-          </p>
+          tasks.loading ? (
+            <SkeletonList rows={4} />
+          ) : (
+            <ErrorState message={tasks.error ?? 'Не удалось загрузить'} onRetry={tasks.reload} />
+          )
         ) : (
           tasks.tasks.map((task) => {
             const percent = Math.round((task.progress / task.target) * 100);

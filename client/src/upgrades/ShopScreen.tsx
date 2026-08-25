@@ -1,3 +1,4 @@
+import { ErrorState, SkeletonList } from '../ui/States';
 import type { GameState } from '../game/types';
 import type { UpgradeView } from './types';
 
@@ -8,6 +9,7 @@ interface ShopScreenProps {
   buying: string | null;
   error: string | null;
   onBuy: (id: string) => void;
+  onRetry: () => void;
 }
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
@@ -19,9 +21,10 @@ export function ShopScreen({
   buying,
   error,
   onBuy,
+  onRetry,
 }: ShopScreenProps) {
   return (
-    <div className="flex w-full max-w-md flex-1 flex-col gap-4 overflow-y-auto py-6">
+    <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-4 sm:py-6">
       <header className="text-center">
         <h2 className="text-2xl font-black tracking-[0.2em] text-don-gold uppercase">
           Наше дело
@@ -34,14 +37,16 @@ export function ShopScreen({
         </p>
       </header>
 
-      {error && (
+      {error && upgrades && (
         <p className="text-center text-xs tracking-wider text-don-blood-light">{error}</p>
       )}
 
       {!upgrades ? (
-        <p className="mt-6 text-center text-sm tracking-wider text-neutral-500">
-          {loading ? 'Загружаем…' : 'Нет данных'}
-        </p>
+        loading ? (
+          <SkeletonList rows={3} />
+        ) : (
+          <ErrorState message={error ?? 'Не удалось загрузить'} onRetry={onRetry} />
+        )
       ) : (
         upgrades.map((upgrade) => {
           const isMax = upgrade.price === null;

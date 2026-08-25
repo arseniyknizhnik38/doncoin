@@ -32,7 +32,7 @@ export function GameScreen({ displayName, state, error, onTap, rewards }: GameSc
   const empty = state.energy < 1;
 
   return (
-    <div className="relative flex w-full max-w-md flex-1 flex-col items-center justify-between gap-6 py-6">
+    <div className="relative flex w-full max-w-md min-h-0 flex-1 flex-col items-center justify-between gap-3 overflow-y-auto py-3 sm:gap-6 sm:py-6">
       <header className="flex w-full flex-col items-center gap-2 px-2">
         <p className="text-[11px] tracking-[0.3em] text-neutral-500 uppercase">
           {displayName ?? 'Дон'}

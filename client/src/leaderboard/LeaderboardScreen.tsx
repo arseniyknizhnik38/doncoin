@@ -1,3 +1,4 @@
+import { ErrorState, SkeletonList } from '../ui/States';
 import { useState } from 'react';
 import type { LeaderboardApi } from './useLeaderboard';
 
@@ -15,10 +16,12 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
 
   if (!data) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm tracking-wider text-neutral-500">
-          {loading ? 'Загружаем…' : error ?? 'Нет данных'}
-        </p>
+      <div className="flex w-full max-w-md flex-1 flex-col justify-center gap-3 py-6">
+        {loading ? (
+          <SkeletonList rows={5} />
+        ) : (
+          <ErrorState message={error ?? 'Не удалось загрузить'} onRetry={board.reload} />
+        )}
       </div>
     );
   }
@@ -29,7 +32,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
       : data.clans.top.some((entry) => entry.isMine);
 
   return (
-    <div className="flex w-full max-w-md flex-1 flex-col gap-4 overflow-y-auto py-6">
+    <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-4 sm:py-6">
       <header className="text-center">
         <h2 className="text-2xl font-black tracking-[0.2em] text-don-gold uppercase">Топ</h2>
       </header>

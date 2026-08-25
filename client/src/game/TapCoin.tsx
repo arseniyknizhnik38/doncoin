@@ -62,9 +62,9 @@ export function TapCoin({ coinsPerTap, disabled, onTap }: TapCoinProps) {
     >
       <span className="pointer-events-none absolute inset-0 rounded-full bg-don-gold/25 blur-2xl" />
 
-      <span className="relative flex h-56 w-56 items-center justify-center rounded-full border-4 border-don-gold/70 bg-gradient-to-br from-don-gold-soft via-don-gold to-[#8a5f12] shadow-[0_10px_40px_rgba(232,180,72,0.35)] sm:h-64 sm:w-64">
+      <span className="relative flex h-[min(14rem,32vh)] w-[min(14rem,32vh)] items-center justify-center rounded-full border-4 border-don-gold/70 bg-gradient-to-br from-don-gold-soft via-don-gold to-[#8a5f12] shadow-[0_10px_40px_rgba(232,180,72,0.35)] sm:h-64 sm:w-64">
         <span className="flex h-[85%] w-[85%] items-center justify-center rounded-full border-2 border-[#8a5f12]/50 bg-gradient-to-br from-[#f7e2ab] to-[#c9922c]">
-          <span className="text-6xl font-black tracking-tight text-[#5a3a08] drop-shadow-sm sm:text-7xl">
+          <span className="text-[min(3.75rem,9vh)] leading-none font-black tracking-tight text-[#5a3a08] drop-shadow-sm sm:text-7xl">
             D
           </span>
         </span>

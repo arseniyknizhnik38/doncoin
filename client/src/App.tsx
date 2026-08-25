@@ -10,6 +10,7 @@ import { useGame } from './game/useGame';
 import { FriendsScreen } from './referrals/FriendsScreen';
 import { useReferrals } from './referrals/useReferrals';
 import { TasksPanel } from './tasks/TasksPanel';
+import { ErrorState } from './ui/States';
 import { useTasks } from './tasks/useTasks';
 import { useAuth } from './telegram/useAuth';
 import { ShopScreen } from './upgrades/ShopScreen';
@@ -63,8 +64,18 @@ export default function App() {
   const [tasksOpen, setTasksOpen] = useState(false);
   const ready = isTelegram && auth.status === 'authorized' && game.state;
 
+  // Технические сообщения вроде «Ошибка 500» игроку бесполезны — подменяем
+  // их человеческим текстом, остальные показываем как есть.
+  const rawAuthError = auth.error ?? '';
+  const looksLikeNetwork = ['500', '502', '503', '504', 'failed', 'fetch', 'сет'].some(
+    (hint) => rawAuthError.toLowerCase().includes(hint),
+  );
+  const authErrorText = looksLikeNetwork
+    ? 'Не получилось связаться с сервером'
+    : rawAuthError || 'Не удалось войти';
+
   return (
-    <main className="relative flex min-h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden bg-don-black px-6 text-center">
+    <main className="relative flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden bg-don-black px-4 text-center sm:px-6">
       {/* Бордовое свечение и золотая линия — «премиальная мафиозная» подложка */}
       <div
         aria-hidden
@@ -103,6 +114,7 @@ export default function App() {
               buying={upgrades.buying}
               error={upgrades.error}
               onBuy={upgrades.buy}
+              onRetry={upgrades.reload}
             />
           ) : tab === 'clan' ? (
             <ClanScreen clans={clans} />
@@ -113,10 +125,11 @@ export default function App() {
               data={referrals.data}
               loading={referrals.loading}
               error={referrals.error}
+              onRetry={referrals.reload}
             />
           )}
 
-          <nav className="relative mb-4 flex w-full max-w-md gap-2 rounded-xl border border-don-blood/40 bg-don-ink/80 p-1.5">
+          <nav className="relative mb-3 flex w-full max-w-md shrink-0 gap-1 rounded-xl border border-don-blood/40 bg-don-ink/80 p-1.5">
             {TABS.map((item) => (
               <button
                 key={item.id}
@@ -145,19 +158,26 @@ export default function App() {
             START AS NOBODY. BECOME THE DON.
           </p>
 
-          <div className="mt-12 min-w-[16rem] rounded-xl border border-don-blood/60 bg-don-ink/80 px-6 py-4 backdrop-blur-sm">
-            {!isTelegram ? (
-              <p className="text-sm tracking-wider text-neutral-400">
-                Тестовый режим (не в Telegram)
-              </p>
-            ) : auth.status === 'error' ? (
-              <p className="text-sm tracking-wider text-don-blood-light">{auth.error}</p>
-            ) : (
-              <p className="text-sm tracking-wider text-neutral-400">
-                {displayName ? `${displayName}, входим…` : 'Входим…'}
-              </p>
-            )}
-          </div>
+          {isTelegram && auth.status === 'error' ? (
+            <div className="mt-12 w-full max-w-xs">
+              <ErrorState
+                message={authErrorText}
+                onRetry={auth.reauth}
+              />
+            </div>
+          ) : (
+            <div className="mt-12 min-w-[16rem] rounded-xl border border-don-blood/60 bg-don-ink/80 px-6 py-4 backdrop-blur-sm">
+              {!isTelegram ? (
+                <p className="text-sm tracking-wider text-neutral-400">
+                  Тестовый режим (не в Telegram)
+                </p>
+              ) : (
+                <p className="text-sm tracking-wider text-neutral-400">
+                  {displayName ? `${displayName}, входим…` : 'Входим…'}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
     </main>

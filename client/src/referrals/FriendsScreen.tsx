@@ -1,3 +1,4 @@
+import { ErrorState, SkeletonList } from '../ui/States';
 import { useState } from 'react';
 import { copyTextToClipboard, shareURL } from '@telegram-apps/sdk-react';
 import { buildReferralLink } from '../config';
@@ -7,6 +8,7 @@ interface FriendsScreenProps {
   data: ReferralsData | null;
   loading: boolean;
   error: string | null;
+  onRetry: () => void;
 }
 
 const formatCoins = (value: string) => Number(value).toLocaleString('ru-RU');
@@ -17,18 +19,18 @@ const formatDate = (iso: string) =>
 const friendName = (friend: { firstName: string | null; username: string | null }) =>
   friend.firstName ?? (friend.username ? `@${friend.username}` : 'Аноним');
 
-export function FriendsScreen({ data, loading, error }: FriendsScreenProps) {
+export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenProps) {
   const [copied, setCopied] = useState(false);
-
-  if (error) {
-    return <p className="mt-10 text-sm tracking-wider text-don-blood-light">{error}</p>;
-  }
 
   if (!data) {
     return (
-      <p className="mt-10 text-sm tracking-wider text-neutral-500">
-        {loading ? 'Загружаем…' : 'Нет данных'}
-      </p>
+      <div className="flex w-full max-w-md flex-1 flex-col justify-center gap-3 py-6">
+        {loading ? (
+          <SkeletonList rows={4} />
+        ) : (
+          <ErrorState message={error ?? 'Не удалось загрузить'} onRetry={onRetry} />
+        )}
+      </div>
     );
   }
 
@@ -46,7 +48,7 @@ export function FriendsScreen({ data, loading, error }: FriendsScreenProps) {
   };
 
   return (
-    <div className="flex w-full max-w-md flex-1 flex-col gap-5 overflow-y-auto py-6">
+    <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-5 overflow-y-auto py-4 sm:py-6">
       <header className="text-center">
         <h2 className="text-2xl font-black tracking-[0.2em] text-don-gold uppercase">
           Семья

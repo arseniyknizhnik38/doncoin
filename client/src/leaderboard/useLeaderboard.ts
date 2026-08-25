@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../api';
 import type { LeaderboardData } from './types';
 
@@ -6,6 +6,7 @@ export interface LeaderboardApi {
   data: LeaderboardData | null;
   loading: boolean;
   error: string | null;
+  reload: () => void;
 }
 
 export function useLeaderboard(
@@ -16,6 +17,9 @@ export function useLeaderboard(
   const [data, setData] = useState<LeaderboardData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
+
+  const reload = useCallback(() => setRetry((value) => value + 1), []);
 
   useEffect(() => {
     if (!token) {
@@ -46,7 +50,7 @@ export function useLeaderboard(
     return () => {
       cancelled = true;
     };
-  }, [token, refreshKey]);
+  }, [token, refreshKey, retry]);
 
-  return { data, loading, error };
+  return { data, loading, error, reload };
 }

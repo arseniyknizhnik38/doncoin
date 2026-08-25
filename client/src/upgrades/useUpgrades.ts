@@ -9,6 +9,7 @@ export interface UpgradesApi {
   buying: string | null;
   error: string | null;
   buy: (id: string) => void;
+  reload: () => void;
 }
 
 /**
@@ -26,6 +27,9 @@ export function useUpgrades(
   const [loading, setLoading] = useState(false);
   const [buying, setBuying] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
+
+  const reload = useCallback(() => setRetry((value) => value + 1), []);
 
   useEffect(() => {
     if (!token) {
@@ -61,7 +65,7 @@ export function useUpgrades(
       });
 
     return () => controller.abort();
-  }, [token, refreshKey]);
+  }, [token, refreshKey, retry]);
 
   const buy = useCallback(
     (id: string) => {
@@ -94,5 +98,5 @@ export function useUpgrades(
     [token, buying, onStateChange],
   );
 
-  return { upgrades, loading, buying, error, buy };
+  return { upgrades, loading, buying, error, buy, reload };
 }
