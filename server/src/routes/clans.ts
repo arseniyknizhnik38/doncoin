@@ -19,6 +19,7 @@ const memberSelect = {
   firstName: true,
   username: true,
   balance: true,
+  totalEarned: true,
   clanContributed: true,
   clanJoinedAt: true,
 } as const;
@@ -39,6 +40,7 @@ function serializeMember(member: {
   firstName: string | null;
   username: string | null;
   balance: bigint;
+  totalEarned: bigint;
   clanContributed: bigint;
   clanJoinedAt: Date | null;
 }) {
@@ -48,7 +50,7 @@ function serializeMember(member: {
     balance: member.balance.toString(),
     contributed: member.clanContributed.toString(),
     joinedAt: member.clanJoinedAt,
-    rank: resolveRank(member.balance).title,
+    rank: resolveRank(member.totalEarned).title,
   };
 }
 
@@ -98,7 +100,7 @@ clansRouter.get('/', async (_req: Request, res: Response) => {
   const required = clanRank();
 
   res.json({
-    canJoin: resolveRank(user.balance).canJoinClan,
+    canJoin: resolveRank(user.totalEarned).canJoinClan,
     requiredRank: {
       code: required.code,
       title: required.title,

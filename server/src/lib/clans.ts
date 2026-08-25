@@ -32,7 +32,7 @@ export class ClanError extends Error {
 
 /** Кланы открываются с ранга «солдат» — порог задан в config/ranks.ts. */
 export function assertCanJoinClans(user: User): void {
-  if (!resolveRank(user.balance).canJoinClan) {
+  if (!resolveRank(user.totalEarned).canJoinClan) {
     throw new ClanError(
       'RANK_TOO_LOW',
       'Кланы открываются с ранга «Солдат»',

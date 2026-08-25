@@ -23,8 +23,23 @@ export interface UpgradeDefinition {
   describe: (level: number) => string;
 }
 
-/** Цена растёт вдвое с каждым уровнем. */
-const doubling = (base: bigint) => (level: number) => base * 2n ** BigInt(level);
+/**
+ * Цена растёт в 1.6 раза за уровень.
+ *
+ * Было ×2, и это ломало прогрессию: польза от уровня растёт линейно, а цена
+ * экспоненциально, поэтому окупаемость удваивалась с каждой покупкой и
+ * примерно с восьмого уровня апгрейд переставал иметь смысл. Считаем в целых:
+ * умножаем на 8 и делим на 5.
+ */
+const growth = (base: bigint) => (level: number) => {
+  let price = base;
+
+  for (let i = 0; i < level; i += 1) {
+    price = (price * 8n) / 5n;
+  }
+
+  return price;
+};
 
 export const UPGRADES: readonly UpgradeDefinition[] = [
   {
@@ -33,19 +48,19 @@ export const UPGRADES: readonly UpgradeDefinition[] = [
     description: 'Больше монет за один тап',
     levelField: 'tapLevel',
     maxLevel: 20,
-    price: doubling(1_000n),
+    price: growth(500n),
     valueAt: (level) => ({ coinsPerTap: 1 + level }),
     describe: (level) => `+${1 + level} за тап`,
   },
   {
     id: 'energy',
     title: 'Выносливость',
-    description: 'Больше запас энергии',
+    description: 'Больше запас — больше можно забрать за один заход',
     levelField: 'energyLevel',
     maxLevel: 20,
-    price: doubling(800n),
-    valueAt: (level) => ({ energyMax: 1_000 + 500 * level }),
-    describe: (level) => `${1_000 + 500 * level} энергии`,
+    price: growth(500n),
+    valueAt: (level) => ({ energyMax: 1_000 + 2_000 * level }),
+    describe: (level) => `${(1_000 + 2_000 * level).toLocaleString('ru-RU')} энергии`,
   },
   {
     id: 'regen',
@@ -53,7 +68,7 @@ export const UPGRADES: readonly UpgradeDefinition[] = [
     description: 'Энергия восстанавливается быстрее',
     levelField: 'regenLevel',
     maxLevel: 20,
-    price: doubling(1_500n),
+    price: growth(800n),
     valueAt: (level) => ({ energyPerSecond: 1 + level }),
     describe: (level) => `+${1 + level} энергии в секунду`,
   },

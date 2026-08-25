@@ -2,13 +2,14 @@ import type { RankView } from './types';
 
 interface RankProgressProps {
   rank: RankView;
-  balance: string;
+  /** Накопленный доход: ранг считается от него, а не от текущего баланса. */
+  earned: string;
 }
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
 /** Ранг игрока и прогресс до следующего. */
-export function RankProgress({ rank, balance }: RankProgressProps) {
+export function RankProgress({ rank, earned }: RankProgressProps) {
   const target = rank.next ? Number(rank.next.minBalance) : null;
 
   // Баланс обновляется локально сразу, а ранг приходит с сервера следующим
@@ -16,7 +17,7 @@ export function RankProgress({ rank, balance }: RankProgressProps) {
   // на секунду мелькало бы «200 003 / 200 000». Пороги при этом остаются
   // только в серверном конфиге — дублировать их на клиент не нужно.
   const current =
-    target === null ? Number(balance) : Math.min(Number(balance), target);
+    target === null ? Number(earned) : Math.min(Number(earned), target);
 
   // Доля считается от порога следующего ранга — так же, как читается подпись.
   const percent =

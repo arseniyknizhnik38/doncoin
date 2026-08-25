@@ -93,6 +93,9 @@ export function useGame(
         balance: String(
           Number(serverState.balance) + stillPending * serverState.coinsPerTap,
         ),
+        totalEarned: String(
+          Number(serverState.totalEarned) + stillPending * serverState.coinsPerTap,
+        ),
         energy: Math.max(0, serverState.energy - stillPending),
         ...advanceRespect(serverState, stillPending),
       });
@@ -174,6 +177,7 @@ export function useGame(
     commitState({
       ...current,
       balance: String(Number(current.balance) + current.coinsPerTap),
+      totalEarned: String(Number(current.totalEarned) + current.coinsPerTap),
       energy: current.energy - 1,
       ...advanceRespect(current, 1),
     });

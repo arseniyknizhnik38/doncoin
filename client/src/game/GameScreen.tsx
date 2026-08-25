@@ -35,7 +35,7 @@ export function GameScreen({ displayName, state, error, onTap }: GameScreenProps
           {displayName ?? 'Дон'}
         </p>
 
-        <RankProgress rank={state.rank} balance={state.balance} />
+        <RankProgress rank={state.rank} earned={state.totalEarned} />
 
         <div className="flex items-center gap-4">
           <div className="flex items-baseline gap-2">

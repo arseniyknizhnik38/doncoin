@@ -21,6 +21,8 @@ export const TAPS_PER_RESPECT = 50;
 
 export interface GameState {
   balance: string;
+  /** Заработано за всё время — на этом строится ранг. */
+  totalEarned: string;
   energy: number;
   energyMax: number;
   energyPerSecond: number;
@@ -65,6 +67,7 @@ export function regenerateEnergy(user: User, now: Date): EnergySnapshot {
 
 export function toGameState(user: {
   balance: bigint;
+  totalEarned: bigint;
   energy: number;
   energyMax: number;
   energyPerSecond: number;
@@ -75,6 +78,7 @@ export function toGameState(user: {
   return {
     // BigInt не сериализуется в JSON — отдаём строкой.
     balance: user.balance.toString(),
+    totalEarned: user.totalEarned.toString(),
     energy: user.energy,
     energyMax: user.energyMax,
     energyPerSecond: user.energyPerSecond,
@@ -82,7 +86,7 @@ export function toGameState(user: {
     respect: user.respect,
     respectProgress: user.respectProgress,
     tapsPerRespect: TAPS_PER_RESPECT,
-    rank: resolveRank(user.balance),
+    rank: resolveRank(user.totalEarned),
   };
 }
 
@@ -97,6 +101,7 @@ export interface TapResult {
 
 interface TapRow {
   balance: bigint;
+  totalEarned: bigint;
   energy: number;
   energyMax: number;
   energyPerSecond: number;
@@ -151,6 +156,7 @@ export async function applyTaps(
     SET
       energy = c.regen_energy - c.accepted,
       balance = u.balance + c.accepted::bigint * u."coinsPerTap",
+      "totalEarned" = u."totalEarned" + c.accepted::bigint * u."coinsPerTap",
       -- Respect: одна единица за каждые TAPS_PER_RESPECT тапов,
       -- незавершённый остаток переносится в respectProgress.
       respect = u.respect + c.respect_pool / ${TAPS_PER_RESPECT}::int,
@@ -164,6 +170,7 @@ export async function applyTaps(
     WHERE u.id = c.id
     RETURNING
       u.balance,
+      u."totalEarned" AS "totalEarned",
       u.energy,
       u."energyMax" AS "energyMax",
       u."energyPerSecond" AS "energyPerSecond",
@@ -183,6 +190,7 @@ export async function applyTaps(
 
   const accepted = Number(row.accepted);
   const balance = BigInt(row.balance);
+  const totalEarned = BigInt(row.totalEarned);
 
   return {
     accepted,
@@ -190,6 +198,7 @@ export async function applyTaps(
     respectAwarded: Number(row.respectAwarded),
     state: {
       balance: balance.toString(),
+      totalEarned: totalEarned.toString(),
       energy: Number(row.energy),
       energyMax: Number(row.energyMax),
       energyPerSecond: Number(row.energyPerSecond),
@@ -197,7 +206,7 @@ export async function applyTaps(
       respect: Number(row.respect),
       respectProgress: Number(row.respectProgress),
       tapsPerRespect: TAPS_PER_RESPECT,
-      rank: resolveRank(balance),
+      rank: resolveRank(totalEarned),
     },
   };
 }

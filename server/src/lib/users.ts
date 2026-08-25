@@ -108,6 +108,7 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
             referredByCode: input.startParam,
             referredById: inviter?.id ?? null,
             balance: inviter ? INVITEE_REWARD : 0n,
+            totalEarned: inviter ? INVITEE_REWARD : 0n,
           },
         }),
         ...(inviter
@@ -116,6 +117,7 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
                 where: { id: inviter.id },
                 data: {
                   balance: { increment: INVITER_REWARD },
+                  totalEarned: { increment: INVITER_REWARD },
                   referralEarned: { increment: INVITER_REWARD },
                 },
               }),

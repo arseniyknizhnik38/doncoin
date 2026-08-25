@@ -1,8 +1,10 @@
 /**
  * Ранги игроков и их пороги.
  *
- * Ранг НЕ хранится в базе — он всегда вычисляется из текущего баланса
- * функцией resolveRank. Поэтому изменение порогов здесь мгновенно
+ * Ранг НЕ хранится в базе — он всегда вычисляется из накопленного дохода
+ * (totalEarned) функцией resolveRank. Именно из накопленного, а не из текущего
+ * баланса: иначе покупка апгрейда или взнос в клан понижали бы ранг, и игрок
+ * мог бы потерять доступ к кланам, пожертвовав в общак. Поэтому изменение порогов здесь мгновенно
  * пересчитывает ранги всем игрокам, без миграций и фоновых задач.
  */
 
@@ -20,7 +22,7 @@ export interface RankDefinition {
   code: string;
   /** Как называется ранг в интерфейсе. */
   title: string;
-  /** Минимальный баланс DONC для этого ранга. */
+  /** Сколько DONC нужно заработать за всё время для этого ранга. */
   minBalance: bigint;
   /** Что открывает ранг (показывается в интерфейсе). */
   unlocks?: string;
@@ -41,14 +43,14 @@ export const RANKS: readonly RankDefinition[] = [
     id: 'associate',
     code: 'ASSOCIATE',
     title: 'Приближённый',
-    minBalance: 200_000n,
+    minBalance: 25_000n,
     canJoinClan: false,
   },
   {
     id: 'soldier',
     code: 'SOLDIER',
     title: 'Солдат',
-    minBalance: 500_000n,
+    minBalance: 150_000n,
     unlocks: 'Можно вступать в кланы',
     canJoinClan: true,
   },
@@ -56,21 +58,21 @@ export const RANKS: readonly RankDefinition[] = [
     id: 'capo',
     code: 'CAPO',
     title: 'Капо',
-    minBalance: 5_000_000n,
+    minBalance: 3_000_000n,
     canJoinClan: true,
   },
   {
     id: 'consigliere',
     code: 'CONSIGLIERE',
     title: 'Консильери',
-    minBalance: 10_000_000n,
+    minBalance: 12_000_000n,
     canJoinClan: true,
   },
   {
     id: 'don',
     code: 'DON',
     title: 'Дон',
-    minBalance: 16_000_000n,
+    minBalance: 50_000_000n,
     canJoinClan: true,
   },
 ];

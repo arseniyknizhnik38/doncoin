@@ -17,6 +17,8 @@ export interface RankView {
 export interface GameState {
   /** BigInt с сервера приходит строкой. */
   balance: string;
+  /** Заработано за всё время — на этом строится ранг. */
+  totalEarned: string;
   energy: number;
   energyMax: number;
   energyPerSecond: number;
