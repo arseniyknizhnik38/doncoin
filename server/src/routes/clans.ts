@@ -77,6 +77,7 @@ async function describeMyClan(clanId: string | null, ownerId: string) {
     id: clan.id,
     name: clan.name,
     treasury: clan.treasury.toString(),
+    familyXp: clan.familyXp,
     memberCount: clan.members.length,
     isOwner: clan.owner.id === ownerId,
     owner: { firstName: clan.owner.firstName, username: clan.owner.username },

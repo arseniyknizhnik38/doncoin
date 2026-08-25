@@ -24,7 +24,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
 
   if (!data) {
     return (
-      <div className="flex w-full max-w-md flex-1 flex-col justify-center gap-3 py-6">
+      <div className="flex w-full flex-1 flex-col justify-center gap-3">
         {loading ? (
           <SkeletonList rows={4} />
         ) : (
@@ -48,16 +48,11 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
   };
 
   return (
-    <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-5 overflow-y-auto py-4 sm:py-6">
-      <header className="text-center">
-        <h2 className="text-2xl font-black tracking-[0.2em] text-don-gold uppercase">
-          Семья
-        </h2>
-        <p className="mt-2 text-xs tracking-wider text-neutral-500">
-          +{formatCoins(data.rewards.inviter)} тебе за каждого друга,{' '}
-          +{formatCoins(data.rewards.invitee)} ему на старте
-        </p>
-      </header>
+    <div className="flex w-full flex-col gap-4">
+      <p className="text-center text-xs tracking-wider text-neutral-500">
+        +{formatCoins(data.rewards.inviter)} тебе за каждого друга,{' '}
+        +{formatCoins(data.rewards.invitee)} ему на старте
+      </p>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3">

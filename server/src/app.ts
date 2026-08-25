@@ -10,6 +10,7 @@ import { authRouter } from './routes/auth.js';
 import { businessesRouter } from './routes/businesses.js';
 import { clansRouter } from './routes/clans.js';
 import { dailyRouter } from './routes/daily.js';
+import { favorsRouter } from './routes/favors.js';
 import { gameRouter } from './routes/game.js';
 import { leaderboardRouter } from './routes/leaderboard.js';
 import { referralsRouter } from './routes/referrals.js';
@@ -37,6 +38,7 @@ export function createApp() {
   app.use('/api/businesses', businessesRouter);
   app.use('/api/clans', clansRouter);
   app.use('/api/daily', dailyRouter);
+  app.use('/api/favors', favorsRouter);
   app.use('/api/leaderboard', leaderboardRouter);
   app.use('/api/tasks', tasksRouter);
 

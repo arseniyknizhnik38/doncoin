@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 import { useBusinesses } from './businesses/useBusinesses';
 import { ClanScreen } from './clans/ClanScreen';
 import { DealScreen } from './deal/DealScreen';
+import { FamilyScreen } from './family/FamilyScreen';
+import { useFavors } from './favors/useFavors';
 import { RewardsBar } from './rewards/RewardsBar';
 import { useDaily } from './rewards/useDaily';
 import { useClans } from './clans/useClans';
@@ -9,7 +11,6 @@ import { GameScreen } from './game/GameScreen';
 import { LeaderboardScreen } from './leaderboard/LeaderboardScreen';
 import { useLeaderboard } from './leaderboard/useLeaderboard';
 import { useGame } from './game/useGame';
-import { FriendsScreen } from './referrals/FriendsScreen';
 import { useReferrals } from './referrals/useReferrals';
 import { TasksPanel } from './tasks/TasksPanel';
 import { ErrorState } from './ui/States';
@@ -60,6 +61,7 @@ export default function App() {
   const upgrades = useUpgrades(sessionToken, refreshKeys.shop, game.applyServerState);
   const clans = useClans(sessionToken, refreshKeys.clan, game.applyServerState);
   const businesses = useBusinesses(sessionToken, refreshKeys.shop, game.applyServerState);
+  const favors = useFavors(sessionToken, refreshKeys.friends, game.applyServerState);
   const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
   const board = useLeaderboard(sessionToken, refreshKeys.top);
   const tasks = useTasks(sessionToken, game.applyServerState);
@@ -119,12 +121,7 @@ export default function App() {
           ) : tab === 'top' ? (
             <LeaderboardScreen board={board} />
           ) : (
-            <FriendsScreen
-              data={referrals.data}
-              loading={referrals.loading}
-              error={referrals.error}
-              onRetry={referrals.reload}
-            />
+            <FamilyScreen referrals={referrals} favors={favors} />
           )}
 
           <nav className="relative mb-3 flex w-full max-w-md shrink-0 gap-1 rounded-xl border border-don-blood/40 bg-don-ink/80 p-1.5">

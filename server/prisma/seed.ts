@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { BUSINESS_CATALOG } from '../src/config/businesses.js';
+import { FAVOR_CATALOG, weekNumber } from '../src/config/favors.js';
 import { prisma } from '../src/lib/prisma.js';
 
 /**
@@ -17,6 +18,22 @@ async function main() {
       create: { slug, ...data },
     });
   }
+
+  // Поручения заводим на текущую неделю. Ключ (неделя + канал) уникален,
+  // поэтому повторный запуск обновляет записи, а не плодит их.
+  const week = weekNumber(new Date());
+
+  for (const favor of FAVOR_CATALOG) {
+    await prisma.favor.upsert({
+      where: {
+        weekNumber_channelName: { weekNumber: week, channelName: favor.channelName },
+      },
+      update: { ...favor, active: true },
+      create: { ...favor, weekNumber: week, active: true },
+    });
+  }
+
+  console.log(`поручения: ${FAVOR_CATALOG.length} на неделю ${week}`);
 
   const total = await prisma.business.count();
   console.log(`каталог бизнесов: ${BUSINESS_CATALOG.length} записей обновлено, всего в базе ${total}`);

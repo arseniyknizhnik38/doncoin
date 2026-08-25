@@ -73,6 +73,9 @@ model User {
   dailyStreak Int       @default(0)
   lastDailyAt DateTime?
 
+  /// Выполненные еженедельные поручения.
+  favorCompletions FavorCompletion[]
+
   /// Бизнесы игрока и момент последнего начисления дохода с них.
   businesses          UserBusiness[]
   businessCollectedAt DateTime      @default(now())
@@ -91,6 +94,52 @@ model User {
 
   /// Лидерборд сортирует и считает позицию по этому полю.
   @@index([totalEarned])
+}
+
+/// Еженедельное рекламное поручение: подписаться на канал.
+model Favor {
+  id String @id @default(uuid())
+
+  /// Номер недели в формате ГОД*100 + номер недели по ISO (например 202635).
+  /// Так значения не повторяются из года в год.
+  weekNumber Int
+
+  title       String
+  channelName String
+  channelUrl  String
+  /// Технический ID канала в Telegram — понадобится для проверки подписки.
+  channelChatId String
+
+  rewardDonc     BigInt
+  familyXpReward Int
+
+  active Boolean @default(true)
+
+  completions FavorCompletion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Идемпотентность seed-скрипта: одно поручение на канал в неделю.
+  @@unique([weekNumber, channelName])
+  @@index([weekNumber, active])
+}
+
+/// Отметка о выполнении поручения игроком.
+model FavorCompletion {
+  id String @id @default(uuid())
+
+  userId  String
+  favorId String
+
+  completedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  favor Favor @relation(fields: [favorId], references: [id], onDelete: Cascade)
+
+  /// Одно выполнение на игрока — защита от повторного начисления.
+  @@unique([userId, favorId])
+  @@index([userId])
 }
 
 /// Каталог бизнесов — общий для всех, наполняется seed-скриптом.
@@ -144,6 +193,9 @@ model Clan {
 
   /// Общая казна, пополняется взносами участников.
   treasury BigInt @default(0)
+
+  /// Опыт семьи: копится за выполненные поручения (favors) участников.
+  familyXp Int @default(0)
 
   ownerId String @unique
   owner   User   @relation("ClanOwner", fields: [ownerId], references: [id], onDelete: Cascade)
