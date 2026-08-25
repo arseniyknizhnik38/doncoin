@@ -8,7 +8,11 @@ export interface LeaderboardApi {
   error: string | null;
 }
 
-export function useLeaderboard(token: string | null): LeaderboardApi {
+export function useLeaderboard(
+  token: string | null,
+  /** Меняется при открытии вкладки — заставляет перезапросить данные. */
+  refreshKey = 0,
+): LeaderboardApi {
   const [data, setData] = useState<LeaderboardData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +46,7 @@ export function useLeaderboard(token: string | null): LeaderboardApi {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, refreshKey]);
 
   return { data, loading, error };
 }

@@ -18,6 +18,8 @@ export interface UpgradesApi {
  */
 export function useUpgrades(
   token: string | null,
+  /** Меняется при открытии вкладки — заставляет перезапросить данные. */
+  refreshKey = 0,
   onStateChange: (state: GameState) => void,
 ): UpgradesApi {
   const [upgrades, setUpgrades] = useState<UpgradeView[] | null>(null);
@@ -59,7 +61,7 @@ export function useUpgrades(
       });
 
     return () => controller.abort();
-  }, [token]);
+  }, [token, refreshKey]);
 
   const buy = useCallback(
     (id: string) => {

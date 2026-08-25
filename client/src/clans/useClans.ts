@@ -15,6 +15,8 @@ export interface ClansApi {
 
 export function useClans(
   token: string | null,
+  /** Меняется при открытии вкладки — заставляет перезапросить данные. */
+  refreshKey = 0,
   onStateChange: (state: GameState) => void,
 ): ClansApi {
   const [data, setData] = useState<ClansData | null>(null);
@@ -57,7 +59,7 @@ export function useClans(
       });
 
     return () => controller.abort();
-  }, [token, reloadToken]);
+  }, [token, reloadToken, refreshKey]);
 
   /** Общая обёртка для действий: они все возвращают новое состояние клана. */
   const act = useCallback(

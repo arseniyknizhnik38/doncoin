@@ -19,6 +19,9 @@ const FLUSH_INTERVAL_MS = 700;
 /** Должно совпадать с MAX_TAPS_PER_REQUEST на сервере. */
 const MAX_TAPS_PER_REQUEST = 50;
 
+/** Потолок очереди: если сервер долго недоступен, она не растёт бесконечно. */
+const MAX_PENDING_TAPS = 500;
+
 export interface GameApi {
   state: GameState | null;
   /** Тап засчитывается локально сразу, на сервер уходит пачкой. */
@@ -130,7 +133,17 @@ export function useGame(
       const payload = await response.json().catch(() => null);
 
       if (!response.ok) {
-        // 401 — истёк сессионный токен: молча перевходим, тапы не теряем.
+        // 401 (сессия) и 429 (лимит частоты) означают, что запрос даже не
+        // дошёл до начисления — эти тапы можно вернуть в очередь без риска
+        // задвоить. Для остальных ошибок исход неизвестен, и повтор мог бы
+        // начислить дважды, поэтому их не возвращаем.
+        if (response.status === 401 || response.status === 429) {
+          pendingTaps.current = Math.min(
+            MAX_PENDING_TAPS,
+            pendingTaps.current + taps,
+          );
+        }
+
         if (response.status === 401) {
           onSessionExpired?.();
         }
@@ -143,8 +156,8 @@ export function useGame(
       applyServerState(payload.state as GameState);
       setError(null);
     } catch (cause) {
-      // Тапы, которые не долетели, не возвращаем в очередь: сервер всё равно
-      // пересчитает состояние следующим успешным запросом.
+      // Сетевую ошибку не переигрываем: запрос мог дойти до сервера, и повтор
+      // списал бы энергию дважды. Состояние выправит следующий успешный ответ.
       setError(cause instanceof Error ? cause.message : 'Ошибка сети');
     } finally {
       inFlight.current = false;

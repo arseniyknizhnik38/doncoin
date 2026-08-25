@@ -45,7 +45,11 @@ export function ShopScreen({
       ) : (
         upgrades.map((upgrade) => {
           const isMax = upgrade.price === null;
-          const disabled = isMax || !upgrade.affordable || buying !== null;
+          // Считаем от текущего баланса: флаг с сервера — снимок на момент
+          // загрузки каталога, и после пары минут игры он врёт.
+          const affordable =
+            !isMax && Number(state.balance) >= Number(upgrade.price ?? 0);
+          const disabled = isMax || !affordable || buying !== null;
 
           return (
             <div
@@ -80,7 +84,7 @@ export function ShopScreen({
                 className={`mt-3 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                   isMax
                     ? 'border border-don-gold/30 text-don-gold/60'
-                    : upgrade.affordable
+                    : affordable
                       ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft active:scale-95'
                       : 'border border-neutral-700 text-neutral-600'
                 }`}

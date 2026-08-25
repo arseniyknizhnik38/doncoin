@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ClanScreen } from './clans/ClanScreen';
 import { RewardsBar } from './rewards/RewardsBar';
 import { useDaily } from './rewards/useDaily';
@@ -25,6 +25,23 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function App() {
+  const [tab, setTab] = useState<Tab>('game');
+
+  // Данные вкладок обновляются при их открытии: каталог, кланы и топ иначе
+  // остаются такими, какими были на момент входа.
+  const [refreshKeys, setRefreshKeys] = useState<Record<Tab, number>>({
+    game: 0,
+    shop: 0,
+    clan: 0,
+    top: 0,
+    friends: 0,
+  });
+
+  const openTab = useCallback((id: Tab) => {
+    setTab(id);
+    setRefreshKeys((prev) => ({ ...prev, [id]: prev[id] + 1 }));
+  }, []);
+
   const { isTelegram, displayName } = useTelegram();
   const auth = useAuth();
   const game = useGame(
@@ -36,12 +53,10 @@ export default function App() {
   // в базе ещё нет, да и сессионного токена тоже.
   const sessionToken = auth.status === 'authorized' ? auth.sessionToken : null;
   const referrals = useReferrals(sessionToken);
-  const upgrades = useUpgrades(sessionToken, game.applyServerState);
-  const clans = useClans(sessionToken, game.applyServerState);
+  const upgrades = useUpgrades(sessionToken, refreshKeys.shop, game.applyServerState);
+  const clans = useClans(sessionToken, refreshKeys.clan, game.applyServerState);
   const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
-  const board = useLeaderboard(sessionToken);
-  const [tab, setTab] = useState<Tab>('game');
-
+  const board = useLeaderboard(sessionToken, refreshKeys.top);
   const ready = isTelegram && auth.status === 'authorized' && game.state;
 
   return (
@@ -92,7 +107,7 @@ export default function App() {
               <button
                 key={item.id}
                 type="button"
-                onClick={() => setTab(item.id)}
+                onClick={() => openTab(item.id)}
                 className={`flex-1 rounded-lg px-1.5 py-2.5 text-[11px] font-semibold tracking-wide transition-colors sm:text-sm ${
                   tab === item.id
                     ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
