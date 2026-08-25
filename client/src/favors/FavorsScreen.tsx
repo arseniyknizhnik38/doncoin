@@ -14,7 +14,7 @@ const openChannel = (url: string) => {
 };
 
 export function FavorsScreen({ api }: { api: FavorsApi }) {
-  const { data, loading, checking, error } = api;
+  const { data, loading, checking, error, failed } = api;
 
   if (!data) {
     return loading ? (
@@ -72,6 +72,12 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
                 </span>
               )}
             </p>
+
+            {!favor.completed && failed?.id === favor.id && (
+              <p className="mt-2 text-xs tracking-wider text-don-blood-light">
+                {failed.message}
+              </p>
+            )}
 
             {!favor.completed && (
               <div className="mt-3 flex gap-2">

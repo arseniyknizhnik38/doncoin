@@ -33,7 +33,21 @@ async function main() {
     });
   }
 
-  console.log(`поручения: ${FAVOR_CATALOG.length} на неделю ${week}`);
+  // Убранные из каталога поручения гасим, а не удаляем: у игроков могли
+  // остаться отметки о выполнении, и внешний ключ на них не пустит DELETE.
+  const retired = await prisma.favor.updateMany({
+    where: {
+      weekNumber: week,
+      active: true,
+      channelName: { notIn: FAVOR_CATALOG.map((favor) => favor.channelName) },
+    },
+    data: { active: false },
+  });
+
+  console.log(
+    `поручения: ${FAVOR_CATALOG.length} активных на неделю ${week}` +
+      (retired.count > 0 ? `, отключено лишних: ${retired.count}` : ''),
+  );
 
   const total = await prisma.business.count();
   console.log(`каталог бизнесов: ${BUSINESS_CATALOG.length} записей обновлено, всего в базе ${total}`);

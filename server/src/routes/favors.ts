@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from 'express';
 import { weekNumber } from '../config/favors.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
+import { SubscriptionCheckError, checkSubscription } from '../lib/telegramApi.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
 
@@ -64,11 +65,10 @@ favorsRouter.get('/', async (_req: Request, res: Response) => {
 });
 
 /**
- * POST /api/favors/:id/complete — отметить поручение выполненным.
+ * POST /api/favors/:id/complete — проверить подписку и выдать награду.
  *
- * Проверки подписки на канал здесь пока нет — она появится отдельным шагом.
- * Сейчас единственная защита от повторной награды — уникальность
- * (userId, favorId) в FavorCompletion.
+ * Подписка проверяется на сервере через getChatMember: клиент не может
+ * ни подтвердить её за себя, ни обойти запросом напрямую в API.
  */
 favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
   const rawId = req.params.id;
@@ -96,6 +96,46 @@ favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
     res.status(409).json({
       error: 'Поручение прошлой недели',
       code: 'FAVOR_EXPIRED',
+    });
+    return;
+  }
+
+  // Проверяем подписку до любых начислений.
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+
+  if (!botToken) {
+    res.status(503).json({
+      error: 'Проверка подписки недоступна',
+      code: 'CHECK_UNAVAILABLE',
+    });
+    return;
+  }
+
+  let subscribed: boolean;
+
+  try {
+    subscribed = await checkSubscription(favor.channelChatId, user.telegramId, botToken);
+  } catch (error) {
+    if (error instanceof SubscriptionCheckError) {
+      // Детали — в лог владельцу: чаще всего это «бот не админ канала».
+      console.warn(
+        `[favors] проверка подписки не прошла (${favor.channelName}): ${error.code} — ${error.detail ?? ''}`,
+      );
+
+      res.status(503).json({
+        error: 'Не получилось проверить подписку, попробуйте позже',
+        code: 'CHECK_UNAVAILABLE',
+      });
+      return;
+    }
+
+    throw error;
+  }
+
+  if (!subscribed) {
+    res.status(409).json({
+      error: 'Подпишитесь на канал и нажмите «Проверить» ещё раз',
+      code: 'NOT_SUBSCRIBED',
     });
     return;
   }

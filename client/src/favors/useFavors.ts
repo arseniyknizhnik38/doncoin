@@ -10,6 +10,8 @@ export interface FavorsApi {
   error: string | null;
   /** id поручения, за которое только что дали награду. */
   justRewarded: string | null;
+  /** Поручение, по которому проверка не прошла, и что показать игроку. */
+  failed: { id: string; message: string } | null;
   check: (id: string) => void;
   reload: () => void;
 }
@@ -24,6 +26,7 @@ export function useFavors(
   const [checking, setChecking] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [justRewarded, setJustRewarded] = useState<string | null>(null);
+  const [failed, setFailed] = useState<{ id: string; message: string } | null>(null);
   const [retry, setRetry] = useState(0);
 
   const reload = useCallback(() => setRetry((value) => value + 1), []);
@@ -66,6 +69,7 @@ export function useFavors(
       }
 
       setChecking(id);
+      setFailed(null);
 
       apiFetch<{ state: GameState }>(`/api/favors/${id}/complete`, token, {
         method: 'POST',
@@ -79,12 +83,17 @@ export function useFavors(
           window.setTimeout(() => setJustRewarded(null), 3000);
         })
         .catch((cause: unknown) => {
-          setError(cause instanceof Error ? cause.message : 'Ошибка сети');
+          // Показываем прямо на карточке: игроку важно знать, какое поручение
+          // не зачлось и что с этим делать.
+          setFailed({
+            id,
+            message: cause instanceof Error ? cause.message : 'Ошибка сети',
+          });
         })
         .finally(() => setChecking(null));
     },
     [token, checking, onStateChange],
   );
 
-  return { data, loading, checking, error, justRewarded, check, reload };
+  return { data, loading, checking, error, justRewarded, failed, check, reload };
 }
