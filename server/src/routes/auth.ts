@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import { isAdmin } from '../config/admin.js';
 import { DAILY_STREAK_CAP, computeOfflineEarnings, dailyStatus } from '../config/rewards.js';
 import { collectBusinessIncome } from '../lib/businesses.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
@@ -90,6 +91,7 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
     isNew,
     // Дальнейшие запросы идут с этим токеном, а не с initData.
     session: { token: session.token, expiresAt: session.expiresAt },
+    isAdmin: isAdmin(user.telegramId),
     user: {
       id: user.id,
       telegramId: user.telegramId,

@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react';
+import { AdminPanel } from './admin/AdminPanel';
+import { useAdminStats } from './admin/useAdminStats';
 import { useBusinesses } from './businesses/useBusinesses';
 import { ClanScreen } from './clans/ClanScreen';
 import { DealScreen } from './deal/DealScreen';
@@ -66,6 +68,8 @@ export default function App() {
   const board = useLeaderboard(sessionToken, refreshKeys.top);
   const tasks = useTasks(sessionToken, game.applyServerState);
   const [tasksOpen, setTasksOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
+  const stats = useAdminStats(sessionToken, statsOpen);
   const ready = isTelegram && auth.status === 'authorized' && game.state;
 
   // Технические сообщения вроде «Ошибка 500» игроку бесполезны — подменяем
@@ -143,6 +147,18 @@ export default function App() {
           {tasksOpen && (
             <TasksPanel tasks={tasks} onClose={() => setTasksOpen(false)} />
           )}
+
+          {auth.isAdmin && !statsOpen && (
+            <button
+              type="button"
+              onClick={() => setStatsOpen(true)}
+              className="absolute top-2 right-4 rounded-lg border border-don-blood/40 px-2 py-1 text-[10px] tracking-wider text-neutral-500"
+            >
+              Сводка
+            </button>
+          )}
+
+          {statsOpen && <AdminPanel api={stats} onClose={() => setStatsOpen(false)} />}
         </>
       ) : (
         <div className="relative flex flex-1 flex-col items-center justify-center">

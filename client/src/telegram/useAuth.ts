@@ -31,6 +31,8 @@ export interface AuthState {
   offline: OfflineEarnings | null;
   /** Состояние ежедневного бонуса на момент входа. */
   daily: DailyStatus | null;
+  /** Показывать ли раздел со сводкой. */
+  isAdmin: boolean;
   /** Войти заново — например, когда сессия истекла. */
   reauth: () => void;
 }
@@ -53,6 +55,7 @@ export function useAuth(): AuthState {
     sessionToken: null,
     offline: null,
     daily: null,
+    isAdmin: false,
   });
   const [attempt, setAttempt] = useState(0);
 
@@ -94,6 +97,7 @@ export function useAuth(): AuthState {
           offline:
             offline && Number(offline.earned) > 0 ? offline : prev.offline,
           daily: (payload.daily ?? null) as DailyStatus | null,
+          isAdmin: Boolean(payload.isAdmin),
         }));
       })
       .catch((error: unknown) => {
@@ -109,6 +113,7 @@ export function useAuth(): AuthState {
           sessionToken: null,
           offline: null,
           daily: null,
+          isAdmin: false,
         });
       });
 

@@ -6,6 +6,7 @@ import express, {
 } from 'express';
 import { BusinessError } from './lib/businesses.js';
 import { ClanError } from './lib/clans.js';
+import { adminRouter } from './routes/admin.js';
 import { authRouter } from './routes/auth.js';
 import { businessesRouter } from './routes/businesses.js';
 import { clansRouter } from './routes/clans.js';
@@ -32,6 +33,7 @@ export function createApp() {
   });
 
   app.use('/api/auth', authRouter);
+  app.use('/api/admin', adminRouter);
   app.use('/api/game', gameRouter);
   app.use('/api/referrals', referralsRouter);
   app.use('/api/upgrades', upgradesRouter);
