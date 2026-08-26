@@ -19,14 +19,34 @@ interface TapCoinProps {
 /** Сколько персонаж «живёт» после последнего тапа, прежде чем замереть. */
 const MOTION_LINGER_MS = 600;
 
+/** Кадров в ленте и как быстро они сменяются. */
+const SPRITE_FRAMES = 8;
+const FRAME_MS = 90;
+
 export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) {
   const [floats, setFloats] = useState<FloatingNumber[]>([]);
   const [pressed, setPressed] = useState(false);
   const [moving, setMoving] = useState(false);
+  const [frame, setFrame] = useState(0);
   const nextId = useRef(0);
   const stopTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => () => window.clearTimeout(stopTimer.current), []);
+
+  // Пока идут тапы — крутим кадры; остановились — замираем на первом.
+  useEffect(() => {
+    if (!moving) {
+      setFrame(0);
+      return;
+    }
+
+    const timer = window.setInterval(
+      () => setFrame((value) => (value + 1) % SPRITE_FRAMES),
+      FRAME_MS,
+    );
+
+    return () => window.clearInterval(timer);
+  }, [moving]);
 
   const handleTap = useCallback(
     (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -84,8 +104,12 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
           <span className="pointer-events-none absolute inset-x-6 bottom-2 h-6 rounded-[50%] bg-don-gold/20 blur-xl" />
           <span className="don-frame relative block h-[min(16rem,36vh)] w-[min(16rem,36vh)]">
             <span
-              className={`don-strip block ${moving ? 'don-strip--active' : ''}`}
-              style={{ backgroundImage: 'url(/don-outsider.webp)' }}
+              className="don-strip block"
+              style={{
+                backgroundImage: 'url(/don-outsider.webp)',
+                // Сдвиг в процентах от ширины самой ленты: 1 кадр = 12.5%.
+                transform: `translateX(-${(frame * 100) / SPRITE_FRAMES}%)`,
+              }}
             />
           </span>
         </>

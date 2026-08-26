@@ -42,21 +42,11 @@ body {
 /*
  * Персонаж на ранге «Аутсайдер»: лента из 8 кадров.
  *
- * Сдвиг делаем через transform, а не background-position: проценты в
- * background-position считаются от разницы размеров картинки и элемента,
- * поэтому «шаг в один кадр» там получается не 100%, и лента уезжает за
- * границы. У transform процент считается от ширины самого элемента —
- * лента шириной 800% сдвигается ровно на кадр за каждые 12.5%.
+ * Кадр переключается из кода (см. TapCoin), а не CSS-анимацией со steps().
+ * Причина: на мобильных движках последний шаг такой анимации иногда
+ * отрисовывается уже конечным значением, и лента уезжает за границы —
+ * персонаж пропадает. Явный расчёт сдвига ведёт себя одинаково везде.
  */
-@keyframes don-strip-cycle {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-}
-
 .don-frame {
   overflow: hidden;
 }
@@ -66,10 +56,8 @@ body {
   height: 100%;
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  /* Пиксель-арт нельзя сглаживать при растягивании. */
+  /* Пиксель-арт нельзя сглаживать; второе правило — для Safari. */
+  image-rendering: -webkit-optimize-contrast;
   image-rendering: pixelated;
-}
-
-.don-strip--active {
-  animation: don-strip-cycle 0.72s steps(8) infinite;
+  will-change: transform;
 }
