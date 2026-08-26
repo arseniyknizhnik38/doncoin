@@ -116,3 +116,55 @@ export async function checkSubscription(
 
   return isSubscribedStatus(payload.result);
 }
+
+export type SendResult = 'sent' | 'blocked' | 'failed';
+
+/**
+ * Отправляет сообщение игроку.
+ *
+ * Отдельно распознаём «бот заблокирован» — такого адресата надо пометить и
+ * больше не трогать, иначе каждая рассылка будет тратить на него запрос.
+ */
+export async function sendMessage(
+  telegramUserId: string,
+  text: string,
+  botToken: string,
+  timeoutMs = 5_000,
+): Promise<SendResult> {
+  try {
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: telegramUserId,
+        text,
+        disable_notification: false,
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+
+    const payload = (await response.json()) as { ok: boolean; description?: string };
+
+    if (payload.ok) {
+      return 'sent';
+    }
+
+    const description = (payload.description ?? '').toLowerCase();
+
+    // Бот заблокирован, чат удалён или пользователь никогда не писал боту.
+    if (
+      description.includes('blocked') ||
+      description.includes('chat not found') ||
+      description.includes('user is deactivated') ||
+      description.includes("can't initiate conversation")
+    ) {
+      return 'blocked';
+    }
+
+    console.warn(`[notify] Telegram отказал: ${payload.description ?? 'без описания'}`);
+
+    return 'failed';
+  } catch {
+    return 'failed';
+  }
+}

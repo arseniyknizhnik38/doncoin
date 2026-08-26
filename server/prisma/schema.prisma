@@ -73,6 +73,12 @@ model User {
   dailyStreak Int       @default(0)
   lastDailyAt DateTime?
 
+  /// Уведомления от бота: игрок может их отключить, а бот — узнать, что
+  /// его заблокировали, и перестать писать.
+  notificationsEnabled Boolean   @default(true)
+  notificationsBlocked Boolean   @default(false)
+  lastNotifiedAt       DateTime?
+
   /// Выполненные еженедельные поручения.
   favorCompletions FavorCompletion[]
 

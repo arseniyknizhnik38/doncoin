@@ -1,0 +1,31 @@
+/**
+ * Правила рассылки. Вынесены отдельно, потому что здесь важен не код, а
+ * баланс между «напомнить» и «надоесть»: игру, которая пишет слишком часто,
+ * не выключают — её блокируют, и вернуть человека уже нельзя.
+ */
+
+/** Не пишем, пока игрок был в игре недавно. */
+export const IDLE_HOURS_BEFORE_NOTIFY = 6;
+
+/** Минимальный промежуток между двумя сообщениями одному игроку. */
+export const MIN_HOURS_BETWEEN_NOTIFICATIONS = 20;
+
+/** Сколько сообщений отправляем за один прогон. */
+export const BATCH_SIZE = 100;
+
+/** Пауза между отправками — Bot API не любит залпы. */
+export const SEND_DELAY_MS = 60;
+
+/**
+ * Тихие часы по московскому времени: ночью сообщение раздражает сильнее,
+ * чем помогает. Часовой пояс игрока Telegram не сообщает, поэтому берём
+ * основную аудиторию.
+ */
+export const QUIET_HOURS_MSK = { from: 22, to: 9 };
+
+export function isQuietTime(now: Date): boolean {
+  const mskHour = (now.getUTCHours() + 3) % 24;
+  const { from, to } = QUIET_HOURS_MSK;
+
+  return from > to ? mskHour >= from || mskHour < to : mskHour >= from && mskHour < to;
+}

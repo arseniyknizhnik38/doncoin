@@ -14,6 +14,8 @@ import { LeaderboardScreen } from './leaderboard/LeaderboardScreen';
 import { useLeaderboard } from './leaderboard/useLeaderboard';
 import { useGame } from './game/useGame';
 import { useReferrals } from './referrals/useReferrals';
+import { SettingsPanel } from './settings/SettingsPanel';
+import { useSettings } from './settings/useSettings';
 import { TasksPanel } from './tasks/TasksPanel';
 import { ErrorState } from './ui/States';
 import { useTasks } from './tasks/useTasks';
@@ -70,6 +72,8 @@ export default function App() {
   const [tasksOpen, setTasksOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const stats = useAdminStats(sessionToken, statsOpen);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const settings = useSettings(sessionToken, settingsOpen);
   const ready = isTelegram && auth.status === 'authorized' && game.state;
 
   // Технические сообщения вроде «Ошибка 500» игроку бесполезны — подменяем
@@ -146,6 +150,21 @@ export default function App() {
           </nav>
           {tasksOpen && (
             <TasksPanel tasks={tasks} onClose={() => setTasksOpen(false)} />
+          )}
+
+          {!settingsOpen && !statsOpen && (
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Настройки"
+              className="absolute top-2 left-4 rounded-lg border border-don-blood/40 px-2 py-1 text-[10px] tracking-wider text-neutral-500"
+            >
+              ⚙
+            </button>
+          )}
+
+          {settingsOpen && (
+            <SettingsPanel api={settings} onClose={() => setSettingsOpen(false)} />
           )}
 
           {auth.isAdmin && !statsOpen && (

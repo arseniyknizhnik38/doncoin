@@ -1,0 +1,29 @@
+# Напоминания игрокам.
+#
+# Vercel на бесплатном тарифе запускает расписание раз в сутки, а для
+# напоминаний это мало: энергия восстанавливается за часы. Поэтому основной
+# планировщик — здесь, а Vercel Cron оставлен как подстраховка.
+#
+# Нужен секрет репозитория CRON_SECRET с тем же значением, что в Vercel.
+
+name: notify
+
+on:
+  schedule:
+    # Каждые 3 часа. GitHub может задержать запуск на несколько минут —
+    # для напоминаний это несущественно.
+    - cron: '0 */3 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Запустить рассылку
+        run: |
+          code=$(curl -s -o /tmp/out.json -w "%{http_code}" -X POST \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            https://doncoin.vercel.app/api/cron/notify)
+          echo "HTTP $code"
+          cat /tmp/out.json
+          test "$code" = "200"
