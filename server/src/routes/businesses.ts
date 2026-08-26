@@ -1,6 +1,8 @@
 import { Router, type Request, type Response } from 'express';
+import { applyBonus } from '../config/perks.js';
 import {
   BusinessError,
+  businessBonusPercent,
   buyBusinessLevel,
   collectBusinessIncome,
   describeBusinesses,
@@ -36,7 +38,9 @@ businessesRouter.get('/', async (_req: Request, res: Response) => {
 
   const now = new Date();
   const rows = await loadBusinesses(user.id);
-  const perHour = totalIncomePerHour(rows);
+  // Показываем доход с учётом прибавок — иначе игрок видит одно число,
+  // а получает другое, и смысл «Деловой хватки» и уровня клана не виден.
+  const perHour = applyBonus(totalIncomePerHour(rows), await businessBonusPercent(user));
 
   res.json({
     businesses: describeBusinesses(rows, user.balance),
@@ -83,7 +87,10 @@ businessesRouter.post('/:id/buy', async (req: Request, res: Response) => {
     spent: cost.toString(),
     businesses: describeBusinesses(rows, fresh.balance),
     income: {
-      perHour: totalIncomePerHour(rows).toString(),
+      perHour: applyBonus(
+        totalIncomePerHour(rows),
+        await businessBonusPercent(fresh),
+      ).toString(),
       pending: '0',
     },
     state: toGameState({ ...fresh, energy }),

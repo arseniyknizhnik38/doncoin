@@ -7,7 +7,7 @@ import {
   SEND_DELAY_MS,
   isQuietTime,
 } from '../config/notifications.js';
-import { draftNotification } from '../lib/notifications.js';
+import { buildNotifyContext, draftNotification } from '../lib/notifications.js';
 import { prisma } from '../lib/prisma.js';
 import { sendMessage } from '../lib/telegramApi.js';
 
@@ -88,13 +88,16 @@ async function runNotify(_req: Request, res: Response) {
     take: BATCH_SIZE,
   });
 
+  // Всё общее — тремя запросами на весь пакет, а не по три на человека.
+  const context = await buildNotifyContext(candidates);
+
   let sent = 0;
   let blocked = 0;
   let failed = 0;
   let nothingToSay = 0;
 
   for (const user of candidates) {
-    const draft = await draftNotification(user, now);
+    const draft = draftNotification(user, now, context);
 
     if (!draft) {
       nothingToSay += 1;
