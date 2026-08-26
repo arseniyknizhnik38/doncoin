@@ -15,6 +15,7 @@ import { dailyRouter } from './routes/daily.js';
 import { favorsRouter } from './routes/favors.js';
 import { gameRouter } from './routes/game.js';
 import { leaderboardRouter } from './routes/leaderboard.js';
+import { perksRouter } from './routes/perks.js';
 import { referralsRouter } from './routes/referrals.js';
 import { settingsRouter } from './routes/settings.js';
 import { tasksRouter } from './routes/tasks.js';
@@ -39,6 +40,7 @@ export function createApp() {
   app.use('/api/game', gameRouter);
   app.use('/api/referrals', referralsRouter);
   app.use('/api/upgrades', upgradesRouter);
+  app.use('/api/perks', perksRouter);
   app.use('/api/businesses', businessesRouter);
   app.use('/api/clans', clansRouter);
   app.use('/api/cron', cronRouter);

@@ -101,6 +101,7 @@ export interface TapResult {
 
 interface TapRow {
   balance: bigint;
+  respectStreetLevel: number;
   totalEarned: bigint;
   energy: number;
   energyMax: number;
@@ -155,8 +156,13 @@ export async function applyTaps(
     UPDATE "User" u
     SET
       energy = c.regen_energy - c.accepted,
-      balance = u.balance + c.accepted::bigint * u."coinsPerTap",
-      "totalEarned" = u."totalEarned" + c.accepted::bigint * u."coinsPerTap",
+      -- Прибавка за «Славу на улице»: 5% за уровень. Целочисленное деление
+      -- округляет вниз — игрок не получит долей монеты, но и не потеряет
+      -- заметного дохода.
+      balance = u.balance + c.accepted::bigint * u."coinsPerTap"
+        * (100 + u."respectStreetLevel" * 5) / 100,
+      "totalEarned" = u."totalEarned" + c.accepted::bigint * u."coinsPerTap"
+        * (100 + u."respectStreetLevel" * 5) / 100,
       -- Respect: одна единица за каждые TAPS_PER_RESPECT тапов,
       -- незавершённый остаток переносится в respectProgress.
       respect = u.respect + c.respect_pool / ${TAPS_PER_RESPECT}::int,
@@ -171,6 +177,7 @@ export async function applyTaps(
     WHERE u.id = c.id
     RETURNING
       u.balance,
+      u."respectStreetLevel" AS "respectStreetLevel",
       u."totalEarned" AS "totalEarned",
       u.energy,
       u."energyMax" AS "energyMax",
@@ -193,9 +200,11 @@ export async function applyTaps(
   const balance = BigInt(row.balance);
   const totalEarned = BigInt(row.totalEarned);
 
+  const tapBonus = Number(row.respectStreetLevel) * 5;
+
   return {
     accepted,
-    awarded: accepted * Number(row.coinsPerTap),
+    awarded: Math.floor((accepted * Number(row.coinsPerTap) * (100 + tapBonus)) / 100),
     respectAwarded: Number(row.respectAwarded),
     state: {
       balance: balance.toString(),

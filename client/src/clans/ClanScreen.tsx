@@ -66,6 +66,19 @@ export function ClanScreen({ clans }: ClanScreenProps) {
               {formatCoins(my.treasury)}
             </p>
 
+            <p className="mt-2 text-xs text-neutral-400">
+              Уровень семьи{' '}
+              <span className="text-don-gold-soft">{my.level ?? 0}</span> — каждому
+              участнику{' '}
+              <span className="text-don-gold-soft">+{my.bonusPercent ?? 0}%</span> к
+              пассивному доходу
+            </p>
+            {my.familyXp > 0 && (
+              <p className="mt-1 text-[11px] text-neutral-500">
+                Опыт за поручения: {formatCoins(my.familyXp)} — он тоже идёт в силу семьи
+              </p>
+            )}
+
             <div className="mt-4 flex gap-2">
               <input
                 inputMode="numeric"

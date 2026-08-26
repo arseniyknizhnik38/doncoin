@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import { clanBonusPercent, clanLevel, clanPower } from '../config/perks.js';
 import { clanRank, resolveRank } from '../config/ranks.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import {
@@ -78,6 +79,9 @@ async function describeMyClan(clanId: string | null, ownerId: string) {
     name: clan.name,
     treasury: clan.treasury.toString(),
     familyXp: clan.familyXp,
+    level: clanLevel(clan),
+    power: clanPower(clan).toString(),
+    bonusPercent: clanBonusPercent(clan),
     memberCount: clan.members.length,
     isOwner: clan.owner.id === ownerId,
     owner: { firstName: clan.owner.firstName, username: clan.owner.username },

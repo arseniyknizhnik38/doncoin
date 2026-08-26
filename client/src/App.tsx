@@ -14,6 +14,7 @@ import { LeaderboardScreen } from './leaderboard/LeaderboardScreen';
 import { useLeaderboard } from './leaderboard/useLeaderboard';
 import { useGame } from './game/useGame';
 import { useReferrals } from './referrals/useReferrals';
+import { usePerks } from './perks/usePerks';
 import { SettingsPanel } from './settings/SettingsPanel';
 import { useSettings } from './settings/useSettings';
 import { TasksPanel } from './tasks/TasksPanel';
@@ -65,6 +66,7 @@ export default function App() {
   const upgrades = useUpgrades(sessionToken, refreshKeys.shop, game.applyServerState);
   const clans = useClans(sessionToken, refreshKeys.clan, game.applyServerState);
   const businesses = useBusinesses(sessionToken, refreshKeys.shop, game.applyServerState);
+  const perks = usePerks(sessionToken, refreshKeys.shop, game.applyServerState);
   const favors = useFavors(sessionToken, refreshKeys.friends, game.applyServerState);
   const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
   const board = useLeaderboard(sessionToken, refreshKeys.top);
@@ -122,6 +124,7 @@ export default function App() {
             <DealScreen
               upgrades={upgrades}
               businesses={businesses}
+              perks={perks}
               state={game.state}
             />
           ) : tab === 'clan' ? (

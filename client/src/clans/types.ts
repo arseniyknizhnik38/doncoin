@@ -11,6 +11,10 @@ export interface MyClan {
   id: string;
   name: string;
   treasury: string;
+  familyXp: number;
+  level: number;
+  power: string;
+  bonusPercent: number;
   memberCount: number;
   isOwner: boolean;
   owner: { firstName: string | null; username: string | null };

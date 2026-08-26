@@ -1,7 +1,9 @@
 import { Router, type Request, type Response } from 'express';
 import { isAdmin } from '../config/admin.js';
 import { DAILY_STREAK_CAP, computeOfflineEarnings, dailyStatus } from '../config/rewards.js';
+import { clanBonusPercent } from '../config/perks.js';
 import { collectBusinessIncome } from '../lib/businesses.js';
+import { prisma as db } from '../lib/prisma.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
 import { createSessionToken } from '../lib/session.js';
@@ -52,9 +54,18 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
   // Пока игрока не было, «семья работала». Начисляем сразу при входе, а не
   // по кнопке: одна запись в базу вместо двух, и деньги нельзя потерять,
   // закрыв приложение до нажатия.
+  // Прибавка к пассивному доходу: свой перк «Связи в семье» плюс клан.
+  const clan = stored.clanId
+    ? await db.clan.findUnique({
+        where: { id: stored.clanId },
+        select: { treasury: true, familyXp: true },
+      })
+    : null;
+  const offlineBonus = stored.respectFamilyLevel * 5 + clanBonusPercent(clan);
+
   const offline = isNew
     ? { earned: 0n, hours: 0, capped: false }
-    : computeOfflineEarnings(stored, now);
+    : computeOfflineEarnings(stored, now, offlineBonus);
 
   const user =
     offline.earned > 0n

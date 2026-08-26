@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { BusinessList } from '../businesses/BusinessList';
 import type { BusinessesApi } from '../businesses/useBusinesses';
 import type { GameState } from '../game/types';
+import { PerkList } from '../perks/PerkList';
+import type { PerksApi } from '../perks/usePerks';
 import { UpgradeList } from '../upgrades/UpgradeList';
 import type { UpgradesApi } from '../upgrades/useUpgrades';
 
-type Mode = 'upgrades' | 'businesses';
+type Mode = 'upgrades' | 'businesses' | 'perks';
 
 interface DealScreenProps {
   upgrades: UpgradesApi;
   businesses: BusinessesApi;
+  perks: PerksApi;
   state: GameState;
 }
 
@@ -19,7 +22,7 @@ const formatCoins = (value: string | number) => Number(value).toLocaleString('ru
  * Вкладка «Дело»: личная прокачка и бизнесы под одним переключателем.
  * Отдельная вкладка для бизнесов не влезала — их и так пять.
  */
-export function DealScreen({ upgrades, businesses, state }: DealScreenProps) {
+export function DealScreen({ upgrades, businesses, perks, state }: DealScreenProps) {
   const [mode, setMode] = useState<Mode>('upgrades');
 
   return (
@@ -41,13 +44,14 @@ export function DealScreen({ upgrades, businesses, state }: DealScreenProps) {
           [
             ['upgrades', 'Прокачка'],
             ['businesses', 'Бизнесы'],
+            ['perks', 'Влияние'],
           ] as [Mode, string][]
         ).map(([id, label]) => (
           <button
             key={id}
             type="button"
             onClick={() => setMode(id)}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-lg px-2 py-2 text-xs font-semibold transition-colors sm:text-sm ${
               mode === id
                 ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
                 : 'text-neutral-500'
@@ -60,8 +64,10 @@ export function DealScreen({ upgrades, businesses, state }: DealScreenProps) {
 
       {mode === 'upgrades' ? (
         <UpgradeList api={upgrades} state={state} />
-      ) : (
+      ) : mode === 'businesses' ? (
         <BusinessList api={businesses} state={state} />
+      ) : (
+        <PerkList api={perks} />
       )}
     </div>
   );

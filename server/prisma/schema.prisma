@@ -54,6 +54,14 @@ model User {
   respect Int @default(0)
   /// Тапы, накопленные в счёт следующей единицы Respect (остаток от деления).
   respectProgress Int @default(0)
+  /// Потрачено Respect за всё время — сам respect тратами не уменьшается,
+  /// иначе он перестал бы отражать вложенный труд.
+  respectSpent Int @default(0)
+
+  /// Уровни, купленные за Respect. Дают постоянные прибавки к доходу.
+  respectStreetLevel   Int @default(0)
+  respectBusinessLevel Int @default(0)
+  respectFamilyLevel   Int @default(0)
 
   /// Купленные уровни улучшений. Рабочие значения выше выводятся из них
   /// формулами из server/src/lib/upgrades.ts.

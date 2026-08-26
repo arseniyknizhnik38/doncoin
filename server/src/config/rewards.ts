@@ -1,4 +1,5 @@
 import type { User } from '../generated/prisma/client.js';
+import { applyBonus } from './perks.js';
 
 /**
  * Награды за возвращение в игру. Вынесены отдельно, чтобы баланс правился
@@ -41,12 +42,18 @@ export interface OfflineEarnings {
 export function computeOfflineEarnings(
   user: Pick<User, 'coinsPerTap' | 'energyPerSecond' | 'lastSeenAt'>,
   now: Date,
+  /** Прибавка в процентах: «Связи в семье» плюс уровень клана. */
+  bonusPercent = 0,
 ): OfflineEarnings {
   const elapsedHours = Math.max(0, (now.getTime() - user.lastSeenAt.getTime()) / 3_600_000);
   const hours = Math.min(elapsedHours, OFFLINE_MAX_HOURS);
-  const earned = BigInt(Math.floor(Number(offlinePerHour(user)) * hours));
+  const base = BigInt(Math.floor(Number(offlinePerHour(user)) * hours));
 
-  return { earned, hours, capped: elapsedHours > OFFLINE_MAX_HOURS };
+  return {
+    earned: applyBonus(base, bonusPercent),
+    hours,
+    capped: elapsedHours > OFFLINE_MAX_HOURS,
+  };
 }
 
 /** Награда за N-й день серии — привязана к текущей силе игрока. */

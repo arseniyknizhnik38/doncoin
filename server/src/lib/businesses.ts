@@ -1,4 +1,5 @@
 import { levelCost, levelIncome } from '../config/businesses.js';
+import { applyBonus, clanBonusPercent } from '../config/perks.js';
 import type { Business, User } from '../generated/prisma/client.js';
 import { prisma } from './prisma.js';
 
@@ -64,6 +65,18 @@ export function pendingBusinessIncome(
   return BigInt(Math.floor(Number(perHour) * hours));
 }
 
+/** Суммарная прибавка к доходу бизнесов: свой перк плюс уровень клана. */
+export async function businessBonusPercent(user: User): Promise<number> {
+  const clan = user.clanId
+    ? await prisma.clan.findUnique({
+        where: { id: user.clanId },
+        select: { treasury: true, familyXp: true },
+      })
+    : null;
+
+  return user.respectBusinessLevel * 5 + clanBonusPercent(clan);
+}
+
 export interface BusinessCollection {
   earned: bigint;
   perHour: bigint;
@@ -78,7 +91,9 @@ export async function collectBusinessIncome(
   now: Date,
 ): Promise<BusinessCollection> {
   const rows = await loadBusinesses(user.id);
-  const perHour = totalIncomePerHour(rows);
+  // «Деловая хватка» и уровень клана увеличивают доход бизнесов.
+  const bonus = await businessBonusPercent(user);
+  const perHour = applyBonus(totalIncomePerHour(rows), bonus);
   const earned = pendingBusinessIncome(user.businessCollectedAt, perHour, now);
 
   if (earned > 0n) {
