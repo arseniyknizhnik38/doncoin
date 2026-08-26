@@ -38,3 +38,29 @@ body {
 @theme {
   --animate-float-up: float-up 0.8s ease-out forwards;
 }
+
+/*
+ * Персонаж на ранге «Аутсайдер»: 8 кадров в одной ленте.
+ * Анимация включается только пока игрок тапает — в покое персонаж замирает
+ * на первом кадре.
+ */
+@keyframes don-sprite-cycle {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: -800%;
+  }
+}
+
+.don-sprite {
+  background-size: 800% 100%;
+  background-repeat: no-repeat;
+  background-position-x: 0;
+  /* Пиксель-арт нельзя сглаживать при растягивании. */
+  image-rendering: pixelated;
+}
+
+.don-sprite--active {
+  animation: don-sprite-cycle 0.72s steps(8) infinite;
+}

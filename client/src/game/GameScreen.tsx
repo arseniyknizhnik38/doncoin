@@ -67,7 +67,12 @@ export function GameScreen({ displayName, state, error, onTap, rewards }: GameSc
 
       {rewards}
 
-      <TapCoin coinsPerTap={state.coinsPerTap} disabled={empty} onTap={onTap} />
+      <TapCoin
+        coinsPerTap={state.coinsPerTap}
+        disabled={empty}
+        rankId={state.rank.id}
+        onTap={onTap}
+      />
 
       <footer className="flex w-full flex-col gap-2 px-2">
         <div className="flex items-center justify-between text-xs tracking-wider text-neutral-400">

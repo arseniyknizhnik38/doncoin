@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { hapticFeedback } from '@telegram-apps/sdk-react';
 
 interface FloatingNumber {
@@ -11,13 +11,22 @@ interface FloatingNumber {
 interface TapCoinProps {
   coinsPerTap: number;
   disabled: boolean;
+  /** На ранге «Аутсайдер» вместо монеты — персонаж. */
+  rankId: string;
   onTap: () => boolean;
 }
 
-export function TapCoin({ coinsPerTap, disabled, onTap }: TapCoinProps) {
+/** Сколько персонаж «живёт» после последнего тапа, прежде чем замереть. */
+const MOTION_LINGER_MS = 600;
+
+export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) {
   const [floats, setFloats] = useState<FloatingNumber[]>([]);
   const [pressed, setPressed] = useState(false);
+  const [moving, setMoving] = useState(false);
   const nextId = useRef(0);
+  const stopTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(stopTimer.current), []);
 
   const handleTap = useCallback(
     (event: React.PointerEvent<HTMLButtonElement>) => {
@@ -42,6 +51,13 @@ export function TapCoin({ coinsPerTap, disabled, onTap }: TapCoinProps) {
 
       setPressed(true);
       window.setTimeout(() => setPressed(false), 90);
+
+      // Пока тапают — персонаж двигается; через паузу после последнего тапа
+      // анимация выключается, и он просто стоит.
+      setMoving(true);
+      window.clearTimeout(stopTimer.current);
+      stopTimer.current = window.setTimeout(() => setMoving(false), MOTION_LINGER_MS);
+
       window.setTimeout(
         () => setFloats((prev) => prev.filter((item) => item.id !== id)),
         800,
@@ -50,25 +66,42 @@ export function TapCoin({ coinsPerTap, disabled, onTap }: TapCoinProps) {
     [coinsPerTap, onTap],
   );
 
+  const isOutsider = rankId === 'outsider';
+
   return (
     <button
       type="button"
       onPointerDown={handleTap}
       disabled={disabled}
-      aria-label="Тапнуть монету"
-      className={`relative touch-manipulation select-none rounded-full transition-transform duration-75 ${
-        pressed ? 'scale-95' : 'scale-100'
-      } ${disabled ? 'opacity-40' : ''}`}
+      aria-label="Тапнуть"
+      className={`relative touch-manipulation select-none transition-transform duration-75 ${
+        isOutsider ? '' : 'rounded-full'
+      } ${pressed ? 'scale-95' : 'scale-100'} ${disabled ? 'opacity-40' : ''}`}
     >
-      <span className="pointer-events-none absolute inset-0 rounded-full bg-don-gold/25 blur-2xl" />
+      {isOutsider ? (
+        <>
+          {/* Мягкое свечение под ногами, чтобы фигура не висела в пустоте */}
+          <span className="pointer-events-none absolute inset-x-6 bottom-2 h-6 rounded-[50%] bg-don-gold/20 blur-xl" />
+          <span
+            className={`don-sprite relative block h-[min(16rem,36vh)] w-[min(16rem,36vh)] ${
+              moving ? 'don-sprite--active' : ''
+            }`}
+            style={{ backgroundImage: 'url(/don-outsider.webp)' }}
+          />
+        </>
+      ) : (
+        <>
+          <span className="pointer-events-none absolute inset-0 rounded-full bg-don-gold/25 blur-2xl" />
 
-      <span className="relative flex h-[min(14rem,32vh)] w-[min(14rem,32vh)] items-center justify-center rounded-full border-4 border-don-gold/70 bg-gradient-to-br from-don-gold-soft via-don-gold to-[#8a5f12] shadow-[0_10px_40px_rgba(232,180,72,0.35)] sm:h-64 sm:w-64">
-        <span className="flex h-[85%] w-[85%] items-center justify-center rounded-full border-2 border-[#8a5f12]/50 bg-gradient-to-br from-[#f7e2ab] to-[#c9922c]">
-          <span className="text-[min(3.75rem,9vh)] leading-none font-black tracking-tight text-[#5a3a08] drop-shadow-sm sm:text-7xl">
-            D
+          <span className="relative flex h-[min(14rem,32vh)] w-[min(14rem,32vh)] items-center justify-center rounded-full border-4 border-don-gold/70 bg-gradient-to-br from-don-gold-soft via-don-gold to-[#8a5f12] shadow-[0_10px_40px_rgba(232,180,72,0.35)] sm:h-64 sm:w-64">
+            <span className="flex h-[85%] w-[85%] items-center justify-center rounded-full border-2 border-[#8a5f12]/50 bg-gradient-to-br from-[#f7e2ab] to-[#c9922c]">
+              <span className="text-[min(3.75rem,9vh)] leading-none font-black tracking-tight text-[#5a3a08] drop-shadow-sm sm:text-7xl">
+                D
+              </span>
+            </span>
           </span>
-        </span>
-      </span>
+        </>
+      )}
 
       {floats.map((item) => (
         <span
