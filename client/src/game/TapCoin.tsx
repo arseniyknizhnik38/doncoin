@@ -82,12 +82,12 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
         <>
           {/* Мягкое свечение под ногами, чтобы фигура не висела в пустоте */}
           <span className="pointer-events-none absolute inset-x-6 bottom-2 h-6 rounded-[50%] bg-don-gold/20 blur-xl" />
-          <span
-            className={`don-sprite relative block h-[min(16rem,36vh)] w-[min(16rem,36vh)] ${
-              moving ? 'don-sprite--active' : ''
-            }`}
-            style={{ backgroundImage: 'url(/don-outsider.webp)' }}
-          />
+          <span className="don-frame relative block h-[min(16rem,36vh)] w-[min(16rem,36vh)]">
+            <span
+              className={`don-strip block ${moving ? 'don-strip--active' : ''}`}
+              style={{ backgroundImage: 'url(/don-outsider.webp)' }}
+            />
+          </span>
         </>
       ) : (
         <>

@@ -40,27 +40,36 @@ body {
 }
 
 /*
- * Персонаж на ранге «Аутсайдер»: 8 кадров в одной ленте.
- * Анимация включается только пока игрок тапает — в покое персонаж замирает
- * на первом кадре.
+ * Персонаж на ранге «Аутсайдер»: лента из 8 кадров.
+ *
+ * Сдвиг делаем через transform, а не background-position: проценты в
+ * background-position считаются от разницы размеров картинки и элемента,
+ * поэтому «шаг в один кадр» там получается не 100%, и лента уезжает за
+ * границы. У transform процент считается от ширины самого элемента —
+ * лента шириной 800% сдвигается ровно на кадр за каждые 12.5%.
  */
-@keyframes don-sprite-cycle {
+@keyframes don-strip-cycle {
   from {
-    background-position-x: 0;
+    transform: translateX(0);
   }
   to {
-    background-position-x: -800%;
+    transform: translateX(-100%);
   }
 }
 
-.don-sprite {
-  background-size: 800% 100%;
+.don-frame {
+  overflow: hidden;
+}
+
+.don-strip {
+  width: 800%;
+  height: 100%;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
-  background-position-x: 0;
   /* Пиксель-арт нельзя сглаживать при растягивании. */
   image-rendering: pixelated;
 }
 
-.don-sprite--active {
-  animation: don-sprite-cycle 0.72s steps(8) infinite;
+.don-strip--active {
+  animation: don-strip-cycle 0.72s steps(8) infinite;
 }
