@@ -15,6 +15,7 @@ import {
   freezeWarEntries,
   hasActiveWar,
   settleDueWars,
+  startWarsForWeek,
 } from '../lib/wars.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
@@ -100,10 +101,18 @@ async function describeMyClan(clanId: string | null, ownerId: string) {
 clansRouter.get('/', async (_req: Request, res: Response) => {
   const user = await loadUser(res);
 
-  // Планировщик на бесплатном тарифе ходит раз в сутки, поэтому итоги войны
-  // подводятся ещё и здесь — игрок не должен видеть войну, срок которой вышел.
+  // Планировщик на бесплатном тарифе ходит раз в сутки и может не сработать
+  // вовсе, поэтому война умеет жить и без него: здесь закрываются войны с
+  // вышедшим сроком, а если у клана войны нет — составляются пары. Обе
+  // операции идемпотентны, а когда война уже идёт, вторая даже не вызывается.
   if (user.clanId) {
-    await settleDueWars(new Date(), user.clanId);
+    const now = new Date();
+
+    await settleDueWars(now, user.clanId);
+
+    if (!(await hasActiveWar(user.clanId))) {
+      await startWarsForWeek(now);
+    }
   }
 
   const clans = await prisma.clan.findMany({
