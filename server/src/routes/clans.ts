@@ -9,6 +9,13 @@ import {
   normalizeClanName,
   parseDonation,
 } from '../lib/clans.js';
+import {
+  describeWar,
+  enlistInActiveWar,
+  freezeWarEntries,
+  hasActiveWar,
+  settleDueWars,
+} from '../lib/wars.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
@@ -93,6 +100,12 @@ async function describeMyClan(clanId: string | null, ownerId: string) {
 clansRouter.get('/', async (_req: Request, res: Response) => {
   const user = await loadUser(res);
 
+  // Планировщик на бесплатном тарифе ходит раз в сутки, поэтому итоги войны
+  // подводятся ещё и здесь — игрок не должен видеть войну, срок которой вышел.
+  if (user.clanId) {
+    await settleDueWars(new Date(), user.clanId);
+  }
+
   const clans = await prisma.clan.findMany({
     orderBy: [{ treasury: 'desc' }, { createdAt: 'asc' }],
     take: CLAN_LIST_LIMIT,
@@ -114,6 +127,7 @@ clansRouter.get('/', async (_req: Request, res: Response) => {
       minBalance: required.minBalance.toString(),
     },
     myClan: await describeMyClan(user.clanId, user.id),
+    war: user.clanId ? await describeWar(user.clanId, user.id) : null,
     clans: clans.map((clan) => ({
       id: clan.id,
       name: clan.name,
@@ -193,6 +207,9 @@ clansRouter.post('/:id/join', async (req: Request, res: Response) => {
     data: { clanId: clan.id, clanJoinedAt: new Date(), clanContributed: 0n },
   });
 
+  // Пришедшего в середине войны сразу зачисляем в состав — со слепком «с нуля».
+  await enlistInActiveWar(clan.id, user.id, user.totalEarned);
+
   res.json({ myClan: await describeMyClan(clan.id, user.id) });
 });
 
@@ -210,6 +227,13 @@ clansRouter.post('/leave', async (_req: Request, res: Response) => {
   });
 
   if (clan.ownerId === user.id) {
+    if (await hasActiveWar(clan.id)) {
+      throw new ClanError(
+        'WAR_IN_PROGRESS',
+        'Нельзя распустить семью, пока идёт война',
+      );
+    }
+
     if (clan._count.members > 1) {
       throw new ClanError(
         'OWNER_MUST_DISBAND',
@@ -222,6 +246,10 @@ clansRouter.post('/leave', async (_req: Request, res: Response) => {
     res.json({ myClan: null, disbanded: true });
     return;
   }
+
+  // Вклад в идущую войну остаётся клану: иначе выход в последний день
+  // обнулял бы счёт соклановцам.
+  await freezeWarEntries(prisma, user.id);
 
   await prisma.user.update({
     where: { id: user.id },

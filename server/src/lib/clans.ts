@@ -17,7 +17,8 @@ export type ClanErrorCode =
   | 'NAME_TAKEN'
   | 'OWNER_MUST_DISBAND'
   | 'BAD_AMOUNT'
-  | 'NOT_ENOUGH_COINS';
+  | 'NOT_ENOUGH_COINS'
+  | 'WAR_IN_PROGRESS';
 
 export class ClanError extends Error {
   constructor(

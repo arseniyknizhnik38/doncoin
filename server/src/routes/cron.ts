@@ -10,6 +10,7 @@ import {
 import { buildNotifyContext, draftNotification } from '../lib/notifications.js';
 import { prisma } from '../lib/prisma.js';
 import { sendMessage } from '../lib/telegramApi.js';
+import { settleDueWars, startWarsForWeek } from '../lib/wars.js';
 
 export const cronRouter = Router();
 
@@ -134,3 +135,29 @@ async function runNotify(_req: Request, res: Response) {
 
 cronRouter.get('/notify', runNotify);
 cronRouter.post('/notify', runNotify);
+
+/**
+ * POST /api/cron/wars — подвести итоги закончившихся войн и составить пары
+ * на новую неделю.
+ *
+ * Обе операции идемпотентны: закрытие войны «захватывает» её условным
+ * UPDATE, а составление пар пропускает кланы, уже расписанные на эту неделю.
+ * Поэтому лишний запуск ничего не ломает, а пропущенный — навёрстывается.
+ */
+async function runWars(_req: Request, res: Response) {
+  const now = new Date();
+
+  const settled = await settleDueWars(now);
+  const started = await startWarsForWeek(now);
+
+  console.log(
+    `[wars] закрыто ${settled}, создано пар ${started.created}` +
+      (started.skipped ? ` (пропуск: ${started.skipped})` : '') +
+      (started.byeClan ? `, без пары: ${started.byeClan}` : ''),
+  );
+
+  res.json({ settled, ...started });
+}
+
+cronRouter.get('/wars', runWars);
+cronRouter.post('/wars', runWars);

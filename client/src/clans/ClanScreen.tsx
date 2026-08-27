@@ -1,4 +1,5 @@
 import { ErrorState, SkeletonList } from '../ui/States';
+import { ClanWarPanel } from './ClanWarPanel';
 import { useState } from 'react';
 import type { ClansApi } from './useClans';
 
@@ -51,6 +52,8 @@ export function ClanScreen({ clans }: ClanScreenProps) {
 
       {my ? (
         <>
+          {data.war && <ClanWarPanel war={data.war} />}
+
           <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left">
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="truncate text-lg font-bold text-don-gold-soft">{my.name}</h3>

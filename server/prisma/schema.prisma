@@ -103,6 +103,9 @@ model User {
   /// Клан, которым игрок владеет (у клана ровно один владелец).
   ownedClan Clan? @relation("ClanOwner")
 
+  /// Участие в клановых войнах.
+  warEntries ClanWarEntry[]
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -216,8 +219,83 @@ model Clan {
 
   members User[] @relation("ClanMembers")
 
+  /// Войны семьи: пара составляется раз в неделю, стороны A и B равноправны.
+  warsAsA ClanWar[] @relation("WarsAsA")
+  warsAsB ClanWar[] @relation("WarsAsB")
+  warsWon ClanWar[] @relation("WarsWon")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([treasury])
+}
+
+/// Клановая война: две семьи меряются заработком за неделю.
+///
+/// Счёт НЕ пишется при каждом тапе — на старте войны снимается слепок
+/// totalEarned каждого участника, а текущий счёт выводится вычитанием.
+/// Так война ничего не стоит на горячем пути и не может разойтись с балансом.
+model ClanWar {
+  id String @id @default(uuid())
+
+  /// Номер недели в формате ГОД*100 + номер по ISO — тот же, что у поручений.
+  weekNumber Int
+
+  clanAId String
+  clanA   Clan   @relation("WarsAsA", fields: [clanAId], references: [id], onDelete: Cascade)
+  clanBId String
+  clanB   Clan   @relation("WarsAsB", fields: [clanBId], references: [id], onDelete: Cascade)
+
+  startedAt DateTime @default(now())
+  endsAt    DateTime
+
+  /// active — идёт, finished — подведены итоги.
+  status String @default("active")
+
+  /// Итоговый счёт, заполняется при закрытии.
+  scoreA BigInt @default(0)
+  scoreB BigInt @default(0)
+
+  winnerId String?
+  winner   Clan?   @relation("WarsWon", fields: [winnerId], references: [id], onDelete: SetNull)
+
+  /// Сколько монет ушло из казны проигравшего победителю.
+  potPaid    BigInt    @default(0)
+  finishedAt DateTime?
+
+  entries ClanWarEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Один клан — одна война в неделю, с любой стороны пары.
+  @@unique([weekNumber, clanAId])
+  @@unique([weekNumber, clanBId])
+  @@index([status, endsAt])
+}
+
+/// Участие игрока в войне и его слепок заработка.
+model ClanWarEntry {
+  id String @id @default(uuid())
+
+  warId String
+  war   ClanWar @relation(fields: [warId], references: [id], onDelete: Cascade)
+
+  /// За какой клан игрок воюет — фиксируется, чтобы переход не переносил вклад.
+  clanId String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// totalEarned на момент вступления в войну.
+  startTotal BigInt
+
+  /// Замороженный вклад: проставляется при выходе из клана и при закрытии
+  /// войны. Пока null — вклад считается на лету от текущего totalEarned.
+  frozenEarned BigInt?
+
+  createdAt DateTime @default(now())
+
+  @@unique([warId, userId])
+  @@index([warId, clanId])
 }
