@@ -1,7 +1,35 @@
 @import 'tailwindcss';
 
+/*
+ * Основной шрифт — Chalet New York 1980.
+ *
+ * В файле только латиница, цифры и пунктуация: кириллических глифов в нём
+ * нет вообще. Поэтому шрифт ограничен латинским диапазоном, а русский текст
+ * браузер сам берёт из следующего шрифта в списке (--font-sans ниже).
+ * Так заголовки, суммы и DONCOIN получают нужный характер, а интерфейс
+ * остаётся читаемым.
+ */
+@font-face {
+  font-family: 'Chalet NY';
+  src: url('/fonts/chalet-ny-1980.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  /* Текст виден сразу системным шрифтом и подменяется, когда файл доедет. */
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2074, U+20AC,
+    U+2122, U+2212;
+}
+
 /* Палитра DONCOIN: тёмная база, бордовые и золотые акценты. */
 @theme {
+  /* Chalet первым, кириллица падает на системный шрифт платформы. */
+  --font-sans:
+    'Chalet NY', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  /* Отдельная переменная: именно её Tailwind ставит на html. */
+  --default-font-family: var(--font-sans);
+
   --color-don-black: #0a0a0a;
   --color-don-ink: #141110;
   --color-don-blood: #7b1e2b;
