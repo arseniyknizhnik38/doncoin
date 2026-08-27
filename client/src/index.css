@@ -1,32 +1,43 @@
 @import 'tailwindcss';
 
 /*
- * Основной шрифт — Chalet New York 1980.
+ * Основной шрифт — Rubik.
  *
- * В файле только латиница, цифры и пунктуация: кириллических глифов в нём
- * нет вообще. Поэтому шрифт ограничен латинским диапазоном, а русский текст
- * браузер сам берёт из следующего шрифта в списке (--font-sans ниже).
- * Так заголовки, суммы и DONCOIN получают нужный характер, а интерфейс
- * остаётся читаемым.
+ * Пришёл на замену Chalet New York 1980: тот файл браузеры не принимают
+ * вовсе (санитайзер Chrome отвергает его CFF-таблицу), да и кириллицы в нём
+ * нет ни одной буквы. Rubik подобран как ближайший по метрикам из тех, что
+ * подходят по характеру: та же высота прописных, схожие пропорции округлых
+ * букв, геометричный рисунок.
+ *
+ * Файлы лежат у нас, а не тянутся с fonts.googleapis.com: внутри Telegram
+ * лишний домен — это ещё одно разрешение имени и рукопожатие TLS до того,
+ * как игрок увидит текст. Начертания вариативные, поэтому весь диапазон
+ * от 300 до 900 умещается в один файл на алфавит.
  */
 @font-face {
-  font-family: 'Chalet NY';
-  src: url('/fonts/chalet-ny-1980.otf') format('opentype');
-  font-weight: 400;
+  font-family: "Rubik";
+  src: url("/fonts/rubik-latin.woff2") format("woff2");
+  font-weight: 300 900;
   font-style: normal;
-  /* Текст виден сразу системным шрифтом и подменяется, когда файл доедет. */
   font-display: swap;
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2074, U+20AC,
     U+2122, U+2212;
 }
 
+@font-face {
+  font-family: "Rubik";
+  src: url("/fonts/rubik-cyrillic.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
 /* Палитра DONCOIN: тёмная база, бордовые и золотые акценты. */
 @theme {
-  /* Chalet первым, кириллица падает на системный шрифт платформы. */
-  --font-sans:
-    'Chalet NY', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  --font-sans: "Rubik", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   /* Отдельная переменная: именно её Tailwind ставит на html. */
   --default-font-family: var(--font-sans);
 
