@@ -8,6 +8,22 @@ export interface AdminStats {
     returnedNextDay: number;
     eligibleForReturn: number;
   };
+  /** Удержание N-го дня по когортам. */
+  retention: {
+    day: number;
+    eligible: number;
+    returned: number;
+    /** null — считать ещё не на ком. */
+    percent: number | null;
+  }[];
+  /** Приток и активность по дням за две недели. */
+  days: {
+    day: number;
+    /** Сколько дней назад: 0 — сегодня. */
+    ago: number;
+    newPlayers: number;
+    activePlayers: number;
+  }[];
   funnel: {
     boughtUpgrade: number;
     boughtBusiness: number;

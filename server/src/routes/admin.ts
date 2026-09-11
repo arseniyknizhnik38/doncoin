@@ -3,6 +3,7 @@ import { AD_STATUS_TITLES, adStatus, isChatId, isTelegramUrl } from '../config/a
 import { isAdmin } from '../config/admin.js';
 import { isValidCipher, normalizeCipher } from '../config/cipher.js';
 import { utcDayNumber } from '../config/rewards.js';
+import { dailyCounts, retention } from '../lib/analytics.js';
 import { setCipher } from '../lib/cipher.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
@@ -28,6 +29,7 @@ const hoursAgo = (hours: number) => new Date(Date.now() - hours * 3_600_000);
 
 /** GET /api/admin/stats — сводка по игрокам, воронке и экономике. */
 adminRouter.get('/stats', async (_req: Request, res: Response) => {
+  const now = new Date();
   const day = hoursAgo(24);
   const week = hoursAgo(24 * 7);
 
@@ -98,6 +100,10 @@ adminRouter.get('/stats', async (_req: Request, res: Response) => {
       returnedNextDay: returned,
       eligibleForReturn: olderThanDay,
     },
+    // Удержание по когортам: заходил ли игрок именно на N-й день после
+    // регистрации. Это и есть ответ на вопрос, жива ли игра.
+    retention: await retention(now),
+    days: await dailyCounts(now),
     funnel: {
       boughtUpgrade: withUpgrade,
       boughtBusiness: withBusiness.length,

@@ -124,6 +124,9 @@ model User {
   questDays     DailyQuestDay[]
   cipherSolves  CipherSolve[]
 
+  /// Дни, когда игрок заходил — по ним считается удержание.
+  activeDays    DailyActive[]
+
   /// Уведомления от бота: игрок может их отключить, а бот — узнать, что
   /// его заблокировали, и перестать писать.
   notificationsEnabled Boolean   @default(true)
@@ -437,4 +440,25 @@ model CipherSolve {
   solvedAt DateTime @default(now())
 
   @@unique([userId, cipherId])
+}
+
+/// Отметка «игрок заходил в этот день».
+///
+/// Нужна для удержания: по одному полю lastSeenAt нельзя узнать, заходил ли
+/// человек на третий день после регистрации, — оно хранит только последний
+/// раз. А удержание второго и седьмого дня это и есть главный вопрос к
+/// игре такого жанра.
+///
+/// Запись идёт не чаще раза в сутки на игрока: при входе сравнивается день
+/// прошлого визита с сегодняшним, и если он тот же, в базу никто не ходит.
+model DailyActive {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Номер суток UTC — тот же, что у ежедневного бонуса и заданий.
+  dayNumber Int
+
+  @@unique([userId, dayNumber])
+  @@index([dayNumber])
 }

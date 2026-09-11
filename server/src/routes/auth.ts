@@ -6,6 +6,7 @@ import { PERK_BONUS_PER_LEVEL, clanBonusPercent } from '../config/perks.js';
 import { collectBusinessIncome } from '../lib/businesses.js';
 import { prisma as db } from '../lib/prisma.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
+import { recordActiveDay } from '../lib/activity.js';
 import { prisma } from '../lib/prisma.js';
 import { createSessionToken } from '../lib/session.js';
 import { InitDataError, validateInitData } from '../lib/telegram.js';
@@ -51,6 +52,10 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
 
   const { user: stored, isNew } = await upsertUserFromTelegram(parsed);
   const now = new Date();
+
+  // Отмечаем посещение до того, как обновится lastSeenAt: после обновления
+  // «день прошлого визита» уже не узнать, а на нём вся проверка и держится.
+  await recordActiveDay(stored.id, stored.lastSeenAt, now, isNew);
 
   // Пока игрока не было, «семья работала». Начисляем сразу при входе, а не
   // по кнопке: одна запись в базу вместо двух, и деньги нельзя потерять,

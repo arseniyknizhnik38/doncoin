@@ -304,6 +304,21 @@ const stats = await call('/api/admin/stats', { token });
 check('сводка владельцу отдаётся', stats.status === 200);
 check('игроков двое', stats.payload?.players?.total === 2, `${stats.payload?.players?.total}`);
 
+// ——— Удержание и приток
+check('удержание считается по четырём дням', stats.payload?.retention?.length === 4,
+  `${stats.payload?.retention?.length}`);
+check(
+  'удержание честно молчит, пока не на ком считать',
+  stats.payload?.retention?.every((point) => point.eligible === 0 && point.percent === null),
+  JSON.stringify(stats.payload?.retention),
+);
+check('приток за две недели', stats.payload?.days?.length === 14,
+  `${stats.payload?.days?.length}`);
+
+const today = stats.payload?.days?.find((entry) => entry.ago === 0);
+check('сегодняшние новички посчитаны', today?.newPlayers === 2, `${today?.newPlayers}`);
+check('сегодняшние заходы посчитаны', today?.activePlayers === 2, `${today?.activePlayers}`);
+
 // ——— Лидерборд и кланы
 const board = await call('/api/leaderboard', { token });
 check('лидерборд отвечает', board.status === 200, `статус ${board.status}`);

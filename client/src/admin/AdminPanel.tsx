@@ -7,6 +7,19 @@ import type { AdminStatsApi } from './useAdminStats';
 
 const formatNumber = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
+/** «сегодня», «вчера», «5 дней назад» — по смещению в сутках. */
+const dayLabel = (ago: number) => {
+  if (ago === 0) {
+    return 'сегодня';
+  }
+
+  if (ago === 1) {
+    return 'вчера';
+  }
+
+  return `${ago} дн. назад`;
+};
+
 const percent = (part: number, whole: number) =>
   whole > 0 ? `${Math.round((part / whole) * 100)}%` : '—';
 
@@ -112,6 +125,37 @@ export function AdminPanel({
                 value={formatNumber(stats.funnel.completedFavor)}
                 hint={percent(stats.funnel.completedFavor, stats.players.total)}
               />
+            </Section>
+
+            {/* Удержание стоит выше экономики: деньги в игре, из которой
+                уходят на второй день, ничего не значат. */}
+            <Section title="Удержание">
+              {stats.retention.map((point) => (
+                <Row
+                  key={point.day}
+                  label={`День ${point.day}`}
+                  value={point.percent === null ? '—' : `${point.percent}%`}
+                  hint={
+                    point.percent === null
+                      ? 'ещё не на ком считать'
+                      : `${formatNumber(point.returned)} из ${formatNumber(point.eligible)}`
+                  }
+                />
+              ))}
+            </Section>
+
+            <Section title="По дням">
+              {stats.days
+                .slice()
+                .reverse()
+                .map((entry) => (
+                  <Row
+                    key={entry.day}
+                    label={dayLabel(entry.ago)}
+                    value={formatNumber(entry.activePlayers)}
+                    hint={entry.newPlayers > 0 ? `новых ${entry.newPlayers}` : undefined}
+                  />
+                ))}
             </Section>
 
             <Section title="Экономика">
