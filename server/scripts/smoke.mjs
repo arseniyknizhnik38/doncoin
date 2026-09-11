@@ -329,8 +329,59 @@ check(
 const afterInvite = await call('/api/referrals', { token });
 check('приглашение засчитано пригласившему', afterInvite.payload?.invitedCount === 1,
   `${afterInvite.payload?.invitedCount}`);
-check('награда за друга начислена', Number(afterInvite.payload?.earned) === 25_000,
-  afterInvite.payload?.earned);
+check(
+  'за неигравшего друга не платят',
+  Number(afterInvite.payload?.earned) === 0 && afterInvite.payload?.confirmedCount === 0,
+  `заработано ${afterInvite.payload?.earned}, засчитано ${afterInvite.payload?.confirmedCount}`,
+);
+check('порог зачёта объявлен', afterInvite.payload?.qualifyTaps > 0,
+  `${afterInvite.payload?.qualifyTaps}`);
+
+// ——— Друг доигрывает до порога: без этого награда чеканилась бы скриптом.
+const inviteeToken = invitedBy.payload?.session?.token;
+const qualifyTaps = afterInvite.payload?.qualifyTaps ?? 2_000;
+let tapped = 0;
+
+while (tapped < qualifyTaps) {
+  const batch = await call('/api/game/tap', {
+    token: inviteeToken,
+    method: 'POST',
+    body: { taps: 50 },
+  });
+
+  const accepted = batch.payload?.accepted ?? 0;
+  tapped += accepted;
+
+  // Обойма кончилась — тратим бесплатный заряд. Их три, этого хватает
+  // ровно на порог: четыре обоймы по 600 тапов.
+  if (accepted < 50) {
+    const refill = await call('/api/boosters/full_energy/use', {
+      token: inviteeToken,
+      method: 'POST',
+    });
+
+    if (refill.status !== 200) {
+      break;
+    }
+  }
+
+  // Ограничитель пропускает четыре запроса в секунду.
+  await wait(260);
+}
+
+check('друг натапал порог', tapped >= qualifyTaps, `${tapped} из ${qualifyTaps}`);
+
+const afterQualify = await call('/api/referrals', { token });
+check('награда за друга пришла после порога',
+  Number(afterQualify.payload?.earned) === 25_000, afterQualify.payload?.earned);
+check('друг отмечен засчитанным', afterQualify.payload?.confirmedCount === 1,
+  `${afterQualify.payload?.confirmedCount}`);
+
+// Ещё пачка тапов не должна принести пригласившему вторую награду.
+await call('/api/game/tap', { token: inviteeToken, method: 'POST', body: { taps: 10 } });
+const afterExtra = await call('/api/referrals', { token });
+check('дважды за одного друга не платят',
+  Number(afterExtra.payload?.earned) === 25_000, afterExtra.payload?.earned);
 
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);

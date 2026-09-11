@@ -6,6 +6,7 @@ import {
   toGameState,
 } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
+import { payReferralIfQualified } from '../lib/referrals.js';
 import { gameRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
 
@@ -57,5 +58,12 @@ gameRouter.post('/tap', async (req: Request, res: Response) => {
     return;
   }
 
-  res.json(result);
+  // Награда пригласившему выдаётся здесь, а не внутри тапа: начисление
+  // чужому игроку не должно висеть на горячем пути. Служебные поля наружу
+  // не отдаём — в них внутренние идентификаторы.
+  await payReferralIfQualified(result.referral);
+
+  const { referral: _referral, ...payload } = result;
+
+  res.json(payload);
 });

@@ -110,6 +110,17 @@ export function toGameState(user: {
 }
 
 export interface TapResult {
+  /**
+   * Данные для награды за друга. Выдаёт её вызывающий, а не сам тап:
+   * начисление чужому игроку не должно висеть на горячем пути.
+   */
+  referral: {
+    userId: string;
+    referredById: string | null;
+    rewarded: boolean;
+    /** Всего тапов за всё время. */
+    taps: number;
+  };
   state: GameState;
   /** Сколько тапов реально засчитано (могло упереться в энергию). */
   accepted: number;
@@ -122,6 +133,10 @@ interface TapRow {
   balance: bigint;
   respectStreetLevel: number;
   retirements: number;
+  /** Кем приглашён игрок и заплачено ли за него — для награды за друга. */
+  userId: string;
+  referredById: string | null;
+  referralRewarded: boolean;
   rushEndsAt: Date | null;
   totalEarned: bigint;
   energy: number;
@@ -213,6 +228,9 @@ export async function applyTaps(
       u."respectStreetLevel" AS "respectStreetLevel",
       u."retirements" AS "retirements",
       u."rushEndsAt" AS "rushEndsAt",
+      u.id AS "userId",
+      u."referredById" AS "referredById",
+      u."referralRewarded" AS "referralRewarded",
       u."totalEarned" AS "totalEarned",
       u.energy,
       u."energyMax" AS "energyMax",
@@ -242,6 +260,14 @@ export async function applyTaps(
   const rushActive = rushEndsAt !== null && rushEndsAt.getTime() > Date.now();
 
   return {
+    referral: {
+      userId: String(row.userId),
+      referredById: row.referredById === null ? null : String(row.referredById),
+      rewarded: Boolean(row.referralRewarded),
+      // Respect выдаётся ровно за каждые TAPS_PER_RESPECT тапов, остаток
+      // лежит в respectProgress — отдельного счётчика тапов в базе нет.
+      taps: Number(row.respect) * TAPS_PER_RESPECT + Number(row.respectProgress),
+    },
     accepted,
     awarded:
       Math.floor((accepted * Number(row.coinsPerTap) * (100 + tapBonus)) / 100) *

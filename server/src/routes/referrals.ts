@@ -1,6 +1,11 @@
 import { Router, type Request, type Response } from 'express';
 import { prisma } from '../lib/prisma.js';
-import { INVITEE_REWARD, INVITER_REWARD } from '../lib/referrals.js';
+import { TAPS_PER_RESPECT } from '../lib/game.js';
+import {
+  INVITEE_REWARD,
+  INVITER_REWARD,
+  REFERRAL_QUALIFY_TAPS,
+} from '../lib/referrals.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
 
@@ -27,6 +32,11 @@ referralsRouter.get('/', async (_req: Request, res: Response) => {
           firstName: true,
           username: true,
           createdAt: true,
+          // По этим полям видно, засчитан ли друг и сколько ему осталось
+          // доиграть до зачёта.
+          referralRewarded: true,
+          respect: true,
+          respectProgress: true,
         },
       },
     },
@@ -48,10 +58,22 @@ referralsRouter.get('/', async (_req: Request, res: Response) => {
       inviter: INVITER_REWARD.toString(),
       invitee: INVITEE_REWARD.toString(),
     },
-    invited: user.referrals.map((friend) => ({
-      firstName: friend.firstName,
-      username: friend.username,
-      joinedAt: friend.createdAt,
-    })),
+    /** Сколько тапов должен сделать друг, чтобы награда пришла. */
+    qualifyTaps: REFERRAL_QUALIFY_TAPS,
+    /** За скольких друзей деньги уже получены. */
+    confirmedCount: user.referrals.filter((friend) => friend.referralRewarded).length,
+    invited: user.referrals.map((friend) => {
+      const taps = friend.respect * TAPS_PER_RESPECT + friend.respectProgress;
+
+      return {
+        firstName: friend.firstName,
+        username: friend.username,
+        joinedAt: friend.createdAt,
+        confirmed: friend.referralRewarded,
+        // Показываем прогресс, а не голое «не засчитан»: так видно, что друга
+        // надо растормошить, а не что игра зажала награду.
+        taps: Math.min(taps, REFERRAL_QUALIFY_TAPS),
+      };
+    }),
   });
 });

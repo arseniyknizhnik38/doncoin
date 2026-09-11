@@ -11,10 +11,7 @@ interface FriendsScreenProps {
   onRetry: () => void;
 }
 
-const formatCoins = (value: string) => Number(value).toLocaleString('ru-RU');
-
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
 const friendName = (friend: { firstName: string | null; username: string | null }) =>
   friend.firstName ?? (friend.username ? `@${friend.username}` : 'Аноним');
@@ -54,12 +51,23 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
         +{formatCoins(data.rewards.invitee)} ему на старте
       </p>
 
+      {/* Условие проговариваем сразу. Иначе человек приводит друга, денег не
+          видит и считает, что игра его обманула. */}
+      <p className="-mt-2 text-center text-[11px] tracking-wider text-neutral-600">
+        Награда приходит, когда друг сделает {formatCoins(data.qualifyTaps)} тапов
+      </p>
+
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3">
           <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Приглашено</p>
           <p className="mt-1 text-2xl font-bold text-don-gold-soft tabular-nums">
             {data.invitedCount}
           </p>
+          {data.invitedCount > data.confirmedCount && (
+            <p className="text-[10px] tracking-wider text-neutral-600">
+              засчитано {data.confirmedCount}
+            </p>
+          )}
         </div>
         <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3">
           <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Заработано</p>
@@ -107,8 +115,16 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
               className="flex items-center justify-between rounded-lg border border-don-blood/30 bg-don-ink/60 px-4 py-2.5"
             >
               <span className="truncate text-sm text-neutral-200">{friendName(friend)}</span>
-              <span className="shrink-0 text-xs text-neutral-500">
-                {formatDate(friend.joinedAt)}
+              <span className="shrink-0 text-xs tabular-nums">
+                {friend.confirmed ? (
+                  <span className="text-don-gold-soft">
+                    +{formatCoins(data.rewards.inviter)}
+                  </span>
+                ) : (
+                  <span className="text-neutral-500">
+                    {formatCoins(friend.taps)} / {formatCoins(data.qualifyTaps)} тапов
+                  </span>
+                )}
               </span>
             </div>
           ))

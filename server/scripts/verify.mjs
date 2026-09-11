@@ -4,8 +4,8 @@
  *   npm run verify -w server
  *
  * Что делает: поднимает Postgres прямо в этом процессе, накатывает на него
- * миграции тем же `prisma migrate deploy`, что и Vercel, заливает каталог
- * сидом, запускает настоящий сервер и проходит по нему путь живого игрока.
+ * миграции, заливает каталог сидом, запускает настоящий сервер и проходит
+ * по нему путь живого игрока.
  *
  * Зачем: до этого проект ни разу не запускался целиком. Юнит-тесты
  * проверяют формулы, но не ловят ни ошибку в написанной руками миграции,
@@ -18,8 +18,10 @@
  * в зависимости проекта: на сборку сайта он не влияет, а весит немало.
  */
 import { spawn } from 'node:child_process';
+import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { applyMigrations, schemaDrift } from './lib/apply-migrations.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const serverDir = path.join(here, '..');
@@ -87,6 +89,39 @@ function run(label, command, args, { quiet = false } = {}) {
   });
 }
 
+/**
+ * Ждёт, пока порт базы начнёт принимать соединения.
+ *
+ * `socket.start()` возвращается раньше, чем слушатель реально готов, и
+ * миграции успевают уткнуться в «Can't reach database server».
+ */
+async function waitForPort(port, timeoutMs = 15_000) {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() < deadline) {
+    const reachable = await new Promise((resolve) => {
+      const socket = net.connect({ host: '127.0.0.1', port }, () => {
+        socket.end();
+        resolve(true);
+      });
+
+      socket.on('error', () => resolve(false));
+      setTimeout(() => {
+        socket.destroy();
+        resolve(false);
+      }, 500);
+    });
+
+    if (reachable) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  throw new Error(`база не открыла порт ${port}`);
+}
+
 /** Ждёт, пока сервер начнёт отвечать. */
 async function waitForHealth(timeoutMs = 30_000) {
   const deadline = Date.now() + timeoutMs;
@@ -111,6 +146,7 @@ async function waitForHealth(timeoutMs = 30_000) {
 const db = await PGlite.create();
 const socket = new PGLiteSocketServer({ db, port: DB_PORT, host: '127.0.0.1' });
 await socket.start();
+await waitForPort(DB_PORT);
 console.log(`[verify] Postgres в памяти на порту ${DB_PORT}`);
 
 let api;
@@ -118,9 +154,14 @@ let code = 1;
 
 try {
   console.log('[verify] миграции');
-  await run('migrate deploy', process.execPath,
-    [path.join(nodeModules, 'prisma', 'build', 'index.js'), 'migrate', 'deploy'],
-    { quiet: true });
+  const applied = await applyMigrations(db);
+  const { problems } = await schemaDrift(db);
+
+  if (problems.length > 0) {
+    throw new Error(`схема и миграции разошлись: ${problems[0]}`);
+  }
+
+  console.log(`[verify] применено миграций: ${applied}`);
 
   console.log('[verify] сид');
   await run('seed', process.execPath,

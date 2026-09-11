@@ -2,7 +2,6 @@ import type { User } from '../generated/prisma/client.js';
 import { prisma } from './prisma.js';
 import {
   INVITEE_REWARD,
-  INVITER_REWARD,
   generateReferralCode,
   normalizeReferralCode,
 } from './referrals.js';
@@ -99,37 +98,25 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
   // поэтому просто пробуем ещё раз с новым кодом.
   for (let attempt = 0; attempt < 5; attempt += 1) {
     try {
-      const [user] = await prisma.$transaction([
-        prisma.user.create({
-          data: {
-            telegramId: input.telegramId,
-            username: input.username,
-            firstName: input.firstName,
-            referralCode: generateReferralCode(),
-            referredByCode: input.startParam,
-            referredById: inviter?.id ?? null,
-            balance: inviter ? INVITEE_REWARD : 0n,
-            totalEarned: inviter ? INVITEE_REWARD : 0n,
-            lifetimeEarned: inviter ? INVITEE_REWARD : 0n,
-            // Стартовые значения берём из каталога улучшений: правка баланса
-            // не должна требовать миграции ради @default в схеме.
-            ...START_STATE,
-          },
-        }),
-        ...(inviter
-          ? [
-              prisma.user.update({
-                where: { id: inviter.id },
-                data: {
-                  balance: { increment: INVITER_REWARD },
-                  totalEarned: { increment: INVITER_REWARD },
-                  lifetimeEarned: { increment: INVITER_REWARD },
-                  referralEarned: { increment: INVITER_REWARD },
-                },
-              }),
-            ]
-          : []),
-      ]);
+      // Пригласившему здесь не платим. Награда ждёт, пока новичок докажет,
+      // что играет (REFERRAL_QUALIFY_TAPS тапов) — иначе монеты чеканятся
+      // скриптом: заведи аккаунт, открой приложение по чужой ссылке, повтори.
+      const user = await prisma.user.create({
+        data: {
+          telegramId: input.telegramId,
+          username: input.username,
+          firstName: input.firstName,
+          referralCode: generateReferralCode(),
+          referredByCode: input.startParam,
+          referredById: inviter?.id ?? null,
+          balance: inviter ? INVITEE_REWARD : 0n,
+          totalEarned: inviter ? INVITEE_REWARD : 0n,
+          lifetimeEarned: inviter ? INVITEE_REWARD : 0n,
+          // Стартовые значения берём из каталога улучшений: правка баланса
+          // не должна требовать миграции ради @default в схеме.
+          ...START_STATE,
+        },
+      });
 
       return { user, isNew: true };
     } catch (error) {
