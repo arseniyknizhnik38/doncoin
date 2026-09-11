@@ -9,6 +9,8 @@ export interface CipherState {
   hint: string | null;
   solved: boolean;
   rewardCoins: string;
+  /** Сколько попыток осталось сегодня — перебор кода ограничен. */
+  attemptsLeft: number;
 }
 
 export interface CipherApi {

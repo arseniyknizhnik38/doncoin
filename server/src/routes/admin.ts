@@ -121,6 +121,34 @@ adminRouter.get('/stats', async (_req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/admin/cipher — шифры на ближайшие две недели и на вчера.
+ *
+ * Вчерашний нужен, чтобы было видно, сколько человек его разгадало: это
+ * прямая мера того, доходит ли аудитория до канала.
+ */
+adminRouter.get('/cipher', async (_req: Request, res: Response) => {
+  const today = utcDayNumber(new Date());
+
+  const ciphers = await prisma.dailyCipher.findMany({
+    where: { dayNumber: { gte: today - 1, lte: today + 14 } },
+    orderBy: { dayNumber: 'asc' },
+    include: { _count: { select: { solves: true } } },
+  });
+
+  res.json({
+    today,
+    ciphers: ciphers.map((cipher) => ({
+      dayNumber: cipher.dayNumber,
+      /** Смещение в сутках от сегодняшних: 0 — сегодня, 1 — завтра. */
+      day: cipher.dayNumber - today,
+      code: cipher.code,
+      hint: cipher.hint,
+      solves: cipher._count.solves,
+    })),
+  });
+});
+
+/**
  * POST /api/admin/cipher — завести шифр дня.
  *
  * Тело: `{ "code": "ОМЕРТА", "hint": "Ищите в закрепе", "day": 0 }`,

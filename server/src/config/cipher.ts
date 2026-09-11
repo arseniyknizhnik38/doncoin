@@ -23,3 +23,25 @@ export function normalizeCipher(raw: string): string {
 export function isValidCipher(code: string): boolean {
   return /^[A-ZА-Я0-9]{3,32}$/.test(code);
 }
+
+/** Что нужно знать о попытках игрока: день и счётчик. */
+export interface CipherAttempts {
+  cipherDay: number;
+  cipherAttempts: number;
+}
+
+/**
+ * Сколько попыток игрок уже потратил сегодня.
+ *
+ * Счётчик не обнуляется фоновой задачей — он протухает вместе с cipherDay,
+ * тем же приёмом, что и заряды бустеров. Значит «вчерашние» попытки
+ * сегодня просто не считаются.
+ */
+export function attemptsUsed(user: CipherAttempts, today: number): number {
+  return user.cipherDay === today ? user.cipherAttempts : 0;
+}
+
+/** Сколько попыток осталось сегодня. */
+export function attemptsLeft(user: CipherAttempts, today: number): number {
+  return Math.max(0, CIPHER_ATTEMPTS_PER_DAY - attemptsUsed(user, today));
+}

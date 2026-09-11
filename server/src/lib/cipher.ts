@@ -1,9 +1,20 @@
-import { CIPHER_REWARD_HOURS, normalizeCipher } from '../config/cipher.js';
+import {
+  CIPHER_ATTEMPTS_PER_DAY,
+  CIPHER_REWARD_HOURS,
+  attemptsLeft,
+  attemptsUsed,
+  normalizeCipher,
+} from '../config/cipher.js';
 import { activeIncomePerHour, utcDayNumber } from '../config/rewards.js';
 import type { User } from '../generated/prisma/client.js';
 import { prisma } from './prisma.js';
 
-export type CipherErrorCode = 'NO_CIPHER' | 'WRONG_CODE' | 'ALREADY_SOLVED';
+export type CipherErrorCode =
+  | 'NO_CIPHER'
+  | 'WRONG_CODE'
+  | 'ALREADY_SOLVED'
+  | 'NO_ATTEMPTS'
+  | 'CONFLICT';
 
 export class CipherError extends Error {
   constructor(
@@ -24,6 +35,8 @@ export interface CipherState {
   solved: boolean;
   /** Что дадут за разгадку. */
   rewardCoins: string;
+  /** Сколько попыток осталось сегодня. */
+  attemptsLeft: number;
 }
 
 export function cipherReward(user: User): bigint {
@@ -31,12 +44,21 @@ export function cipherReward(user: User): bigint {
 }
 
 export async function cipherState(user: User, now: Date): Promise<CipherState> {
+  const today = utcDayNumber(now);
+  const left = attemptsLeft(user, today);
+
   const cipher = await prisma.dailyCipher.findUnique({
-    where: { dayNumber: utcDayNumber(now) },
+    where: { dayNumber: today },
   });
 
   if (!cipher) {
-    return { available: false, hint: null, solved: false, rewardCoins: '0' };
+    return {
+      available: false,
+      hint: null,
+      solved: false,
+      rewardCoins: '0',
+      attemptsLeft: left,
+    };
   }
 
   const solve = await prisma.cipherSolve.findUnique({
@@ -48,6 +70,7 @@ export async function cipherState(user: User, now: Date): Promise<CipherState> {
     hint: cipher.hint,
     solved: solve !== null,
     rewardCoins: cipherReward(user).toString(),
+    attemptsLeft: left,
   };
 }
 
@@ -63,16 +86,46 @@ export async function solveCipher(
   rawCode: string,
   now: Date,
 ): Promise<{ reward: bigint }> {
+  const today = utcDayNumber(now);
+
   const cipher = await prisma.dailyCipher.findUnique({
-    where: { dayNumber: utcDayNumber(now) },
+    where: { dayNumber: today },
   });
 
   if (!cipher) {
     throw new CipherError('NO_CIPHER', 'Сегодня шифра нет', 404);
   }
 
+  const used = attemptsUsed(user, today);
+
+  if (used >= CIPHER_ATTEMPTS_PER_DAY) {
+    throw new CipherError('NO_ATTEMPTS', 'Попытки на сегодня кончились');
+  }
+
+  // Попытка списывается ДО сравнения кода. Иначе перебор ничего не стоит:
+  // шестибуквенный код подбирается за вечер, и смысл шифра — привести
+  // человека в канал — пропадает.
+  //
+  // Условия в WHERE отсекают гонку: два одновременных запроса не спишут
+  // одну и ту же попытку дважды.
+  const consumed = await prisma.user.updateMany({
+    where: {
+      id: user.id,
+      cipherDay: user.cipherDay,
+      cipherAttempts: user.cipherAttempts,
+    },
+    data: { cipherDay: today, cipherAttempts: used + 1 },
+  });
+
+  if (consumed.count === 0) {
+    throw new CipherError('CONFLICT', 'Не получилось, попробуйте ещё раз');
+  }
+
   if (normalizeCipher(rawCode) !== cipher.code) {
-    throw new CipherError('WRONG_CODE', 'Код не подошёл');
+    throw new CipherError(
+      'WRONG_CODE',
+      `Код не подошёл. Осталось попыток: ${CIPHER_ATTEMPTS_PER_DAY - used - 1}`,
+    );
   }
 
   const reward = cipherReward(user);

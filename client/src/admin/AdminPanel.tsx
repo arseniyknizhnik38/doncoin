@@ -1,6 +1,8 @@
 import { ErrorState, SkeletonList } from '../ui/States';
 import { AdsPanel } from './AdsPanel';
+import { CipherPanel } from './CipherPanel';
 import type { AdsApi } from './useAds';
+import type { CiphersApi } from './useCiphers';
 import type { AdminStatsApi } from './useAdminStats';
 
 const formatNumber = (value: string | number) => Number(value).toLocaleString('ru-RU');
@@ -32,10 +34,12 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function AdminPanel({
   api,
   ads,
+  ciphers,
   onClose,
 }: {
   api: AdminStatsApi;
   ads: AdsApi;
+  ciphers: CiphersApi;
   onClose: () => void;
 }) {
   const { stats, loading, error } = api;
@@ -119,6 +123,10 @@ export function AdminPanel({
 
             {/* Реклама — источник дохода, поэтому стоит выше топа игроков. */}
             <AdsPanel api={ads} />
+
+            {/* Шифр задаётся каждый день, поэтому лежит рядом с рекламой:
+                обе панели владелец открывает в одном заходе. */}
+            <CipherPanel api={ciphers} />
 
             <Section title="Топ по заработку">
               {stats.top.map((player, index) => (

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { AdminPanel } from './admin/AdminPanel';
 import { useAds } from './admin/useAds';
+import { useCiphers } from './admin/useCiphers';
 import { useAdminStats } from './admin/useAdminStats';
 import { BoosterBar } from './boosters/BoosterBar';
 import { useBoosters } from './boosters/useBoosters';
@@ -89,6 +90,7 @@ export default function App() {
   const [statsOpen, setStatsOpen] = useState(false);
   const stats = useAdminStats(sessionToken, statsOpen);
   const ads = useAds(sessionToken, statsOpen);
+  const ciphers = useCiphers(sessionToken, statsOpen);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settings = useSettings(sessionToken, settingsOpen);
   const retirement = useRetirement(sessionToken, settingsOpen, game.applyServerState);
@@ -212,7 +214,14 @@ export default function App() {
             </button>
           )}
 
-          {statsOpen && <AdminPanel api={stats} ads={ads} onClose={() => setStatsOpen(false)} />}
+          {statsOpen && (
+            <AdminPanel
+              api={stats}
+              ads={ads}
+              ciphers={ciphers}
+              onClose={() => setStatsOpen(false)}
+            />
+          )}
         </>
       ) : (
         <div className="relative flex flex-1 flex-col items-center justify-center">

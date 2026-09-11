@@ -40,6 +40,21 @@ export function CipherCard({ api }: CipherCardProps) {
     );
   }
 
+  // Попытки кончились — форму убираем совсем. Оставленное поле ввода, которое
+  // всё равно откажет, читается как поломка, а не как правило.
+  if (cipher.attemptsLeft <= 0) {
+    return (
+      <div className="rounded-xl border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
+        <p className="text-[11px] tracking-[0.25em] text-neutral-500 uppercase">
+          Шифр дня
+        </p>
+        <p className="mt-1 text-sm text-neutral-500">
+          Попытки на сегодня кончились. Новый шифр — завтра.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
       <div className="flex items-baseline justify-between gap-2">
@@ -53,6 +68,12 @@ export function CipherCard({ api }: CipherCardProps) {
 
       <p className="mt-1 text-xs text-neutral-500">
         {cipher.hint ?? 'Код спрятан в нашем канале'}
+      </p>
+
+      {/* Попытки ограничены, чтобы код не подбирали перебором. Молчать об
+          этом нельзя: иначе игрок узнаёт о лимите, только упершись в него. */}
+      <p className="mt-1 text-[11px] tracking-wider text-neutral-600">
+        Попыток осталось: {cipher.attemptsLeft}
       </p>
 
       <form
