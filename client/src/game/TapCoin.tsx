@@ -24,6 +24,7 @@ interface TapCoinProps {
 const RANK_SPRITES: Record<string, string> = {
   outsider: '/don-outsider.webp',
   associate: '/don-associate.webp',
+  soldier: '/don-soldier.webp',
 };
 
 /** Сколько персонаж «живёт» после последнего тапа, прежде чем замереть. */

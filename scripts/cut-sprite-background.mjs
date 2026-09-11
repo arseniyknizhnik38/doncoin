@@ -25,15 +25,24 @@ const REMOVE_SHADOW = process.argv.includes('--shadow');
 const TOLERANCE = 42;
 
 /**
- * Тень — нейтрально-серая, средней яркости, в самом низу кадра.
+ * Тень — нейтральная по цвету, заметно темнее фона, в самом низу кадра.
  *
- * Отличать её от кроссовок по близости к фону нельзя: белые кроссовки к
- * белому фону ближе, чем тень, и исчезли бы первыми. Поэтому признак другой —
- * яркость в диапазоне ниже белого и почти нулевая насыщенность.
+ * Отличать её от обуви по близости к фону нельзя: белые кроссовки к белому
+ * фону ближе, чем тень, и исчезли бы первыми. Поэтому признак другой —
+ * яркость в полосе под фоном и почти нулевая насыщенность.
+ *
+ * Полоса задана долей от яркости фона, а не абсолютными числами. Сначала
+ * числа были абсолютными (175..232) и молча подходили только светлым
+ * исходникам. На тёмном фоне — а он бывает разный, это решает художник —
+ * тень оказывается яркостью около 55 при фоне 90, в старую полосу не
+ * попадает, и под ногами остаётся грязный мазок.
+ *
+ * Нижняя граница важнее верхней: под неё не должны попасть тёмный контур
+ * и чёрная обувь, которые у тёмного персонажа вчетверо темнее тени.
  */
-const SHADOW_MIN_LIGHT = 175;
-const SHADOW_MAX_LIGHT = 232;
-const SHADOW_MAX_SATURATION = 28;
+const SHADOW_LIGHT_MIN_RATIO = 0.55;
+const SHADOW_LIGHT_MAX_RATIO = 0.93;
+const SHADOW_MAX_SATURATION = 34;
 const SHADOW_FROM_Y_RATIO = 0.85;
 
 const files = fs.readdirSync(dir).filter((f) => f.endsWith('.png')).sort();
@@ -109,6 +118,9 @@ for (const frame of frames) {
   }
 
   const fromY = Math.round(height * SHADOW_FROM_Y_RATIO);
+  const backgroundLight = (br + bg + bb) / 3;
+  const shadowMinLight = backgroundLight * SHADOW_LIGHT_MIN_RATIO;
+  const shadowMaxLight = backgroundLight * SHADOW_LIGHT_MAX_RATIO;
 
   const isShadow = (x, y) => {
     if (y < fromY) return false;
@@ -118,8 +130,8 @@ for (const frame of frames) {
     const saturation =
       Math.max(data[i], data[i + 1], data[i + 2]) - Math.min(data[i], data[i + 1], data[i + 2]);
     return (
-      light >= SHADOW_MIN_LIGHT &&
-      light <= SHADOW_MAX_LIGHT &&
+      light >= shadowMinLight &&
+      light <= shadowMaxLight &&
       saturation <= SHADOW_MAX_SATURATION
     );
   };
