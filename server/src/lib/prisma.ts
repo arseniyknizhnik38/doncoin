@@ -17,10 +17,20 @@ if (!connectionString) {
  */
 const isServerless = Boolean(process.env.VERCEL);
 
+/**
+ * Размер пула можно переопределить переменной окружения.
+ *
+ * Во-первых, лимит Neon зависит от тарифа, и подбирать его перевыкладкой
+ * кода — плохая идея. Во-вторых, локальный стенд (scripts/local-db.mjs)
+ * держит ровно одно соединение, и без этой переменной поднять на нём игру
+ * нельзя вовсе.
+ */
+const poolMax = Number(process.env.DATABASE_POOL_MAX) || (isServerless ? 3 : 10);
+
 // Prisma 7 общается с PostgreSQL через driver adapter (здесь node-postgres).
 const adapter = new PrismaPg({
   connectionString,
-  max: isServerless ? 3 : 10,
+  max: poolMax,
   // Не держим простаивающие соединения дольше, чем живёт тёплый инстанс.
   idleTimeoutMillis: isServerless ? 10_000 : 30_000,
 });
