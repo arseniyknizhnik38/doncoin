@@ -94,6 +94,7 @@ export async function solveCipher(
     data: {
       balance: { increment: reward },
       totalEarned: { increment: reward },
+      lifetimeEarned: { increment: reward },
     },
   });
 

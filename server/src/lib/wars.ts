@@ -192,6 +192,7 @@ async function settleWar(war: ClanWar, now: Date): Promise<boolean> {
         `UPDATE "User" u
             SET balance = u.balance + e."frozenEarned" * $3::bigint / 100,
                 "totalEarned" = u."totalEarned" + e."frozenEarned" * $3::bigint / 100,
+                "lifetimeEarned" = u."lifetimeEarned" + e."frozenEarned" * $3::bigint / 100,
                 "updatedAt" = now()
            FROM "ClanWarEntry" e
           WHERE e."userId" = u.id

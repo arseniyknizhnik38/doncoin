@@ -186,6 +186,7 @@ export async function claimQuest(
     data: {
       balance: { increment: coins },
       totalEarned: { increment: coins },
+      lifetimeEarned: { increment: coins },
       respect: { increment: quest.rewardRespect },
     },
   });
@@ -225,6 +226,7 @@ export async function claimChest(user: User, now: Date): Promise<QuestClaim> {
     data: {
       balance: { increment: coins },
       totalEarned: { increment: coins },
+      lifetimeEarned: { increment: coins },
       respect: { increment: CHEST_RESPECT },
     },
   });

@@ -71,6 +71,7 @@ tasksRouter.post('/:id/claim', async (req: Request, res: Response) => {
     data: {
       balance: { increment: task.rewardCoins },
       totalEarned: { increment: task.rewardCoins },
+      lifetimeEarned: { increment: task.rewardCoins },
       respect: { increment: task.rewardRespect },
       claimedTasks: { push: task.id },
     },

@@ -5,6 +5,7 @@ import {
   requiredRankStep,
 } from '../config/businesses.js';
  import { rankLabel } from '../config/ranks.js';
+import { retirementBonus } from '../config/retirement.js';
 import { PERK_BONUS_PER_LEVEL, applyBonus, clanBonusPercent } from '../config/perks.js';
 import type { Business, User } from '../generated/prisma/client.js';
 import { prisma } from './prisma.js';
@@ -90,7 +91,11 @@ export async function businessBonusPercent(user: User): Promise<number> {
       })
     : null;
 
-  return user.respectBusinessLevel * PERK_BONUS_PER_LEVEL + clanBonusPercent(clan);
+  return (
+    user.respectBusinessLevel * PERK_BONUS_PER_LEVEL +
+    clanBonusPercent(clan) +
+    retirementBonus(user.retirements)
+  );
 }
 
 export interface BusinessCollection {
@@ -118,6 +123,7 @@ export async function collectBusinessIncome(
       data: {
         balance: { increment: earned },
         totalEarned: { increment: earned },
+        lifetimeEarned: { increment: earned },
         businessCollectedAt: now,
       },
     });

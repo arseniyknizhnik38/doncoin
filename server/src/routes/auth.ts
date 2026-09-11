@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { isAdmin } from '../config/admin.js';
+import { retirementBonus } from '../config/retirement.js';
 import { DAILY_STREAK_CAP, computeOfflineEarnings, dailyStatus } from '../config/rewards.js';
 import { PERK_BONUS_PER_LEVEL, clanBonusPercent } from '../config/perks.js';
 import { collectBusinessIncome } from '../lib/businesses.js';
@@ -61,7 +62,10 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
         select: { treasury: true, familyXp: true },
       })
     : null;
-  const offlineBonus = stored.respectFamilyLevel * PERK_BONUS_PER_LEVEL + clanBonusPercent(clan);
+  const offlineBonus =
+    stored.respectFamilyLevel * PERK_BONUS_PER_LEVEL +
+    clanBonusPercent(clan) +
+    retirementBonus(stored.retirements);
 
   const offline = isNew
     ? { earned: 0n, hours: 0, capped: false }
@@ -74,6 +78,7 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
           data: {
             balance: { increment: offline.earned },
             totalEarned: { increment: offline.earned },
+            lifetimeEarned: { increment: offline.earned },
             lastSeenAt: now,
           },
         })

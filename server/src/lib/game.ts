@@ -1,6 +1,7 @@
 import type { User } from '../generated/prisma/client.js';
 import { RUSH_MULTIPLIER } from '../config/boosters.js';
 import { PERK_BONUS_PER_LEVEL } from '../config/perks.js';
+import { MAX_RETIREMENTS, RETIREMENT_BONUS_PERCENT, retirementBonus } from '../config/retirement.js';
 import { ENERGY_PER_TAP } from './energy.js';
 import { type RankView, resolveRank } from '../config/ranks.js';
 import { prisma } from './prisma.js';
@@ -120,6 +121,7 @@ export interface TapResult {
 interface TapRow {
   balance: bigint;
   respectStreetLevel: number;
+  retirements: number;
   rushEndsAt: Date | null;
   totalEarned: bigint;
   energy: number;
@@ -180,10 +182,19 @@ export async function applyTaps(
       -- округляет вниз: игрок не получит долей монеты, но и не потеряет
       -- заметного дохода.
       balance = u.balance + c.accepted::bigint * u."coinsPerTap"
-        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int) / 100
+        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int
+          + LEAST(u."retirements", ${MAX_RETIREMENTS}::int) * ${RETIREMENT_BONUS_PERCENT}::int) / 100
         * CASE WHEN u."rushEndsAt" > now() THEN ${RUSH_MULTIPLIER}::int ELSE 1 END,
       "totalEarned" = u."totalEarned" + c.accepted::bigint * u."coinsPerTap"
-        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int) / 100
+        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int
+          + LEAST(u."retirements", ${MAX_RETIREMENTS}::int) * ${RETIREMENT_BONUS_PERCENT}::int) / 100
+        * CASE WHEN u."rushEndsAt" > now() THEN ${RUSH_MULTIPLIER}::int ELSE 1 END,
+      -- Пожизненный заработок уходом на покой не обнуляется: по нему
+      -- строится лидерборд, и прошедший игру до конца не должен улетать на
+      -- дно за то, что начал круг заново.
+      "lifetimeEarned" = u."lifetimeEarned" + c.accepted::bigint * u."coinsPerTap"
+        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int
+          + LEAST(u."retirements", ${MAX_RETIREMENTS}::int) * ${RETIREMENT_BONUS_PERCENT}::int) / 100
         * CASE WHEN u."rushEndsAt" > now() THEN ${RUSH_MULTIPLIER}::int ELSE 1 END,
       -- Respect: одна единица за каждые TAPS_PER_RESPECT тапов,
       -- незавершённый остаток переносится в respectProgress.
@@ -200,6 +211,7 @@ export async function applyTaps(
     RETURNING
       u.balance,
       u."respectStreetLevel" AS "respectStreetLevel",
+      u."retirements" AS "retirements",
       u."rushEndsAt" AS "rushEndsAt",
       u."totalEarned" AS "totalEarned",
       u.energy,
@@ -223,7 +235,9 @@ export async function applyTaps(
   const balance = BigInt(row.balance);
   const totalEarned = BigInt(row.totalEarned);
 
-  const tapBonus = Number(row.respectStreetLevel) * PERK_BONUS_PER_LEVEL;
+  const tapBonus =
+    Number(row.respectStreetLevel) * PERK_BONUS_PER_LEVEL +
+    retirementBonus(Number(row.retirements));
   const rushEndsAt = row.rushEndsAt ? new Date(row.rushEndsAt) : null;
   const rushActive = rushEndsAt !== null && rushEndsAt.getTime() > Date.now();
 

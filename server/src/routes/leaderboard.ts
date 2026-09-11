@@ -32,6 +32,7 @@ leaderboardRouter.get('/', async (_req: Request, res: Response) => {
       firstName: true,
       username: true,
       totalEarned: true,
+      lifetimeEarned: true,
       respect: true,
       clanId: true,
     },
@@ -47,18 +48,19 @@ leaderboardRouter.get('/', async (_req: Request, res: Response) => {
 
   const [players, playersAbove, clans, myClan] = await Promise.all([
     prisma.user.findMany({
-      orderBy: [{ totalEarned: 'desc' }, { createdAt: 'asc' }],
+      orderBy: [{ lifetimeEarned: 'desc' }, { createdAt: 'asc' }],
       take: TOP_LIMIT,
       select: {
         id: true,
         firstName: true,
         username: true,
         totalEarned: true,
+      lifetimeEarned: true,
         respect: true,
         clan: { select: { name: true } },
       },
     }),
-    prisma.user.count({ where: { totalEarned: { gt: me.totalEarned } } }),
+    prisma.user.count({ where: { lifetimeEarned: { gt: me.lifetimeEarned } } }),
     prisma.clan.findMany({
       orderBy: [{ treasury: 'desc' }, { createdAt: 'asc' }],
       take: TOP_LIMIT,
@@ -86,7 +88,7 @@ leaderboardRouter.get('/', async (_req: Request, res: Response) => {
       top: players.map((player, index) => ({
         position: index + 1,
         name: displayName(player),
-        totalEarned: player.totalEarned.toString(),
+        totalEarned: player.lifetimeEarned.toString(),
         respect: player.respect,
         rank: resolveRank(player.totalEarned).title,
         clan: player.clan?.name ?? null,
@@ -95,7 +97,7 @@ leaderboardRouter.get('/', async (_req: Request, res: Response) => {
       me: {
         position: playersAbove + 1,
         name: displayName(me),
-        totalEarned: me.totalEarned.toString(),
+        totalEarned: me.lifetimeEarned.toString(),
         respect: me.respect,
         rank: resolveRank(me.totalEarned).title,
       },

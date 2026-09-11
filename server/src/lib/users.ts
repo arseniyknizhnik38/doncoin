@@ -110,6 +110,7 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
             referredById: inviter?.id ?? null,
             balance: inviter ? INVITEE_REWARD : 0n,
             totalEarned: inviter ? INVITEE_REWARD : 0n,
+            lifetimeEarned: inviter ? INVITEE_REWARD : 0n,
             // Стартовые значения берём из каталога улучшений: правка баланса
             // не должна требовать миграции ради @default в схеме.
             ...START_STATE,
@@ -122,6 +123,7 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
                 data: {
                   balance: { increment: INVITER_REWARD },
                   totalEarned: { increment: INVITER_REWARD },
+                  lifetimeEarned: { increment: INVITER_REWARD },
                   referralEarned: { increment: INVITER_REWARD },
                 },
               }),

@@ -9,6 +9,7 @@ import { BusinessError } from './lib/businesses.js';
 import { CipherError } from './lib/cipher.js';
 import { ClanError } from './lib/clans.js';
 import { QuestError } from './lib/quests.js';
+import { RetirementError } from './lib/retirement.js';
 import { adminRouter } from './routes/admin.js';
 import { authRouter } from './routes/auth.js';
 import { boostersRouter } from './routes/boosters.js';
@@ -23,6 +24,7 @@ import { leaderboardRouter } from './routes/leaderboard.js';
 import { perksRouter } from './routes/perks.js';
 import { questsRouter } from './routes/quests.js';
 import { referralsRouter } from './routes/referrals.js';
+import { retirementRouter } from './routes/retirement.js';
 import { settingsRouter } from './routes/settings.js';
 import { tasksRouter } from './routes/tasks.js';
 import { upgradesRouter } from './routes/upgrades.js';
@@ -55,6 +57,7 @@ export function createApp() {
   app.use('/api/quests', questsRouter);
   app.use('/api/boosters', boostersRouter);
   app.use('/api/cipher', cipherRouter);
+  app.use('/api/retirement', retirementRouter);
   app.use('/api/favors', favorsRouter);
   app.use('/api/leaderboard', leaderboardRouter);
   app.use('/api/tasks', tasksRouter);
@@ -73,7 +76,8 @@ export function createApp() {
       error instanceof ClanError ||
       error instanceof QuestError ||
       error instanceof BoosterError ||
-      error instanceof CipherError;
+      error instanceof CipherError ||
+      error instanceof RetirementError;
 
     if (gameRule) {
       const rule = error as { status: number; code: string; message: string };

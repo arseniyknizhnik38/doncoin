@@ -21,6 +21,7 @@ import { useReferrals } from './referrals/useReferrals';
 import { Onboarding } from './onboarding/Onboarding';
 import { useOnboarding } from './onboarding/useOnboarding';
 import { usePerks } from './perks/usePerks';
+import { useRetirement } from './retirement/useRetirement';
 import { useQuests } from './quests/useQuests';
 import { SettingsPanel } from './settings/SettingsPanel';
 import { useSettings } from './settings/useSettings';
@@ -90,6 +91,7 @@ export default function App() {
   const ads = useAds(sessionToken, statsOpen);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settings = useSettings(sessionToken, settingsOpen);
+  const retirement = useRetirement(sessionToken, settingsOpen, game.applyServerState);
   const ready = isTelegram && auth.status === 'authorized' && game.state;
   // Объяснение игры показывается поверх всего, но только когда экран уже
   // загружен: иначе человек читает подсказки про монету, которой не видит.
@@ -193,7 +195,11 @@ export default function App() {
           )}
 
           {settingsOpen && (
-            <SettingsPanel api={settings} onClose={() => setSettingsOpen(false)} />
+            <SettingsPanel
+              api={settings}
+              retirement={retirement}
+              onClose={() => setSettingsOpen(false)}
+            />
           )}
 
           {auth.isAdmin && !statsOpen && (

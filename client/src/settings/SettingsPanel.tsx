@@ -1,7 +1,17 @@
+import { RetirementCard } from '../retirement/RetirementCard';
+import type { RetirementApi } from '../retirement/useRetirement';
 import { ErrorState } from '../ui/States';
 import type { SettingsApi } from './useSettings';
 
-export function SettingsPanel({ api, onClose }: { api: SettingsApi; onClose: () => void }) {
+export function SettingsPanel({
+  api,
+  retirement,
+  onClose,
+}: {
+  api: SettingsApi;
+  retirement: RetirementApi;
+  onClose: () => void;
+}) {
   const { settings, loading, saving, error } = api;
 
   return (
@@ -67,6 +77,10 @@ export function SettingsPanel({ api, onClose }: { api: SettingsApi; onClose: () 
             )}
           </div>
         )}
+
+        {/* Уход на покой — редкое и необратимое действие, ему место здесь,
+            а не на экране, где играют. */}
+        <RetirementCard api={retirement} />
       </div>
     </div>
   );

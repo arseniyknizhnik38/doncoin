@@ -68,6 +68,7 @@ dailyRouter.post('/claim', async (_req: Request, res: Response) => {
     data: {
       balance: { increment: reward },
       totalEarned: { increment: reward },
+      lifetimeEarned: { increment: reward },
       dailyStreak: status.nextStreak,
       lastDailyAt: now,
     },

@@ -175,6 +175,7 @@ favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
         data: {
           balance: { increment: reward },
           totalEarned: { increment: reward },
+          lifetimeEarned: { increment: reward },
         },
       });
 
