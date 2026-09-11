@@ -22,7 +22,8 @@
     "typecheck:api": "tsc -p tsconfig.json",
     "db:seed": "npm run db:seed -w server",
     "test": "npm run test -w server",
-    "verify": "npm run verify -w server"
+    "verify": "npm run verify -w server",
+    "doctor": "npm run doctor -w server"
   },
   "devDependencies": {
     "concurrently": "^9.2.0",

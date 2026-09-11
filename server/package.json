@@ -20,7 +20,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "verify": "node scripts/verify.mjs",
-    "check:migrations": "node scripts/check-migrations.mjs"
+    "check:migrations": "node scripts/check-migrations.mjs",
+    "doctor": "tsx scripts/doctor.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
