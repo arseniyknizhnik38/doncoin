@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import { AD_STATUS_TITLES, adStatus, isChatId, isTelegramUrl } from '../config/ads.js';
 import { isAdmin } from '../config/admin.js';
 import { isValidCipher, normalizeCipher } from '../config/cipher.js';
 import { utcDayNumber } from '../config/rewards.js';
@@ -150,4 +151,194 @@ adminRouter.post('/cipher', async (req: Request, res: Response) => {
   const saved = await setCipher(utcDayNumber(new Date()) + offset, code, hint);
 
   res.json({ cipher: { ...saved, hint } });
+});
+
+/**
+ * GET /api/admin/ads — все рекламные кампании со статусом и выдачей.
+ *
+ * Это же отчёт рекламодателю: сколько подписок выдано из купленных и когда
+ * кампания закрылась.
+ */
+adminRouter.get('/ads', async (_req: Request, res: Response) => {
+  const now = new Date();
+  const favors = await prisma.favor.findMany({
+    orderBy: [{ active: 'desc' }, { sortOrder: 'asc' }, { createdAt: 'desc' }],
+  });
+
+  res.json({
+    ads: favors.map((favor) => ({
+      id: favor.id,
+      advertiser: favor.advertiser,
+      title: favor.title,
+      channelName: favor.channelName,
+      channelUrl: favor.channelUrl,
+      channelChatId: favor.channelChatId,
+      rewardDonc: favor.rewardDonc.toString(),
+      rewardHours: favor.rewardHours,
+      familyXpReward: favor.familyXpReward,
+      startsAt: favor.startsAt,
+      endsAt: favor.endsAt,
+      slots: favor.slots,
+      completedCount: favor.completedCount,
+      sortOrder: favor.sortOrder,
+      status: adStatus(favor, now),
+      statusTitle: AD_STATUS_TITLES[adStatus(favor, now)],
+    })),
+  });
+});
+
+/** Разбор необязательной даты из тела запроса. */
+function parseDate(value: unknown): Date | null | undefined {
+  if (value === null || value === '') {
+    return null;
+  }
+
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const date = new Date(value);
+
+  return Number.isNaN(date.getTime()) ? undefined : date;
+}
+
+/**
+ * POST /api/admin/ads — завести кампанию или обновить существующую.
+ *
+ * Ключ — канал: второй заказ на тот же канал перезаписывает первый. Две
+ * кампании на один канал всё равно бессмысленны, подписка-то одна.
+ */
+adminRouter.post('/ads', async (req: Request, res: Response) => {
+  const body = req.body as Record<string, unknown>;
+
+  const title = typeof body.title === 'string' ? body.title.trim() : '';
+  const channelName = typeof body.channelName === 'string' ? body.channelName.trim() : '';
+  const channelUrl = typeof body.channelUrl === 'string' ? body.channelUrl.trim() : '';
+  const channelChatId =
+    typeof body.channelChatId === 'string' ? body.channelChatId.trim() : '';
+
+  const bad = (error: string, code: string) => res.status(400).json({ error, code });
+
+  if (title.length < 3 || title.length > 120) {
+    bad('Заголовок — от 3 до 120 символов', 'BAD_TITLE');
+    return;
+  }
+
+  if (channelName.length < 2 || channelName.length > 64) {
+    bad('Название канала — от 2 до 64 символов', 'BAD_CHANNEL');
+    return;
+  }
+
+  if (!isTelegramUrl(channelUrl)) {
+    bad('Ссылка должна быть вида https://t.me/канал', 'BAD_URL');
+    return;
+  }
+
+  if (!isChatId(channelChatId)) {
+    bad('ID канала — @username или число вида -100…', 'BAD_CHAT_ID');
+    return;
+  }
+
+  const rewardDonc =
+    typeof body.rewardDonc === 'number' && body.rewardDonc >= 0
+      ? BigInt(Math.floor(body.rewardDonc))
+      : null;
+
+  if (rewardDonc === null) {
+    bad('Награда — неотрицательное число', 'BAD_REWARD');
+    return;
+  }
+
+  const rewardHours =
+    body.rewardHours === null || body.rewardHours === undefined
+      ? null
+      : typeof body.rewardHours === 'number' && body.rewardHours > 0 && body.rewardHours <= 48
+        ? body.rewardHours
+        : undefined;
+
+  if (rewardHours === undefined) {
+    bad('Награда в часах — от 0 до 48 либо пусто', 'BAD_REWARD_HOURS');
+    return;
+  }
+
+  const startsAt = parseDate(body.startsAt ?? null);
+  const endsAt = parseDate(body.endsAt ?? null);
+
+  if (startsAt === undefined || endsAt === undefined) {
+    bad('Даты — в формате ISO либо пусто', 'BAD_DATE');
+    return;
+  }
+
+  if (startsAt && endsAt && endsAt <= startsAt) {
+    bad('Конец размещения раньше начала', 'BAD_PERIOD');
+    return;
+  }
+
+  const slots =
+    body.slots === null || body.slots === undefined
+      ? null
+      : typeof body.slots === 'number' && Number.isInteger(body.slots) && body.slots > 0
+        ? body.slots
+        : undefined;
+
+  if (slots === undefined) {
+    bad('Лимит подписок — целое число больше нуля либо пусто', 'BAD_SLOTS');
+    return;
+  }
+
+  const data = {
+    advertiser:
+      typeof body.advertiser === 'string' && body.advertiser.trim()
+        ? body.advertiser.trim()
+        : null,
+    title,
+    channelName,
+    channelUrl,
+    channelChatId,
+    rewardDonc,
+    rewardHours,
+    familyXpReward:
+      typeof body.familyXpReward === 'number' && body.familyXpReward >= 0
+        ? Math.floor(body.familyXpReward)
+        : 20,
+    startsAt,
+    endsAt,
+    slots,
+    sortOrder:
+      typeof body.sortOrder === 'number' && Number.isInteger(body.sortOrder)
+        ? body.sortOrder
+        : 0,
+    active: body.active === false ? false : true,
+  };
+
+  const saved = await prisma.favor.upsert({
+    where: { weekNumber_channelName: { weekNumber: 0, channelName } },
+    update: data,
+    create: { ...data, weekNumber: 0 },
+  });
+
+  res.json({ ad: { id: saved.id, channelName: saved.channelName } });
+});
+
+/**
+ * POST /api/admin/ads/:id/stop — снять кампанию с показа.
+ *
+ * Именно снять, а не удалить: у игроков остались отметки о выполнении, и
+ * по ним считается отчёт рекламодателю.
+ */
+adminRouter.post('/ads/:id/stop', async (req: Request, res: Response) => {
+  const rawId = req.params.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+
+  const stopped = await prisma.favor.updateMany({
+    where: { id: id ?? '' },
+    data: { active: false },
+  });
+
+  if (stopped.count === 0) {
+    res.status(404).json({ error: 'Кампания не найдена', code: 'AD_NOT_FOUND' });
+    return;
+  }
+
+  res.json({ stopped: true });
 });

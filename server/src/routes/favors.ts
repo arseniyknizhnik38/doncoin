@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express';
-import { weekNumber } from '../config/favors.js';
+import { adReward, isRunning, slotsLeft } from '../config/ads.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
 import { SubscriptionCheckError, checkSubscription } from '../lib/telegramApi.js';
@@ -16,11 +16,10 @@ const NOT_FOUND = {
   code: 'USER_NOT_FOUND',
 };
 
-/** GET /api/favors — активные поручения недели и отметки о выполнении. */
+/** GET /api/favors — идущие рекламные кампании и отметки о выполнении. */
 favorsRouter.get('/', async (_req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { telegramId: getTelegramId(res) },
-    select: { id: true },
   });
 
   if (!user) {
@@ -28,20 +27,15 @@ favorsRouter.get('/', async (_req: Request, res: Response) => {
     return;
   }
 
-  const week = weekNumber(new Date());
+  const now = new Date();
 
+  // Фильтруем в коде, а не запросом: условий у «кампания идёт» четыре, и
+  // в SQL они превращаются в нечитаемое дерево, которое потом разъезжается
+  // с проверкой при выдаче награды. Активных кампаний всегда единицы.
   const favors = await prisma.favor.findMany({
-    where: { weekNumber: week, active: true },
-    orderBy: { rewardDonc: 'asc' },
-    select: {
-      id: true,
-      title: true,
-      channelName: true,
-      channelUrl: true,
-      rewardDonc: true,
-      familyXpReward: true,
-      // channelChatId наружу не отдаём: это техническое поле для проверки
-      // подписки на сервере.
+    where: { active: true },
+    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+    include: {
       completions: {
         where: { userId: user.id },
         select: { completedAt: true },
@@ -50,17 +44,23 @@ favorsRouter.get('/', async (_req: Request, res: Response) => {
   });
 
   res.json({
-    weekNumber: week,
-    favors: favors.map((favor) => ({
-      id: favor.id,
-      title: favor.title,
-      channelName: favor.channelName,
-      channelUrl: favor.channelUrl,
-      rewardDonc: favor.rewardDonc.toString(),
-      familyXpReward: favor.familyXpReward,
-      completed: favor.completions.length > 0,
-      completedAt: favor.completions[0]?.completedAt ?? null,
-    })),
+    favors: favors
+      // Выполненную кампанию продолжаем показывать, даже если она кончилась:
+      // иначе отметка «сделано» пропадает из списка вместе с ней.
+      .filter((favor) => isRunning(favor, now) || favor.completions.length > 0)
+      .map((favor) => ({
+        id: favor.id,
+        title: favor.title,
+        channelName: favor.channelName,
+        channelUrl: favor.channelUrl,
+        // channelChatId наружу не отдаём: это техническое поле для проверки
+        // подписки на сервере.
+        rewardDonc: adReward(favor, user).toString(),
+        familyXpReward: favor.familyXpReward,
+        slotsLeft: slotsLeft(favor),
+        completed: favor.completions.length > 0,
+        completedAt: favor.completions[0]?.completedAt ?? null,
+      })),
   });
 });
 
@@ -87,14 +87,19 @@ favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
     ? await prisma.favor.findUnique({ where: { id: favorId } })
     : null;
 
-  if (!favor || !favor.active) {
-    res.status(404).json({ error: 'Поручение не найдено', code: 'FAVOR_NOT_FOUND' });
+  if (!favor) {
+    res.status(404).json({ error: 'Задание не найдено', code: 'FAVOR_NOT_FOUND' });
     return;
   }
 
-  if (favor.weekNumber !== weekNumber(new Date())) {
+  const now = new Date();
+
+  if (!isRunning(favor, now)) {
     res.status(409).json({
-      error: 'Поручение прошлой недели',
+      error:
+        favor.slots !== null && favor.completedCount >= favor.slots
+          ? 'Награды за это задание кончились'
+          : 'Задание больше не действует',
       code: 'FAVOR_EXPIRED',
     });
     return;
@@ -140,20 +145,36 @@ favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
     return;
   }
 
+  const reward = adReward(favor, user);
+
   try {
-    // Всё одной транзакцией: отметка о выполнении, награда игроку и опыт
-    // семье. Уникальный ключ (userId, favorId) не даст начислить дважды —
-    // при гонке вторая попытка упадёт на нём и откатит начисление.
+    // Всё одной транзакцией: отметка о выполнении, счётчик выданных наград,
+    // деньги игроку и опыт семье.
     await prisma.$transaction(async (tx) => {
       await tx.favorCompletion.create({
         data: { userId: user.id, favorId: favor.id },
       });
 
+      // Лимит проверяется здесь, а не только выше: между проверкой и выдачей
+      // могли уложиться другие игроки. Условие в WHERE не даст уйти за
+      // оплаченное рекламодателем число подписок.
+      const counted = await tx.favor.updateMany({
+        where:
+          favor.slots === null
+            ? { id: favor.id }
+            : { id: favor.id, completedCount: { lt: favor.slots } },
+        data: { completedCount: { increment: 1 } },
+      });
+
+      if (counted.count === 0) {
+        throw new SlotsExhausted();
+      }
+
       await tx.user.update({
         where: { id: user.id },
         data: {
-          balance: { increment: favor.rewardDonc },
-          totalEarned: { increment: favor.rewardDonc },
+          balance: { increment: reward },
+          totalEarned: { increment: reward },
         },
       });
 
@@ -165,9 +186,17 @@ favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
+    if (error instanceof SlotsExhausted) {
+      res.status(409).json({
+        error: 'Награды за это задание только что кончились',
+        code: 'FAVOR_EXPIRED',
+      });
+      return;
+    }
+
     if ((error as { code?: string }).code === 'P2002') {
       res.status(409).json({
-        error: 'Поручение уже выполнено',
+        error: 'Задание уже выполнено',
         code: 'ALREADY_COMPLETED',
       });
       return;
@@ -178,16 +207,24 @@ favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
 
   const fresh = {
     ...user,
-    balance: user.balance + favor.rewardDonc,
-    totalEarned: user.totalEarned + favor.rewardDonc,
+    balance: user.balance + reward,
+    totalEarned: user.totalEarned + reward,
   };
-  const { energy } = regenerateEnergy(fresh, new Date());
+  const { energy } = regenerateEnergy(fresh, now);
 
   res.json({
     reward: {
-      donc: favor.rewardDonc.toString(),
+      donc: reward.toString(),
       familyXp: user.clanId ? favor.familyXpReward : 0,
     },
     state: toGameState({ ...fresh, energy }),
   });
 });
+
+/** Лимит подписок выбран, пока шла транзакция — откатываем её целиком. */
+class SlotsExhausted extends Error {
+  constructor() {
+    super('Лимит подписок выбран');
+    this.name = 'SlotsExhausted';
+  }
+}

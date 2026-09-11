@@ -1,4 +1,6 @@
 import { ErrorState, SkeletonList } from '../ui/States';
+import { AdsPanel } from './AdsPanel';
+import type { AdsApi } from './useAds';
 import type { AdminStatsApi } from './useAdminStats';
 
 const formatNumber = (value: string | number) => Number(value).toLocaleString('ru-RU');
@@ -27,7 +29,15 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export function AdminPanel({ api, onClose }: { api: AdminStatsApi; onClose: () => void }) {
+export function AdminPanel({
+  api,
+  ads,
+  onClose,
+}: {
+  api: AdminStatsApi;
+  ads: AdsApi;
+  onClose: () => void;
+}) {
   const { stats, loading, error } = api;
 
   return (
@@ -106,6 +116,9 @@ export function AdminPanel({ api, onClose }: { api: AdminStatsApi; onClose: () =
               <Row label="Богатейший игрок" value={formatNumber(stats.economy.richest)} />
               <Row label="Кланов" value={formatNumber(stats.economy.clans)} />
             </Section>
+
+            {/* Реклама — источник дохода, поэтому стоит выше топа игроков. */}
+            <AdsPanel api={ads} />
 
             <Section title="Топ по заработку">
               {stats.top.map((player, index) => (

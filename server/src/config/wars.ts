@@ -6,6 +6,30 @@
  * снятого на старте, поэтому не требует записи при каждом тапе.
  */
 
+/**
+ * Номер недели: ГОД*100 + номер недели по ISO.
+ *
+ * Просто «номер недели в году» повторялся бы каждый год и однажды поднял бы
+ * прошлогодние поручения, поэтому в число зашит и год.
+ */
+export function weekNumber(date: Date): number {
+  // ISO-неделя: четверг той же недели определяет год.
+  const target = new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
+  const dayNumber = (target.getUTCDay() + 6) % 7;
+  target.setUTCDate(target.getUTCDate() - dayNumber + 3);
+
+  const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
+  const firstDayNumber = (firstThursday.getUTCDay() + 6) % 7;
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - firstDayNumber + 3);
+
+  const week =
+    1 + Math.round((target.getTime() - firstThursday.getTime()) / (7 * 86_400_000));
+
+  return target.getUTCFullYear() * 100 + week;
+}
+
 /** Доля казны проигравшего, которая уходит победителю, в процентах. */
 export const WAR_LOOT_PERCENT = 10;
 

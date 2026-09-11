@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { AdminPanel } from './admin/AdminPanel';
+import { useAds } from './admin/useAds';
 import { useAdminStats } from './admin/useAdminStats';
 import { BoosterBar } from './boosters/BoosterBar';
 import { useBoosters } from './boosters/useBoosters';
@@ -84,6 +85,7 @@ export default function App() {
   const cipher = useCipher(sessionToken, game.applyServerState);
   const [statsOpen, setStatsOpen] = useState(false);
   const stats = useAdminStats(sessionToken, statsOpen);
+  const ads = useAds(sessionToken, statsOpen);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settings = useSettings(sessionToken, settingsOpen);
   const ready = isTelegram && auth.status === 'authorized' && game.state;
@@ -197,7 +199,7 @@ export default function App() {
             </button>
           )}
 
-          {statsOpen && <AdminPanel api={stats} onClose={() => setStatsOpen(false)} />}
+          {statsOpen && <AdminPanel api={stats} ads={ads} onClose={() => setStatsOpen(false)} />}
         </>
       ) : (
         <div className="relative flex flex-1 flex-col items-center justify-center">

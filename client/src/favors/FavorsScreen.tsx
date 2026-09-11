@@ -73,6 +73,16 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
               )}
             </p>
 
+            {/* Остаток наград — честный дефицит: рекламодатель купил
+                конкретное число подписок, и когда они кончатся, задание
+                пропадёт. Показываем только под конец, иначе «осталось 4980»
+                читается как шум. */}
+            {!favor.completed && favor.slotsLeft !== null && favor.slotsLeft <= 100 && (
+              <p className="mt-1 text-xs tracking-wider text-don-blood-light">
+                Осталось наград: {favor.slotsLeft}
+              </p>
+            )}
+
             {!favor.completed && failed?.id === favor.id && (
               <p className="mt-2 text-xs tracking-wider text-don-blood-light">
                 {failed.message}

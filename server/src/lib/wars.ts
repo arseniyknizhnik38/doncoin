@@ -1,4 +1,3 @@
-import { weekNumber } from '../config/favors.js';
 import { clanPower } from '../config/perks.js';
 import {
   MIN_CLANS_FOR_WAR,
@@ -6,6 +5,7 @@ import {
   WAR_WIN_XP,
   lootAmount,
   warWindow,
+  weekNumber,
 } from '../config/wars.js';
 import { prisma } from './prisma.js';
 import type { ClanWar } from '../generated/prisma/client.js';
