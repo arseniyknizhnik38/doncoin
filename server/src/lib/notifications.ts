@@ -1,7 +1,8 @@
-import { applyBonus, clanBonusPercent } from '../config/perks.js';
+import { PERK_BONUS_PER_LEVEL, applyBonus, clanBonusPercent } from '../config/perks.js';
 import { dailyStatus } from '../config/rewards.js';
 import type { Business, User } from '../generated/prisma/client.js';
 import { levelIncome } from '../config/businesses.js';
+import { ENERGY_PER_TAP } from './energy.js';
 import { regenerateEnergy } from './game.js';
 import { prisma } from './prisma.js';
 
@@ -77,7 +78,7 @@ function businessIncomePerHour(user: User, context: NotifyContext): bigint {
   );
 
   const clan = user.clanId ? (context.clanById.get(user.clanId) ?? null) : null;
-  const bonus = user.respectBusinessLevel * 5 + clanBonusPercent(clan);
+  const bonus = user.respectBusinessLevel * PERK_BONUS_PER_LEVEL + clanBonusPercent(clan);
 
   return applyBonus(base, bonus);
 }
@@ -131,7 +132,7 @@ export function draftNotification(
   if (energy >= user.energyMax) {
     return {
       kind: 'energy',
-      text: `Люди отдохнули: энергия полная, ${formatCoins(BigInt(user.energyMax))}. Пора за работу.`,
+      text: `Люди отдохнули: обойма полная, ${formatCoins(BigInt(Math.floor(user.energyMax / ENERGY_PER_TAP)))} тапов. Пора за работу.`,
     };
   }
 

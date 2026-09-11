@@ -101,7 +101,7 @@ export function useGame(
         totalEarned: String(
           Number(serverState.totalEarned) + stillPending * serverState.coinsPerTap,
         ),
-        energy: Math.max(0, serverState.energy - stillPending),
+        energy: Math.max(0, serverState.energy - stillPending * serverState.energyPerTap),
         ...advanceRespect(serverState, stillPending),
       });
     },
@@ -189,7 +189,9 @@ export function useGame(
   const tap = useCallback((): boolean => {
     const current = stateRef.current;
 
-    if (!current || current.energy < 1) {
+    // Тап стоит не единицу энергии, а energyPerTap: только так реген
+    // получается медленнее одного тапа в секунду.
+    if (!current || current.energy < current.energyPerTap) {
       return false;
     }
 
@@ -198,7 +200,7 @@ export function useGame(
       ...current,
       balance: String(Number(current.balance) + current.coinsPerTap),
       totalEarned: String(Number(current.totalEarned) + current.coinsPerTap),
-      energy: current.energy - 1,
+      energy: current.energy - current.energyPerTap,
       ...advanceRespect(current, 1),
     });
 

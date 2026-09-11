@@ -3,64 +3,154 @@ import path from 'node:path';
 import { PNG } from 'pngjs';
 
 /**
- * Вырезает фон заливкой от краёв кадра.
+ * Вырезает фон из кадров спрайта и склеивает их в горизонтальную ленту.
  *
- * Прошлый подход убирал ВСЕ пиксели, похожие на цвет фона, — вместе с ними
- * исчезли белки глаз и майка. Заливка идёт только по связной области от
- * границы и останавливается на тёмном контуре персонажа, поэтому светлые
- * места внутри фигуры не трогаются.
+ * Фон убирается заливкой от краёв кадра, а не «всё, что похоже на фон».
+ * Первая версия делала именно так — и вместе с фоном исчезли белки глаз и
+ * белая майка: они оказались достаточно близки к нему по цвету. Заливка идёт
+ * только по связной области от границы и останавливается на тёмном контуре
+ * персонажа, поэтому светлые места внутри фигуры не трогаются.
+ *
+ *   node scripts/cut-sprite-background.mjs frames strip.png [--shadow]
+ *
+ * --shadow дополнительно снимает серую тень под ногами. Нужен не всегда:
+ * у первого персонажа тени в исходнике не было.
  */
 
 const dir = process.argv[2];
 const outFile = process.argv[3];
+const REMOVE_SHADOW = process.argv.includes('--shadow');
+
+/** Насколько цвет может отличаться от фона, чтобы считаться фоном. */
 const TOLERANCE = 42;
+
+/**
+ * Тень — нейтрально-серая, средней яркости, в самом низу кадра.
+ *
+ * Отличать её от кроссовок по близости к фону нельзя: белые кроссовки к
+ * белому фону ближе, чем тень, и исчезли бы первыми. Поэтому признак другой —
+ * яркость в диапазоне ниже белого и почти нулевая насыщенность.
+ */
+const SHADOW_MIN_LIGHT = 175;
+const SHADOW_MAX_LIGHT = 232;
+const SHADOW_MAX_SATURATION = 28;
+const SHADOW_FROM_Y_RATIO = 0.85;
 
 const files = fs.readdirSync(dir).filter((f) => f.endsWith('.png')).sort();
 const frames = files.map((f) => PNG.sync.read(fs.readFileSync(path.join(dir, f))));
 const { width, height } = frames[0];
 
-const near = (data, i, r, g, b) =>
-  Math.abs(data[i] - r) + Math.abs(data[i + 1] - g) + Math.abs(data[i + 2] - b) <= TOLERANCE;
-
-let removedTotal = 0;
-
-for (const frame of frames) {
-  const { data } = frame;
-  // Цвет фона берём из угла — он же служит образцом для заливки.
-  const [br, bg, bb] = [data[0], data[1], data[2]];
-
+/** Общая обёртка обхода в ширину по маске проходимости. */
+function flood(seeds, passable, visit) {
   const visited = new Uint8Array(width * height);
   const queue = [];
 
   const push = (x, y) => {
     if (x < 0 || y < 0 || x >= width || y >= height) return;
     const p = y * width + x;
-    if (visited[p]) return;
-    if (!near(data, p * 4, br, bg, bb)) return;
+    if (visited[p] || !passable(x, y)) return;
     visited[p] = 1;
     queue.push(p);
   };
 
-  for (let x = 0; x < width; x += 1) {
-    push(x, 0);
-    push(x, height - 1);
-  }
-  for (let y = 0; y < height; y += 1) {
-    push(0, y);
-    push(width - 1, y);
-  }
+  seeds(push);
 
   while (queue.length > 0) {
     const p = queue.pop();
     const x = p % width;
     const y = (p - x) / width;
-    data[p * 4 + 3] = 0;
-    removedTotal += 1;
+    visit(x, y, p);
     push(x + 1, y);
     push(x - 1, y);
     push(x, y + 1);
     push(x, y - 1);
   }
+}
+
+let backgroundRemoved = 0;
+let shadowRemoved = 0;
+
+for (const frame of frames) {
+  const { data } = frame;
+  // Цвет фона берём из угла — он же служит образцом для заливки.
+  const [br, bg, bb] = [data[0], data[1], data[2]];
+
+  const nearBackground = (x, y) => {
+    const i = (y * width + x) * 4;
+    return (
+      Math.abs(data[i] - br) + Math.abs(data[i + 1] - bg) + Math.abs(data[i + 2] - bb) <=
+      TOLERANCE
+    );
+  };
+
+  const fromEdges = (push) => {
+    for (let x = 0; x < width; x += 1) {
+      push(x, 0);
+      push(x, height - 1);
+    }
+    for (let y = 0; y < height; y += 1) {
+      push(0, y);
+      push(width - 1, y);
+    }
+  };
+
+  const clear = (x, y) => {
+    const i = (y * width + x) * 4;
+    if (data[i + 3] !== 0) {
+      data[i + 3] = 0;
+      backgroundRemoved += 1;
+    }
+  };
+
+  flood(fromEdges, nearBackground, clear);
+
+  if (!REMOVE_SHADOW) {
+    continue;
+  }
+
+  const fromY = Math.round(height * SHADOW_FROM_Y_RATIO);
+
+  const isShadow = (x, y) => {
+    if (y < fromY) return false;
+    const i = (y * width + x) * 4;
+    if (data[i + 3] < 128) return false;
+    const light = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    const saturation =
+      Math.max(data[i], data[i + 1], data[i + 2]) - Math.min(data[i], data[i + 1], data[i + 2]);
+    return (
+      light >= SHADOW_MIN_LIGHT &&
+      light <= SHADOW_MAX_LIGHT &&
+      saturation <= SHADOW_MAX_SATURATION
+    );
+  };
+
+  // Затравка — уже вырезанные пиксели: тень к ним примыкает снаружи.
+  const fromCleared = (push) => {
+    for (let y = fromY; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        if (data[(y * width + x) * 4 + 3] < 128) {
+          push(x + 1, y);
+          push(x - 1, y);
+          push(x, y + 1);
+          push(x, y - 1);
+        }
+      }
+    }
+  };
+
+  flood(fromCleared, isShadow, (x, y) => {
+    data[(y * width + x) * 4 + 3] = 0;
+    shadowRemoved += 1;
+  });
+
+  // Тень запирала фон между ногами, и до него заливка от краёв не доставала.
+  // Теперь путь открыт — проходим ещё раз, пропуская уже вырезанные пиксели.
+  const nearBackgroundOrCleared = (x, y) => {
+    const i = (y * width + x) * 4;
+    return data[i + 3] < 128 || nearBackground(x, y);
+  };
+
+  flood(fromEdges, nearBackgroundOrCleared, clear);
 }
 
 // Склеиваем в горизонтальную ленту.
@@ -72,6 +162,13 @@ for (let index = 0; index < frames.length; index += 1) {
 
 fs.writeFileSync(outFile, PNG.sync.write(strip));
 
-const perFrame = Math.round(removedTotal / frames.length);
+const perFrame = (total) => Math.round(total / frames.length);
 console.log(`кадров: ${frames.length}, лента ${strip.width}x${strip.height}`);
-console.log(`убрано фона: ${perFrame} пикселей на кадр из ${width * height} (${Math.round((perFrame / (width * height)) * 100)}%)`);
+console.log(
+  `убрано фона: ${perFrame(backgroundRemoved)} пикселей на кадр из ${width * height} (${Math.round(
+    (perFrame(backgroundRemoved) / (width * height)) * 100,
+  )}%)`,
+);
+if (REMOVE_SHADOW) {
+  console.log(`убрано тени: ${perFrame(shadowRemoved)} пикселей на кадр`);
+}

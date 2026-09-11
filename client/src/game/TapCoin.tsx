@@ -11,10 +11,20 @@ interface FloatingNumber {
 interface TapCoinProps {
   coinsPerTap: number;
   disabled: boolean;
-  /** На ранге «Аутсайдер» вместо монеты — персонаж. */
+  /** Ранг решает, кого показывать: своего персонажа или монету. */
   rankId: string;
   onTap: () => boolean;
 }
+
+/**
+ * Персонаж вместо монеты — на тех рангах, для которых он нарисован.
+ * Ранга нет в списке — показываем монету, поэтому новый спрайт добавляется
+ * одной строкой.
+ */
+const RANK_SPRITES: Record<string, string> = {
+  outsider: '/don-outsider.webp',
+  associate: '/don-associate.webp',
+};
 
 /** Сколько персонаж «живёт» после последнего тапа, прежде чем замереть. */
 const MOTION_LINGER_MS = 600;
@@ -86,7 +96,7 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
     [coinsPerTap, onTap],
   );
 
-  const isOutsider = rankId === 'outsider';
+  const sprite = RANK_SPRITES[rankId];
 
   return (
     <button
@@ -95,10 +105,10 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
       disabled={disabled}
       aria-label="Тапнуть"
       className={`relative touch-manipulation select-none transition-transform duration-75 ${
-        isOutsider ? '' : 'rounded-full'
+        sprite ? '' : 'rounded-full'
       } ${pressed ? 'scale-95' : 'scale-100'} ${disabled ? 'opacity-40' : ''}`}
     >
-      {isOutsider ? (
+      {sprite ? (
         <>
           {/* Мягкое свечение под ногами, чтобы фигура не висела в пустоте */}
           <span className="pointer-events-none absolute inset-x-6 bottom-2 h-6 rounded-[50%] bg-don-gold/20 blur-xl" />
@@ -106,7 +116,7 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
             <span
               className="don-strip block"
               style={{
-                backgroundImage: 'url(/don-outsider.webp)',
+                backgroundImage: `url(${sprite})`,
                 // Сдвиг в процентах от ширины самой ленты: 1 кадр = 12.5%.
                 transform: `translateX(-${(frame * 100) / SPRITE_FRAMES}%)`,
               }}

@@ -1,9 +1,9 @@
 import { randomInt } from 'node:crypto';
 
 /** Монет пригласившему за каждого приведённого игрока. */
-export const INVITER_REWARD = 5_000n;
+export const INVITER_REWARD = 25_000n;
 /** Стартовый бонус тому, кто пришёл по ссылке. */
-export const INVITEE_REWARD = 1_000n;
+export const INVITEE_REWARD = 10_000n;
 
 /** Без 0/O/1/I — чтобы код нельзя было перепутать при переписывании руками. */
 const ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';

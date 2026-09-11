@@ -29,22 +29,14 @@ const totalTaps = (user: User) =>
   user.respect * TAPS_PER_RESPECT + user.respectProgress;
 
 export const TASKS: readonly TaskDefinition[] = [
+  // ——— Первый вечер: провести за руку до второй звезды
   {
     id: 'first_taps',
     title: 'Размять пальцы',
     description: 'Сделать 500 тапов',
     target: 500,
     progress: totalTaps,
-    rewardCoins: 2_000n,
-    rewardRespect: 0,
-  },
-  {
-    id: 'earn_10k',
-    title: 'Первые деньги',
-    description: 'Заработать 10 000 DONC',
-    target: 10_000,
-    progress: (user) => Number(user.totalEarned),
-    rewardCoins: 3_000n,
+    rewardCoins: 5_000n,
     rewardRespect: 0,
   },
   {
@@ -54,7 +46,16 @@ export const TASKS: readonly TaskDefinition[] = [
     target: 1,
     progress: (user) =>
       user.tapLevel + user.energyLevel + user.regenLevel > 0 ? 1 : 0,
-    rewardCoins: 2_500n,
+    rewardCoins: 5_000n,
+    rewardRespect: 0,
+  },
+  {
+    id: 'earn_25k',
+    title: 'Первые деньги',
+    description: 'Заработать 25 000 DONC',
+    target: 25_000,
+    progress: (user) => Number(user.totalEarned),
+    rewardCoins: 10_000n,
     rewardRespect: 0,
   },
   {
@@ -63,26 +64,84 @@ export const TASKS: readonly TaskDefinition[] = [
     description: 'Забрать ежедневный бонус',
     target: 1,
     progress: (user) => (user.lastDailyAt ? 1 : 0),
-    rewardCoins: 1_500n,
+    rewardCoins: 5_000n,
     rewardRespect: 0,
   },
+
+  // ——— Первая неделя: показать, что игра длиннее одного вечера
   {
     id: 'invite_friend',
     title: 'Расширить семью',
     description: 'Привести друга по своей ссылке',
     target: 1,
     progress: (_user, context) => context.referralCount,
-    rewardCoins: 5_000n,
+    rewardCoins: 25_000n,
     rewardRespect: 10,
   },
+  {
+    id: 'taps_10k',
+    title: 'Рабочие руки',
+    description: 'Сделать 10 000 тапов',
+    target: 10_000,
+    progress: totalTaps,
+    rewardCoins: 50_000n,
+    rewardRespect: 15,
+  },
+  {
+    id: 'upgrades_10',
+    title: 'Крепкое дело',
+    description: 'Купить 10 уровней улучшений',
+    target: 10,
+    progress: (user) => user.tapLevel + user.energyLevel + user.regenLevel,
+    rewardCoins: 100_000n,
+    rewardRespect: 20,
+  },
+  {
+    id: 'streak_7',
+    title: 'Неделя без пропусков',
+    description: 'Собрать серию из 7 дней',
+    target: 7,
+    progress: (user) => user.dailyStreak,
+    rewardCoins: 200_000n,
+    rewardRespect: 30,
+  },
+
+  // ——— Дальше: цели на вторую-четвёртую неделю
   {
     id: 'join_clan',
     title: 'Своя банда',
     description: 'Вступить в клан или основать свой',
     target: 1,
     progress: (user) => (user.clanId ? 1 : 0),
-    rewardCoins: 10_000n,
-    rewardRespect: 25,
+    rewardCoins: 300_000n,
+    rewardRespect: 40,
+  },
+  {
+    id: 'invite_5',
+    title: 'Своих людей побольше',
+    description: 'Привести 5 друзей',
+    target: 5,
+    progress: (_user, context) => context.referralCount,
+    rewardCoins: 500_000n,
+    rewardRespect: 60,
+  },
+  {
+    id: 'rank_soldier',
+    title: 'Стать солдатом',
+    description: 'Дорасти до ранга «Солдат»',
+    target: 1_950_000,
+    progress: (user) => Number(user.totalEarned),
+    rewardCoins: 750_000n,
+    rewardRespect: 75,
+  },
+  {
+    id: 'streak_30',
+    title: 'Месяц в семье',
+    description: 'Собрать серию из 30 дней',
+    target: 30,
+    progress: (user) => user.dailyStreak,
+    rewardCoins: 3_000_000n,
+    rewardRespect: 150,
   },
 ];
 

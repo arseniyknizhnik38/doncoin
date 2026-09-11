@@ -7,6 +7,7 @@ import {
   normalizeReferralCode,
 } from './referrals.js';
 import type { ParsedInitData } from './telegram.js';
+import { START_STATE } from './upgrades.js';
 
 /**
  * Поля, на которых сработало уникальное ограничение (P2002), или null —
@@ -109,6 +110,9 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
             referredById: inviter?.id ?? null,
             balance: inviter ? INVITEE_REWARD : 0n,
             totalEarned: inviter ? INVITEE_REWARD : 0n,
+            // Стартовые значения берём из каталога улучшений: правка баланса
+            // не должна требовать миграции ради @default в схеме.
+            ...START_STATE,
           },
         }),
         ...(inviter

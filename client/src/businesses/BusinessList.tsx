@@ -11,13 +11,18 @@ const formatCoins = (value: string | number) => Number(value).toLocaleString('ru
 
 /** Иконки держим на клиенте: это оформление, а не данные каталога. */
 const ICONS: Record<string, string> = {
+  street_food: '🌯',
   pizzeria: '🍕',
   car_wash: '🚿',
+  pawnshop: '💍',
   restaurant: '🍽️',
   night_club: '🎧',
+  casino: '🎰',
   construction: '🏗️',
+  union: '⚓',
   private_club: '🥃',
   port: '🚢',
+  offshore: '🏦',
 };
 
 export function BusinessList({ api, state }: BusinessListProps) {
@@ -41,8 +46,14 @@ export function BusinessList({ api, state }: BusinessListProps) {
           {formatCoins(income?.perHour ?? 0)} <span className="text-sm text-neutral-500">в час</span>
         </p>
         {Number(income?.pending ?? 0) > 0 && (
-          <p className="mt-1 text-xs text-neutral-500">
-            Накоплено {formatCoins(income?.pending ?? 0)} — придёт при следующем входе
+          <p
+            className={`mt-1 text-xs ${
+              income?.full ? 'text-don-blood-light' : 'text-neutral-500'
+            }`}
+          >
+            {income?.full
+              ? `Касса переполнена: ${formatCoins(income.pending)}. Часы простаивают`
+              : `Накоплено ${formatCoins(income?.pending ?? 0)} — придёт при следующем входе`}
           </p>
         )}
       </div>
@@ -53,12 +64,17 @@ export function BusinessList({ api, state }: BusinessListProps) {
 
       {businesses.map((business) => {
         // Считаем от живого баланса: флаг с сервера — снимок на момент загрузки.
-        const affordable = Number(state.balance) >= Number(business.nextCost);
+        // Заблокированный рангом бизнес показываем, но купить не даём: видеть,
+        // что откроется дальше, — половина мотивации качать ранг.
+        const affordable =
+          !business.locked && Number(state.balance) >= Number(business.nextCost);
 
         return (
           <div
             key={business.id}
-            className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left"
+            className={`rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left ${
+              business.locked ? 'opacity-50' : ''
+            }`}
           >
             <div className="flex items-start gap-3">
               <span className="text-2xl leading-none" aria-hidden>
@@ -100,9 +116,11 @@ export function BusinessList({ api, state }: BusinessListProps) {
                   : 'border border-neutral-700 text-neutral-600'
               }`}
             >
-              {buying === business.id
-                ? 'Покупаем…'
-                : `${business.owned ? 'Улучшить' : 'Купить'} за ${formatCoins(business.nextCost)}`}
+              {business.locked
+                ? `Откроется на ранге «${business.requiredRank}»`
+                : buying === business.id
+                  ? 'Покупаем…'
+                  : `${business.owned ? 'Улучшить' : 'Купить'} за ${formatCoins(business.nextCost)}`}
             </button>
           </div>
         );

@@ -41,14 +41,20 @@ model User {
   totalEarned BigInt @default(0)
 
   /// Энергия: тратится на тапы и восстанавливается со временем.
-  energy          Int      @default(1000)
-  energyMax       Int      @default(1000)
+  ///
+  /// Хранится в долях тапа: один тап стоит ENERGY_PER_TAP = 10 единиц
+  /// (server/src/lib/energy.ts). Иначе медленный реген в Int не выразить.
+  /// Стартовые значения дублируют нулевые уровни каталога улучшений
+  /// (START_STATE в lib/upgrades.ts) — там источник правды, здесь запасной
+  /// вариант для строк, созданных мимо createUser.
+  energy          Int      @default(6000)
+  energyMax       Int      @default(6000)
   energyPerSecond Int      @default(1)
   /// Момент последнего пересчёта энергии; служит и меткой версии при записи.
   energyUpdatedAt DateTime @default(now())
 
   /// Сколько монет даёт один тап. Пересчитывается при покупке апгрейда.
-  coinsPerTap Int @default(1)
+  coinsPerTap Int @default(10)
 
   /// Repect — медленная «репутационная» валюта: +1 за каждые N тапов.
   respect Int @default(0)

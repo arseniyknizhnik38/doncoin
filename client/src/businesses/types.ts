@@ -10,9 +10,15 @@ export interface BusinessView {
   nextCost: string;
   affordable: boolean;
   owned: boolean;
+  /** Ранг ещё не дорос — бизнес виден, но купить нельзя. */
+  locked: boolean;
+  /** Ступень ранга, с которой бизнес открывается. */
+  requiredRank: string;
 }
 
 export interface BusinessIncome {
   perHour: string;
   pending: string;
+  /** Касса переполнена — дальше доход не копится. */
+  full: boolean;
 }

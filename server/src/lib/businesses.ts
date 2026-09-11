@@ -1,11 +1,18 @@
-import { levelCost, levelIncome } from '../config/businesses.js';
-import { applyBonus, clanBonusPercent } from '../config/perks.js';
+import {
+  COLLECT_CAP_HOURS,
+  levelCost,
+  levelIncome,
+  requiredRankStep,
+} from '../config/businesses.js';
+ import { rankLabel } from '../config/ranks.js';
+import { PERK_BONUS_PER_LEVEL, applyBonus, clanBonusPercent } from '../config/perks.js';
 import type { Business, User } from '../generated/prisma/client.js';
 import { prisma } from './prisma.js';
 
 export type BusinessErrorCode =
   | 'BUSINESS_NOT_FOUND'
   | 'NOT_ENOUGH_COINS'
+  | 'RANK_TOO_LOW'
   | 'CONFLICT';
 
 export class BusinessError extends Error {
@@ -52,17 +59,26 @@ export function totalIncomePerHour(rows: BusinessRow[]): bigint {
  *
  * В отличие от оффлайн-дохода, у бизнесов свой отсчёт времени
  * (businessCollectedAt) и он не сбрасывается тапами: предприятия работают
- * и пока игрок в приложении. Потолка нет — владелец заплатил за них полную
- * цену, и «сгорающий» доход только раздражал бы.
+ * и пока игрок в приложении.
+ *
+ * Накопление ограничено COLLECT_CAP_HOURS — «касса переполнена». Это не
+ * жадность, а единственный рычаг, которым игра просит заходить: без потолка
+ * доход капает круглосуточно, и заходить чаще раза в сутки незачем.
  */
 export function pendingBusinessIncome(
   collectedAt: Date,
   perHour: bigint,
   now: Date,
 ): bigint {
-  const hours = Math.max(0, (now.getTime() - collectedAt.getTime()) / 3_600_000);
+  const elapsed = Math.max(0, (now.getTime() - collectedAt.getTime()) / 3_600_000);
+  const hours = Math.min(elapsed, COLLECT_CAP_HOURS);
 
   return BigInt(Math.floor(Number(perHour) * hours));
+}
+
+/** Заполнена ли касса до отказа — это показываем игроку. */
+export function isCollectionFull(collectedAt: Date, now: Date): boolean {
+  return (now.getTime() - collectedAt.getTime()) / 3_600_000 >= COLLECT_CAP_HOURS;
 }
 
 /** Суммарная прибавка к доходу бизнесов: свой перк плюс уровень клана. */
@@ -74,7 +90,7 @@ export async function businessBonusPercent(user: User): Promise<number> {
       })
     : null;
 
-  return user.respectBusinessLevel * 5 + clanBonusPercent(clan);
+  return user.respectBusinessLevel * PERK_BONUS_PER_LEVEL + clanBonusPercent(clan);
 }
 
 export interface BusinessCollection {
@@ -125,11 +141,22 @@ export interface BusinessView {
   nextCost: string;
   affordable: boolean;
   owned: boolean;
+  /** Ранг ещё не дорос — бизнес виден, но купить нельзя. */
+  locked: boolean;
+  /** Подпись ступени, с которой бизнес открывается. */
+  requiredRank: string;
 }
 
-export function describeBusinesses(rows: BusinessRow[], balance: bigint): BusinessView[] {
+export function describeBusinesses(
+  rows: BusinessRow[],
+  balance: bigint,
+  /** Ступень ранга игрока: ниже неё бизнес заблокирован. */
+  step: number,
+): BusinessView[] {
   return rows.map(({ business, level }) => {
     const nextCost = levelCost(business, level);
+    const gate = requiredRankStep(business.slug);
+    const locked = step < gate;
 
     return {
       id: business.id,
@@ -141,8 +168,10 @@ export function describeBusinesses(rows: BusinessRow[], balance: bigint): Busine
       incomePerHour: levelIncome(business, level).toString(),
       nextIncomePerHour: levelIncome(business, level + 1).toString(),
       nextCost: nextCost.toString(),
-      affordable: balance >= nextCost,
+      affordable: !locked && balance >= nextCost,
       owned: level > 0,
+      locked,
+      requiredRank: rankLabel(gate),
     };
   });
 }
@@ -154,11 +183,22 @@ export function describeBusinesses(rows: BusinessRow[], balance: bigint): Busine
 export async function buyBusinessLevel(
   userId: string,
   businessId: string,
+  /** Ступень ранга покупателя — проверяется здесь, а не только в интерфейсе. */
+  step: number,
 ): Promise<{ level: number; cost: bigint }> {
   const business = await prisma.business.findUnique({ where: { id: businessId } });
 
   if (!business) {
     throw new BusinessError('BUSINESS_NOT_FOUND', 'Такого бизнеса нет', 404);
+  }
+
+  const gate = requiredRankStep(business.slug);
+
+  if (step < gate) {
+    throw new BusinessError(
+      'RANK_TOO_LOW',
+      `Откроется на ранге «${rankLabel(gate)}»`,
+    );
   }
 
   const existing = await prisma.userBusiness.findUnique({

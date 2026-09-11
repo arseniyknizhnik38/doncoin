@@ -47,7 +47,7 @@ export function RewardsBar({ offline, daily, tasksReady, onOpenTasks }: RewardsB
             </span>{' '}
             за {formatHours(offline.hours)}
             {offline.capped && (
-              <span className="text-neutral-500"> · копится не больше 3 часов</span>
+              <span className="text-neutral-500"> · копится не больше 8 часов</span>
             )}
           </p>
         </button>
@@ -67,9 +67,19 @@ export function RewardsBar({ offline, daily, tasksReady, onOpenTasks }: RewardsB
           >
             {daily.claiming
               ? 'Забираем…'
-              : `Забрать бонус дня ${status.nextStreak} · +${formatCoins(status.reward)}`}
+              : `Забрать бонус дня ${status.nextStreak}${
+                  status.milestone ? ' ×3' : ''
+                } · +${formatCoins(status.reward)}`}
           </button>
         )
+      )}
+
+      {/* Обещание следующей крупной награды — то, ради чего серию не бросают. */}
+      {status && status.daysToMilestone !== null && (
+        <p className="text-center text-[11px] tracking-wider text-neutral-500">
+          Через {status.daysToMilestone}{' '}
+          {status.daysToMilestone === 1 ? 'день' : 'дн.'} — тройной бонус
+        </p>
       )}
 
       <button

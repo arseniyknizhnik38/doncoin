@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import { isAdmin } from '../config/admin.js';
 import { DAILY_STREAK_CAP, computeOfflineEarnings, dailyStatus } from '../config/rewards.js';
-import { clanBonusPercent } from '../config/perks.js';
+import { PERK_BONUS_PER_LEVEL, clanBonusPercent } from '../config/perks.js';
 import { collectBusinessIncome } from '../lib/businesses.js';
 import { prisma as db } from '../lib/prisma.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
@@ -61,7 +61,7 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
         select: { treasury: true, familyXp: true },
       })
     : null;
-  const offlineBonus = stored.respectFamilyLevel * 5 + clanBonusPercent(clan);
+  const offlineBonus = stored.respectFamilyLevel * PERK_BONUS_PER_LEVEL + clanBonusPercent(clan);
 
   const offline = isNew
     ? { earned: 0n, hours: 0, capped: false }

@@ -5,6 +5,10 @@ export interface DailyStatus {
   reward: string;
   streak: number;
   streakCap: number;
+  /** Сколько дней до следующей тройной награды, null — если она сегодня. */
+  daysToMilestone: number | null;
+  /** Сегодня платят втройне. */
+  milestone: boolean;
 }
 
 export interface OfflineEarnings {

@@ -1,4 +1,6 @@
 import type { User } from '../generated/prisma/client.js';
+import { PERK_BONUS_PER_LEVEL } from '../config/perks.js';
+import { ENERGY_PER_TAP } from './energy.js';
 import { type RankView, resolveRank } from '../config/ranks.js';
 import { prisma } from './prisma.js';
 
@@ -26,6 +28,8 @@ export interface GameState {
   energy: number;
   energyMax: number;
   energyPerSecond: number;
+  /** Сколько энергии стоит один тап. */
+  energyPerTap: number;
   coinsPerTap: number;
   respect: number;
   /** Тапов накоплено в счёт следующей единицы Respect. */
@@ -82,6 +86,7 @@ export function toGameState(user: {
     energy: user.energy,
     energyMax: user.energyMax,
     energyPerSecond: user.energyPerSecond,
+    energyPerTap: ENERGY_PER_TAP,
     coinsPerTap: user.coinsPerTap,
     respect: user.respect,
     respectProgress: user.respectProgress,
@@ -145,8 +150,8 @@ export async function applyTaps(
         t.id,
         t.n,
         r.regen_energy,
-        LEAST(${requestedTaps}::int, r.regen_energy) AS accepted,
-        u."respectProgress" + LEAST(${requestedTaps}::int, r.regen_energy) AS respect_pool
+        LEAST(${requestedTaps}::int, r.regen_energy / ${ENERGY_PER_TAP}::int) AS accepted,
+        u."respectProgress" + LEAST(${requestedTaps}::int, r.regen_energy / ${ENERGY_PER_TAP}::int) AS respect_pool
       FROM ticks t
       JOIN "User" u ON u.id = t.id
       CROSS JOIN LATERAL (
@@ -155,14 +160,15 @@ export async function applyTaps(
     )
     UPDATE "User" u
     SET
-      energy = c.regen_energy - c.accepted,
-      -- Прибавка за «Славу на улице»: 5% за уровень. Целочисленное деление
-      -- округляет вниз — игрок не получит долей монеты, но и не потеряет
+      energy = c.regen_energy - c.accepted * ${ENERGY_PER_TAP}::int,
+      -- Прибавка за «Славу на улице»: PERK_BONUS_PER_LEVEL за уровень.
+      -- Целочисленное деление
+      -- округляет вниз: игрок не получит долей монеты, но и не потеряет
       -- заметного дохода.
       balance = u.balance + c.accepted::bigint * u."coinsPerTap"
-        * (100 + u."respectStreetLevel" * 5) / 100,
+        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int) / 100,
       "totalEarned" = u."totalEarned" + c.accepted::bigint * u."coinsPerTap"
-        * (100 + u."respectStreetLevel" * 5) / 100,
+        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int) / 100,
       -- Respect: одна единица за каждые TAPS_PER_RESPECT тапов,
       -- незавершённый остаток переносится в respectProgress.
       respect = u.respect + c.respect_pool / ${TAPS_PER_RESPECT}::int,
@@ -200,7 +206,7 @@ export async function applyTaps(
   const balance = BigInt(row.balance);
   const totalEarned = BigInt(row.totalEarned);
 
-  const tapBonus = Number(row.respectStreetLevel) * 5;
+  const tapBonus = Number(row.respectStreetLevel) * PERK_BONUS_PER_LEVEL;
 
   return {
     accepted,
@@ -212,6 +218,7 @@ export async function applyTaps(
       energy: Number(row.energy),
       energyMax: Number(row.energyMax),
       energyPerSecond: Number(row.energyPerSecond),
+      energyPerTap: ENERGY_PER_TAP,
       coinsPerTap: Number(row.coinsPerTap),
       respect: Number(row.respect),
       respectProgress: Number(row.respectProgress),

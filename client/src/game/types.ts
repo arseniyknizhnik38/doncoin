@@ -3,6 +3,12 @@ export interface RankView {
   /** Латиницей — для подписи прогресса. */
   code: string;
   title: string;
+  /** Звезда внутри ранга: 1..3. */
+  star: number;
+  /** Всего звёзд у ранга — рисуем и погашенные. */
+  stars: number;
+  /** Порядковый номер ступени, 0..17. */
+  step: number;
   canJoinClan: boolean;
   unlocks: string | null;
   minBalance: string;
@@ -10,6 +16,7 @@ export interface RankView {
     id: string;
     code: string;
     title: string;
+    star: number;
     minBalance: string;
   } | null;
 }
@@ -22,6 +29,8 @@ export interface GameState {
   energy: number;
   energyMax: number;
   energyPerSecond: number;
+  /** Сколько энергии стоит один тап. */
+  energyPerTap: number;
   coinsPerTap: number;
   /** Медленная репутационная валюта. */
   respect: number;

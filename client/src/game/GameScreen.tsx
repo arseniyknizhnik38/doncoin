@@ -29,7 +29,13 @@ function StarIcon() {
 
 export function GameScreen({ displayName, state, error, onTap, rewards }: GameScreenProps) {
   const energyPercent = Math.round((state.energy / state.energyMax) * 100);
-  const empty = state.energy < 1;
+  const empty = state.energy < state.energyPerTap;
+
+  // Энергия хранится в долях тапа (см. server/src/lib/energy.ts), а игроку
+  // интересно ровно одно: сколько тапов осталось.
+  const tapsLeft = Math.floor(state.energy / state.energyPerTap);
+  const tapsMax = Math.floor(state.energyMax / state.energyPerTap);
+  const tapsPerMinute = Math.round((state.energyPerSecond * 60) / state.energyPerTap);
 
   return (
     <div className="relative flex w-full max-w-md min-h-0 flex-1 flex-col items-center justify-between gap-3 overflow-y-auto py-3 sm:gap-6 sm:py-6">
@@ -77,9 +83,9 @@ export function GameScreen({ displayName, state, error, onTap, rewards }: GameSc
       <footer className="flex w-full flex-col gap-2 px-2">
         <div className="flex items-center justify-between text-xs tracking-wider text-neutral-400">
           <span>
-            Энергия{' '}
+            Обойма{' '}
             <span className="text-don-gold-soft tabular-nums">
-              {state.energy} / {state.energyMax}
+              {tapsLeft} / {tapsMax}
             </span>
           </span>
           <span className="text-neutral-500">+{state.coinsPerTap} за тап</span>
@@ -94,7 +100,7 @@ export function GameScreen({ displayName, state, error, onTap, rewards }: GameSc
 
         {empty && (
           <p className="text-center text-xs tracking-wider text-don-blood-light">
-            Энергия кончилась — восстанавливается {state.energyPerSecond}/сек
+            Обойма пуста — восстанавливается {tapsPerMinute} тапов в минуту
           </p>
         )}
         {error && (

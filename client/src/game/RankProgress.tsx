@@ -29,6 +29,22 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
         {rank.title}
       </p>
 
+      {/* Звёзды внутри ранга: повышение видно каждые пару дней, а персонажа
+          художник рисует по-прежнему одного на ранг. */}
+      <p
+        className="-mt-1 text-sm tracking-[0.3em]"
+        aria-label={`Звезда ${rank.star} из ${rank.stars}`}
+      >
+        {Array.from({ length: rank.stars }, (_, index) => (
+          <span
+            key={index}
+            className={index < rank.star ? 'text-don-gold' : 'text-neutral-700'}
+          >
+            ★
+          </span>
+        ))}
+      </p>
+
       {rank.unlocks && (
         <p className="text-[10px] tracking-wider text-don-blood-light">
           {rank.unlocks}
@@ -45,7 +61,9 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
       {rank.next ? (
         <p className="text-[11px] tracking-wider text-neutral-500">
           {formatCoins(current)} / {formatCoins(rank.next.minBalance)} ДонКоинов до{' '}
-          <span className="text-don-gold-soft">{rank.next.code}</span>
+          <span className="text-don-gold-soft">
+            {rank.next.title} {'★'.repeat(rank.next.star)}
+          </span>
         </p>
       ) : (
         <p className="text-[11px] tracking-wider text-don-gold-soft">

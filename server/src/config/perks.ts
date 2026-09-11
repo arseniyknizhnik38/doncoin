@@ -23,8 +23,24 @@ export interface PerkDefinition {
   cost: (level: number) => number;
 }
 
-/** Цена растёт в 1.6 раза — как и у обычных улучшений. */
-const growth = (base: number) => (level: number) => Math.round(base * 1.6 ** level);
+/**
+ * Прибавка одного уровня перка, в процентах.
+ *
+ * Была 5% при потолке в 10 уровней — то есть ветка выдыхалась за вечер и
+ * упиралась в +50% навсегда. Теперь 2%, зато уровней шестьдесят: перки
+ * стали медленной, но бесконечной ветвью, и Respect не перестаёт быть
+ * нужным на второй неделе.
+ *
+ * Константа используется и в SQL начисления тапов, поэтому живёт здесь,
+ * а не переписывается числом по месту.
+ */
+export const PERK_BONUS_PER_LEVEL = 2;
+
+/** Потолок, до которого дойти можно только очень долгой игрой. */
+export const PERK_MAX_LEVEL = 60;
+
+/** Цена растёт в 1.25 раза: медленнее, чем у денежных улучшений. */
+const growth = (base: number) => (level: number) => Math.round(base * 1.25 ** level);
 
 export const PERKS: readonly PerkDefinition[] = [
   {
@@ -32,27 +48,27 @@ export const PERKS: readonly PerkDefinition[] = [
     title: 'Слава на улице',
     description: 'Больше монет за каждый тап',
     levelField: 'respectStreetLevel',
-    maxLevel: 10,
-    bonusPerLevel: 5,
-    cost: growth(10),
+    maxLevel: PERK_MAX_LEVEL,
+    bonusPerLevel: PERK_BONUS_PER_LEVEL,
+    cost: growth(15),
   },
   {
     id: 'business',
     title: 'Деловая хватка',
     description: 'Больше дохода с бизнесов',
     levelField: 'respectBusinessLevel',
-    maxLevel: 10,
-    bonusPerLevel: 5,
-    cost: growth(12),
+    maxLevel: PERK_MAX_LEVEL,
+    bonusPerLevel: PERK_BONUS_PER_LEVEL,
+    cost: growth(18),
   },
   {
     id: 'family',
     title: 'Связи в семье',
     description: 'Больше дохода, пока вас нет',
     levelField: 'respectFamilyLevel',
-    maxLevel: 10,
-    bonusPerLevel: 5,
-    cost: growth(8),
+    maxLevel: PERK_MAX_LEVEL,
+    bonusPerLevel: PERK_BONUS_PER_LEVEL,
+    cost: growth(12),
   },
 ];
 

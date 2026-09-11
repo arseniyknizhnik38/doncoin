@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { applyBonus } from '../config/perks.js';
+import { rankStep } from '../config/ranks.js';
 import {
   BusinessError,
   businessBonusPercent,
@@ -7,6 +8,7 @@ import {
   collectBusinessIncome,
   describeBusinesses,
   loadBusinesses,
+  isCollectionFull,
   pendingBusinessIncome,
   totalIncomePerHour,
 } from '../lib/businesses.js';
@@ -43,9 +45,11 @@ businessesRouter.get('/', async (_req: Request, res: Response) => {
   const perHour = applyBonus(totalIncomePerHour(rows), await businessBonusPercent(user));
 
   res.json({
-    businesses: describeBusinesses(rows, user.balance),
+    businesses: describeBusinesses(rows, user.balance, rankStep(user.totalEarned)),
     income: {
       perHour: perHour.toString(),
+      // Касса переполнена — сигнал зайти и забрать, иначе часы простаивают.
+      full: isCollectionFull(user.businessCollectedAt, now),
       // Показываем накопленное, но не начисляем: запись на GET — плохая идея,
       // деньги придут при следующем входе или покупке.
       pending: pendingBusinessIncome(user.businessCollectedAt, perHour, now).toString(),
@@ -76,7 +80,11 @@ businessesRouter.post('/:id/buy', async (req: Request, res: Response) => {
   const now = new Date();
   await collectBusinessIncome(user, now);
 
-  const { level, cost } = await buyBusinessLevel(user.id, businessId);
+  const { level, cost } = await buyBusinessLevel(
+    user.id,
+    businessId,
+    rankStep(user.totalEarned),
+  );
 
   const fresh = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
   const rows = await loadBusinesses(user.id);
@@ -85,13 +93,14 @@ businessesRouter.post('/:id/buy', async (req: Request, res: Response) => {
   res.json({
     level,
     spent: cost.toString(),
-    businesses: describeBusinesses(rows, fresh.balance),
+    businesses: describeBusinesses(rows, fresh.balance, rankStep(fresh.totalEarned)),
     income: {
       perHour: applyBonus(
         totalIncomePerHour(rows),
         await businessBonusPercent(fresh),
       ).toString(),
       pending: '0',
+      full: false,
     },
     state: toGameState({ ...fresh, energy }),
   });
