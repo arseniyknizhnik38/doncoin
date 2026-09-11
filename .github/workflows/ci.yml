@@ -1,0 +1,50 @@
+# Проверка кода на каждый push и pull request.
+#
+# Vercel собирает и деплоит сам, но узнаёт о поломке уже на проде. Здесь та
+# же сборка прогоняется раньше и вместе с тестами экономики: ошибка в
+# порогах или кривых не роняет сборку, зато ломает прогресс всем игрокам.
+#
+# Установка идёт с --ignore-scripts: postinstall-скрипты качают бинарники,
+# один из них уже обрывал установку. Клиент Prisma генерируется отдельным
+# шагом, ему сеть не нужна.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci --ignore-scripts
+
+      - name: Сгенерировать клиент Prisma
+        run: npm run db:generate
+
+      - name: Проверить типы сервера
+        run: npm run typecheck -w server
+
+      - name: Проверить типы клиента
+        run: npm run typecheck -w client
+
+      - name: Тесты экономики
+        run: npm test
+
+      - name: Собрать клиент
+        run: npm run build -w client
+
+      - name: Сроки прохождения игры
+        # Не проверка, а отчёт: видно в логе, куда уехал баланс после правки.
+        run: cd server && npx tsx scripts/simulate-progress.ts

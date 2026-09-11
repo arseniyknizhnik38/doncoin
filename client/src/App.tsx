@@ -18,6 +18,8 @@ import { LeaderboardScreen } from './leaderboard/LeaderboardScreen';
 import { useLeaderboard } from './leaderboard/useLeaderboard';
 import { useGame } from './game/useGame';
 import { useReferrals } from './referrals/useReferrals';
+import { Onboarding } from './onboarding/Onboarding';
+import { useOnboarding } from './onboarding/useOnboarding';
 import { usePerks } from './perks/usePerks';
 import { useQuests } from './quests/useQuests';
 import { SettingsPanel } from './settings/SettingsPanel';
@@ -89,6 +91,9 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const settings = useSettings(sessionToken, settingsOpen);
   const ready = isTelegram && auth.status === 'authorized' && game.state;
+  // Объяснение игры показывается поверх всего, но только когда экран уже
+  // загружен: иначе человек читает подсказки про монету, которой не видит.
+  const onboarding = useOnboarding(auth.isNew, game.state?.totalEarned ?? null);
 
   // Технические сообщения вроде «Ошибка 500» игроку бесполезны — подменяем
   // их человеческим текстом, остальные показываем как есть.
@@ -165,6 +170,8 @@ export default function App() {
               </button>
             ))}
           </nav>
+          {onboarding.visible && <Onboarding onDone={onboarding.dismiss} />}
+
           {tasksOpen && (
             <TasksPanel
               tasks={tasks}

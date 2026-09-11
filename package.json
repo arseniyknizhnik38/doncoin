@@ -20,7 +20,8 @@
     "db:studio": "npm run db:studio -w server",
     "vercel-build": "npm run db:generate -w server && npm run db:deploy -w server && npm run db:seed -w server && npm run build -w client",
     "typecheck:api": "tsc -p tsconfig.json",
-    "db:seed": "npm run db:seed -w server"
+    "db:seed": "npm run db:seed -w server",
+    "test": "npm run test -w server"
   },
   "devDependencies": {
     "concurrently": "^9.2.0",
