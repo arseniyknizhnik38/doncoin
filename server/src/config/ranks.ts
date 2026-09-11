@@ -12,10 +12,14 @@
  * рисует по-прежнему шесть персонажей, а игрок получает повышение каждые
  * один-три дня вместо пустых недель между рангами.
  *
- * Пороги растут ровно втрое. Множитель подобран симуляцией: при нём средний
- * игрок (пять заходов в день) доходит до «Дона ★★★» примерно за 60 дней,
- * казуальный — за 85, самый активный — за 50. Меньший шаг сжимал игру в
- * три недели, больший растягивал сверх полугода.
+ * Пороги растут в 3.12 раза. Множитель подобран симуляцией
+ * (server/scripts/simulate-progress.ts): при нём средний игрок (пять заходов
+ * в день) доходит до «Дона ★★★» примерно за 63 дня, казуальный — за 81,
+ * самый активный — за 49. Меньший шаг сжимал игру в три недели, больший
+ * растягивал сверх полугода.
+ *
+ * Число некруглое не случайно: ровно втрое было верно до появления заданий
+ * дня и бустеров — они добавили дохода, и игра сжалась до полутора месяцев.
  */
 
 export type RankId =
@@ -58,57 +62,57 @@ export const RANKS: readonly RankDefinition[] = [
   // ——— Приближённый: первая неделя
   {
     id: 'associate', code: 'ASSOCIATE', title: 'Приближённый', star: 1,
-    minBalance: 75_000n, unlocks: 'Открыта автомойка', canJoinClan: false,
+    minBalance: 78_000n, unlocks: 'Открыта автомойка', canJoinClan: false,
   },
   {
     id: 'associate', code: 'ASSOCIATE', title: 'Приближённый', star: 2,
-    minBalance: 220_000n, unlocks: 'Открыт ломбард', canJoinClan: false,
+    minBalance: 240_000n, unlocks: 'Открыт ломбард', canJoinClan: false,
   },
   {
     id: 'associate', code: 'ASSOCIATE', title: 'Приближённый', star: 3,
-    minBalance: 650_000n, unlocks: 'Открыт ресторан', canJoinClan: false,
+    minBalance: 760_000n, unlocks: 'Открыт ресторан', canJoinClan: false,
   },
 
   // ——— Солдат: здесь открываются кланы и начинается социальная игра
   {
     id: 'soldier', code: 'SOLDIER', title: 'Солдат', star: 1,
-    minBalance: 1_950_000n, unlocks: 'Кланы и ночной клуб', canJoinClan: true,
+    minBalance: 2_400_000n, unlocks: 'Кланы и ночной клуб', canJoinClan: true,
   },
   {
     id: 'soldier', code: 'SOLDIER', title: 'Солдат', star: 2,
-    minBalance: 5_800_000n, unlocks: 'Открыто казино', canJoinClan: true,
+    minBalance: 7_400_000n, unlocks: 'Открыто казино', canJoinClan: true,
   },
   {
     id: 'soldier', code: 'SOLDIER', title: 'Солдат', star: 3,
-    minBalance: 17_500_000n, unlocks: 'Открыта стройка', canJoinClan: true,
+    minBalance: 23_000_000n, unlocks: 'Открыта стройка', canJoinClan: true,
   },
 
   // ——— Капо
   {
     id: 'capo', code: 'CAPO', title: 'Капо', star: 1,
-    minBalance: 52_000_000n, unlocks: 'Открыт профсоюз', canJoinClan: true,
+    minBalance: 72_000_000n, unlocks: 'Открыт профсоюз', canJoinClan: true,
   },
   {
     id: 'capo', code: 'CAPO', title: 'Капо', star: 2,
-    minBalance: 157_000_000n, unlocks: 'Открыт закрытый клуб', canJoinClan: true,
+    minBalance: 224_000_000n, unlocks: 'Открыт закрытый клуб', canJoinClan: true,
   },
   {
     id: 'capo', code: 'CAPO', title: 'Капо', star: 3,
-    minBalance: 470_000_000n, unlocks: 'Открыт порт', canJoinClan: true,
+    minBalance: 700_000_000n, unlocks: 'Открыт порт', canJoinClan: true,
   },
 
   // ——— Консильери
-  { id: 'consigliere', code: 'CONSIGLIERE', title: 'Консильери', star: 1, minBalance: 1_400_000_000n, canJoinClan: true },
+  { id: 'consigliere', code: 'CONSIGLIERE', title: 'Консильери', star: 1, minBalance: 2_200_000_000n, canJoinClan: true },
   {
     id: 'consigliere', code: 'CONSIGLIERE', title: 'Консильери', star: 2,
-    minBalance: 4_200_000_000n, unlocks: 'Открыт оффшорный банк', canJoinClan: true,
+    minBalance: 6_800_000_000n, unlocks: 'Открыт оффшорный банк', canJoinClan: true,
   },
-  { id: 'consigliere', code: 'CONSIGLIERE', title: 'Консильери', star: 3, minBalance: 12_700_000_000n, canJoinClan: true },
+  { id: 'consigliere', code: 'CONSIGLIERE', title: 'Консильери', star: 3, minBalance: 21_000_000_000n, canJoinClan: true },
 
   // ——— Дон: последние три ступени — это отдельный месяц игры
-  { id: 'don', code: 'DON', title: 'Дон', star: 1, minBalance: 38_000_000_000n, canJoinClan: true },
-  { id: 'don', code: 'DON', title: 'Дон', star: 2, minBalance: 115_000_000_000n, canJoinClan: true },
-  { id: 'don', code: 'DON', title: 'Дон', star: 3, minBalance: 345_000_000_000n, canJoinClan: true },
+  { id: 'don', code: 'DON', title: 'Дон', star: 1, minBalance: 66_000_000_000n, canJoinClan: true },
+  { id: 'don', code: 'DON', title: 'Дон', star: 2, minBalance: 207_000_000_000n, canJoinClan: true },
+  { id: 'don', code: 'DON', title: 'Дон', star: 3, minBalance: 645_000_000_000n, canJoinClan: true },
 ];
 
 export interface RankView {

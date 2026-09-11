@@ -1,7 +1,10 @@
 import { useCallback, useState } from 'react';
 import { AdminPanel } from './admin/AdminPanel';
 import { useAdminStats } from './admin/useAdminStats';
+import { BoosterBar } from './boosters/BoosterBar';
+import { useBoosters } from './boosters/useBoosters';
 import { useBusinesses } from './businesses/useBusinesses';
+import { useCipher } from './cipher/useCipher';
 import { ClanScreen } from './clans/ClanScreen';
 import { DealScreen } from './deal/DealScreen';
 import { FamilyScreen } from './family/FamilyScreen';
@@ -15,6 +18,7 @@ import { useLeaderboard } from './leaderboard/useLeaderboard';
 import { useGame } from './game/useGame';
 import { useReferrals } from './referrals/useReferrals';
 import { usePerks } from './perks/usePerks';
+import { useQuests } from './quests/useQuests';
 import { SettingsPanel } from './settings/SettingsPanel';
 import { useSettings } from './settings/useSettings';
 import { TasksPanel } from './tasks/TasksPanel';
@@ -72,6 +76,12 @@ export default function App() {
   const board = useLeaderboard(sessionToken, refreshKeys.top);
   const tasks = useTasks(sessionToken, game.applyServerState);
   const [tasksOpen, setTasksOpen] = useState(false);
+  // Задания дня перезапрашиваются при каждом открытии панели: прогресс по
+  // ним двигают тапы и покупки, а не сама панель.
+  const [questsKey, setQuestsKey] = useState(0);
+  const quests = useQuests(sessionToken, questsKey, game.applyServerState);
+  const boosters = useBoosters(sessionToken, game.applyServerState);
+  const cipher = useCipher(sessionToken, game.applyServerState);
   const [statsOpen, setStatsOpen] = useState(false);
   const stats = useAdminStats(sessionToken, statsOpen);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -108,13 +118,15 @@ export default function App() {
               state={game.state}
               error={game.error}
               onTap={game.tap}
+              boosters={<BoosterBar api={boosters} />}
               rewards={
                 <RewardsBar
                   offline={auth.offline}
                   daily={daily}
-                  tasksReady={tasks.readyCount}
+                  tasksReady={tasks.readyCount + quests.readyCount}
                   onOpenTasks={() => {
                     tasks.reload();
+                    setQuestsKey((value) => value + 1);
                     setTasksOpen(true);
                   }}
                 />
@@ -152,7 +164,12 @@ export default function App() {
             ))}
           </nav>
           {tasksOpen && (
-            <TasksPanel tasks={tasks} onClose={() => setTasksOpen(false)} />
+            <TasksPanel
+              tasks={tasks}
+              quests={quests}
+              cipher={cipher}
+              onClose={() => setTasksOpen(false)}
+            />
           )}
 
           {!settingsOpen && !statsOpen && (

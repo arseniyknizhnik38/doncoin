@@ -10,6 +10,8 @@ interface GameScreenProps {
   onTap: () => boolean;
   /** Плашка оффлайн-дохода и ежедневного бонуса. */
   rewards?: React.ReactNode;
+  /** Заряды бустеров — под кнопкой тапа. */
+  boosters?: React.ReactNode;
 }
 
 const formatBalance = (balance: string) =>
@@ -27,7 +29,14 @@ function StarIcon() {
   );
 }
 
-export function GameScreen({ displayName, state, error, onTap, rewards }: GameScreenProps) {
+export function GameScreen({
+  displayName,
+  state,
+  error,
+  onTap,
+  rewards,
+  boosters,
+}: GameScreenProps) {
   const energyPercent = Math.round((state.energy / state.energyMax) * 100);
   const empty = state.energy < state.energyPerTap;
 
@@ -36,6 +45,12 @@ export function GameScreen({ displayName, state, error, onTap, rewards }: GameSc
   const tapsLeft = Math.floor(state.energy / state.energyPerTap);
   const tapsMax = Math.floor(state.energyMax / state.energyPerTap);
   const tapsPerMinute = Math.round((state.energyPerSecond * 60) / state.energyPerTap);
+
+  // «Разгон» кончается сам, без запроса к серверу, поэтому судить по одному
+  // лишь последнему ответу нельзя — сверяемся с часами на каждом рендере.
+  const rushActive =
+    state.rushUntil !== null && new Date(state.rushUntil).getTime() > Date.now();
+  const perTap = rushActive ? state.coinsPerTap * state.rushMultiplier : state.coinsPerTap;
 
   return (
     <div className="relative flex w-full max-w-md min-h-0 flex-1 flex-col items-center justify-between gap-3 overflow-y-auto py-3 sm:gap-6 sm:py-6">
@@ -72,9 +87,10 @@ export function GameScreen({ displayName, state, error, onTap, rewards }: GameSc
       </header>
 
       {rewards}
+      {boosters}
 
       <TapCoin
-        coinsPerTap={state.coinsPerTap}
+        coinsPerTap={perTap}
         disabled={empty}
         rankId={state.rank.id}
         onTap={onTap}
@@ -88,7 +104,9 @@ export function GameScreen({ displayName, state, error, onTap, rewards }: GameSc
               {tapsLeft} / {tapsMax}
             </span>
           </span>
-          <span className="text-neutral-500">+{state.coinsPerTap} за тап</span>
+          <span className={rushActive ? 'font-semibold text-don-gold' : 'text-neutral-500'}>
+            +{perTap} за тап{rushActive ? ` ×${state.rushMultiplier}` : ''}
+          </span>
         </div>
 
         <div className="h-3 w-full overflow-hidden rounded-full border border-don-blood/50 bg-black/60">

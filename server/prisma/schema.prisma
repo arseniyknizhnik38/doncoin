@@ -87,6 +87,18 @@ model User {
   dailyStreak Int       @default(0)
   lastDailyAt DateTime?
 
+  /// Бустеры. Счётчики обнуляются, когда boostDay отстаёт от текущих суток
+  /// (UTC) — отдельная фоновая задача для сброса не нужна.
+  boostDay       Int       @default(0)
+  fullEnergyUsed Int       @default(0)
+  rushUsed       Int       @default(0)
+  /// Пока не истекло — каждый тап стоит столько же, а даёт кратно больше.
+  rushEndsAt     DateTime?
+
+  /// Прогресс по заданиям дня и разгаданные шифры.
+  questDays     DailyQuestDay[]
+  cipherSolves  CipherSolve[]
+
   /// Уведомления от бота: игрок может их отключить, а бот — узнать, что
   /// его заблокировали, и перестать писать.
   notificationsEnabled Boolean   @default(true)
@@ -304,4 +316,71 @@ model ClanWarEntry {
 
   @@unique([warId, userId])
   @@index([warId, clanId])
+}
+
+/// Задания дня: три штуки, новые каждые сутки.
+///
+/// Прогресс нигде не накапливается по событиям — он считается как разница
+/// между текущими показателями игрока и слепком, снятым при выдаче заданий.
+/// Так тап остаётся одним UPDATE, а не превращается в запись ещё и сюда.
+model DailyQuestDay {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Номер суток UTC — тот же, что у ежедневного бонуса.
+  dayNumber Int
+
+  /// Какие три задания выпали. Храним выбор, а не пересчитываем: иначе
+  /// правка каталога среди дня подменяла бы игроку задания на ходу.
+  quests String[]
+
+  /// Слепок показателей на момент выдачи.
+  baseTaps      Int    @default(0)
+  baseEarned    BigInt @default(0)
+  baseUpgrades  Int    @default(0)
+  baseBusiness  Int    @default(0)
+  baseDonated   BigInt @default(0)
+
+  /// Что уже забрано, и забран ли сундук за все три.
+  claimed      String[] @default([])
+  chestClaimed Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, dayNumber])
+  @@index([dayNumber])
+}
+
+/// Шифр дня: код прячется в канале, вводится в игре.
+///
+/// Главный смысл — не награда, а то, что игра начинает кормить канал:
+/// за кодом нужно идти туда, где живёт аудитория.
+model DailyCipher {
+  id String @id @default(uuid())
+
+  /// Номер суток UTC, на которые действует шифр.
+  dayNumber Int    @unique
+  /// Хранится в верхнем регистре — сравнение регистронезависимо.
+  code      String
+  /// Подсказка, где искать: показывается игроку до разгадки.
+  hint      String?
+
+  solves CipherSolve[]
+
+  createdAt DateTime @default(now())
+}
+
+/// Отметка, что игрок разгадал шифр. Награда выдаётся ровно один раз.
+model CipherSolve {
+  id       String      @id @default(uuid())
+  userId   String
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cipherId String
+  cipher   DailyCipher @relation(fields: [cipherId], references: [id], onDelete: Cascade)
+
+  reward   BigInt   @default(0)
+  solvedAt DateTime @default(now())
+
+  @@unique([userId, cipherId])
 }

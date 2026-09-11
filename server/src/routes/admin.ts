@@ -1,5 +1,8 @@
 import { Router, type Request, type Response } from 'express';
 import { isAdmin } from '../config/admin.js';
+import { isValidCipher, normalizeCipher } from '../config/cipher.js';
+import { utcDayNumber } from '../config/rewards.js';
+import { setCipher } from '../lib/cipher.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
@@ -114,4 +117,37 @@ adminRouter.get('/stats', async (_req: Request, res: Response) => {
       lastSeenAt: player.lastSeenAt,
     })),
   });
+});
+
+/**
+ * POST /api/admin/cipher — завести шифр дня.
+ *
+ * Тело: `{ "code": "ОМЕРТА", "hint": "Ищите в закрепе", "day": 0 }`,
+ * где `day` — смещение в сутках от сегодняшних (0 — сегодня, 1 — завтра).
+ * Готовить шифр заранее удобно: код должен появиться в канале раньше, чем
+ * игроки начнут его искать.
+ */
+adminRouter.post('/cipher', async (req: Request, res: Response) => {
+  const body = req.body as { code?: unknown; hint?: unknown; day?: unknown };
+  const code = typeof body?.code === 'string' ? normalizeCipher(body.code) : '';
+
+  if (!isValidCipher(code)) {
+    res.status(400).json({
+      error: 'Код — 3–32 буквы или цифры, без пробелов',
+      code: 'BAD_CODE',
+    });
+    return;
+  }
+
+  const offset = typeof body?.day === 'number' && Number.isInteger(body.day) ? body.day : 0;
+
+  if (offset < 0 || offset > 30) {
+    res.status(400).json({ error: 'Смещение — от 0 до 30 дней', code: 'BAD_DAY' });
+    return;
+  }
+
+  const hint = typeof body?.hint === 'string' && body.hint.trim() ? body.hint.trim() : null;
+  const saved = await setCipher(utcDayNumber(new Date()) + offset, code, hint);
+
+  res.json({ cipher: { ...saved, hint } });
 });

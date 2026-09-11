@@ -1,4 +1,5 @@
 import type { User } from '../generated/prisma/client.js';
+import { RUSH_MULTIPLIER } from '../config/boosters.js';
 import { PERK_BONUS_PER_LEVEL } from '../config/perks.js';
 import { ENERGY_PER_TAP } from './energy.js';
 import { type RankView, resolveRank } from '../config/ranks.js';
@@ -36,6 +37,10 @@ export interface GameState {
   respectProgress: number;
   /** Сколько тапов нужно на одну единицу Respect. */
   tapsPerRespect: number;
+  /** Пока «Разгон» действует — момент его окончания в ISO, иначе null. */
+  rushUntil: string | null;
+  /** Во сколько раз «Разгон» умножает награду за тап. */
+  rushMultiplier: number;
   /** Ранг вычисляется из баланса, в базе не хранится. */
   rank: RankView;
 }
@@ -78,6 +83,7 @@ export function toGameState(user: {
   coinsPerTap: number;
   respect: number;
   respectProgress: number;
+  rushEndsAt: Date | null;
 }): GameState {
   return {
     // BigInt не сериализуется в JSON — отдаём строкой.
@@ -91,6 +97,13 @@ export function toGameState(user: {
     respect: user.respect,
     respectProgress: user.respectProgress,
     tapsPerRespect: TAPS_PER_RESPECT,
+    // Истёкший «Разгон» клиенту не показываем: пусть у него будет ровно
+    // одно состояние — либо идёт, либо нет.
+    rushUntil:
+      user.rushEndsAt && user.rushEndsAt.getTime() > Date.now()
+        ? user.rushEndsAt.toISOString()
+        : null,
+    rushMultiplier: RUSH_MULTIPLIER,
     rank: resolveRank(user.totalEarned),
   };
 }
@@ -107,6 +120,7 @@ export interface TapResult {
 interface TapRow {
   balance: bigint;
   respectStreetLevel: number;
+  rushEndsAt: Date | null;
   totalEarned: bigint;
   energy: number;
   energyMax: number;
@@ -166,9 +180,11 @@ export async function applyTaps(
       -- округляет вниз: игрок не получит долей монеты, но и не потеряет
       -- заметного дохода.
       balance = u.balance + c.accepted::bigint * u."coinsPerTap"
-        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int) / 100,
+        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int) / 100
+        * CASE WHEN u."rushEndsAt" > now() THEN ${RUSH_MULTIPLIER}::int ELSE 1 END,
       "totalEarned" = u."totalEarned" + c.accepted::bigint * u."coinsPerTap"
-        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int) / 100,
+        * (100 + u."respectStreetLevel" * ${PERK_BONUS_PER_LEVEL}::int) / 100
+        * CASE WHEN u."rushEndsAt" > now() THEN ${RUSH_MULTIPLIER}::int ELSE 1 END,
       -- Respect: одна единица за каждые TAPS_PER_RESPECT тапов,
       -- незавершённый остаток переносится в respectProgress.
       respect = u.respect + c.respect_pool / ${TAPS_PER_RESPECT}::int,
@@ -184,6 +200,7 @@ export async function applyTaps(
     RETURNING
       u.balance,
       u."respectStreetLevel" AS "respectStreetLevel",
+      u."rushEndsAt" AS "rushEndsAt",
       u."totalEarned" AS "totalEarned",
       u.energy,
       u."energyMax" AS "energyMax",
@@ -207,10 +224,14 @@ export async function applyTaps(
   const totalEarned = BigInt(row.totalEarned);
 
   const tapBonus = Number(row.respectStreetLevel) * PERK_BONUS_PER_LEVEL;
+  const rushEndsAt = row.rushEndsAt ? new Date(row.rushEndsAt) : null;
+  const rushActive = rushEndsAt !== null && rushEndsAt.getTime() > Date.now();
 
   return {
     accepted,
-    awarded: Math.floor((accepted * Number(row.coinsPerTap) * (100 + tapBonus)) / 100),
+    awarded:
+      Math.floor((accepted * Number(row.coinsPerTap) * (100 + tapBonus)) / 100) *
+      (rushActive ? RUSH_MULTIPLIER : 1),
     respectAwarded: Number(row.respectAwarded),
     state: {
       balance: balance.toString(),
@@ -223,6 +244,8 @@ export async function applyTaps(
       respect: Number(row.respect),
       respectProgress: Number(row.respectProgress),
       tapsPerRespect: TAPS_PER_RESPECT,
+      rushUntil: rushActive ? rushEndsAt!.toISOString() : null,
+      rushMultiplier: RUSH_MULTIPLIER,
       rank: resolveRank(totalEarned),
     },
   };

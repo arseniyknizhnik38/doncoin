@@ -38,6 +38,10 @@ export interface GameState {
   respectProgress: number;
   /** Сколько тапов нужно на одну единицу Respect. */
   tapsPerRespect: number;
+  /** Пока «Разгон» действует — момент окончания в ISO, иначе null. */
+  rushUntil: string | null;
+  /** Во сколько раз «Разгон» умножает награду за тап. */
+  rushMultiplier: number;
   /** Ранг, вычисленный сервером из баланса. */
   rank: RankView;
 }

@@ -2,6 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GameState } from './types';
 
 /**
+ * Множитель «Разгона» на момент вызова.
+ *
+ * Локальный отклик должен совпадать с тем, что насчитает сервер: иначе на
+ * время бустера цифра на экране отстаёт впятеро и прыгает при синхронизации.
+ */
+function rushMultiplier(state: GameState): number {
+  return state.rushUntil !== null && new Date(state.rushUntil).getTime() > Date.now()
+    ? state.rushMultiplier
+    : 1;
+}
+
+/**
  * Двигает Respect на `taps` тапов — той же арифметикой, что и сервер:
  * целые единицы начисляются, остаток копится в respectProgress.
  */
@@ -92,15 +104,12 @@ export function useGame(
   const applyServerState = useCallback(
     (serverState: GameState) => {
       const stillPending = pendingTaps.current;
+      const perTap = serverState.coinsPerTap * rushMultiplier(serverState);
 
       commitState({
         ...serverState,
-        balance: String(
-          Number(serverState.balance) + stillPending * serverState.coinsPerTap,
-        ),
-        totalEarned: String(
-          Number(serverState.totalEarned) + stillPending * serverState.coinsPerTap,
-        ),
+        balance: String(Number(serverState.balance) + stillPending * perTap),
+        totalEarned: String(Number(serverState.totalEarned) + stillPending * perTap),
         energy: Math.max(0, serverState.energy - stillPending * serverState.energyPerTap),
         ...advanceRespect(serverState, stillPending),
       });
@@ -195,11 +204,13 @@ export function useGame(
       return false;
     }
 
+    const perTap = current.coinsPerTap * rushMultiplier(current);
+
     pendingTaps.current += 1;
     commitState({
       ...current,
-      balance: String(Number(current.balance) + current.coinsPerTap),
-      totalEarned: String(Number(current.totalEarned) + current.coinsPerTap),
+      balance: String(Number(current.balance) + perTap),
+      totalEarned: String(Number(current.totalEarned) + perTap),
       energy: current.energy - current.energyPerTap,
       ...advanceRespect(current, 1),
     });

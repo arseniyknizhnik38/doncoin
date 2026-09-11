@@ -4,11 +4,16 @@ import express, {
   type Request,
   type Response,
 } from 'express';
+import { BoosterError } from './lib/boosters.js';
 import { BusinessError } from './lib/businesses.js';
+import { CipherError } from './lib/cipher.js';
 import { ClanError } from './lib/clans.js';
+import { QuestError } from './lib/quests.js';
 import { adminRouter } from './routes/admin.js';
 import { authRouter } from './routes/auth.js';
+import { boostersRouter } from './routes/boosters.js';
 import { businessesRouter } from './routes/businesses.js';
+import { cipherRouter } from './routes/cipher.js';
 import { clansRouter } from './routes/clans.js';
 import { cronRouter } from './routes/cron.js';
 import { dailyRouter } from './routes/daily.js';
@@ -16,6 +21,7 @@ import { favorsRouter } from './routes/favors.js';
 import { gameRouter } from './routes/game.js';
 import { leaderboardRouter } from './routes/leaderboard.js';
 import { perksRouter } from './routes/perks.js';
+import { questsRouter } from './routes/quests.js';
 import { referralsRouter } from './routes/referrals.js';
 import { settingsRouter } from './routes/settings.js';
 import { tasksRouter } from './routes/tasks.js';
@@ -46,6 +52,9 @@ export function createApp() {
   app.use('/api/cron', cronRouter);
   app.use('/api/settings', settingsRouter);
   app.use('/api/daily', dailyRouter);
+  app.use('/api/quests', questsRouter);
+  app.use('/api/boosters', boostersRouter);
+  app.use('/api/cipher', cipherRouter);
   app.use('/api/favors', favorsRouter);
   app.use('/api/leaderboard', leaderboardRouter);
   app.use('/api/tasks', tasksRouter);
@@ -59,13 +68,17 @@ export function createApp() {
   app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
     // Ошибки игровых правил несут собственный статус и код — их текст
     // предназначен игроку. Всё остальное наружу не раскрываем.
-    if (error instanceof BusinessError) {
-      res.status(error.status).json({ error: error.message, code: error.code });
-      return;
-    }
+    const gameRule =
+      error instanceof BusinessError ||
+      error instanceof ClanError ||
+      error instanceof QuestError ||
+      error instanceof BoosterError ||
+      error instanceof CipherError;
 
-    if (error instanceof ClanError) {
-      res.status(error.status).json({ error: error.message, code: error.code });
+    if (gameRule) {
+      const rule = error as { status: number; code: string; message: string };
+
+      res.status(rule.status).json({ error: rule.message, code: rule.code });
       return;
     }
 

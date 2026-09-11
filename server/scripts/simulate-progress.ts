@@ -15,6 +15,8 @@ import {
   levelIncome,
   requiredRankStep,
 } from '../src/config/businesses.js';
+import { BOOSTERS, RUSH_MULTIPLIER, RUSH_SECONDS } from '../src/config/boosters.js';
+import { CHEST_HOURS, QUESTS_PER_DAY } from '../src/config/quests.js';
 import { RANKS, rankStep } from '../src/config/ranks.js';
 import { ENERGY_PER_TAP } from '../src/lib/energy.js';
 import { UPGRADES } from '../src/lib/upgrades.js';
@@ -33,6 +35,9 @@ const PLAYERS: readonly Player[] = [
 ];
 
 const [TAP, ENERGY, REGEN] = UPGRADES;
+
+/** Сколько тапов в секунду выдаёт человек — нужно для оценки «Разгона». */
+const TAPS_PER_SECOND = 7;
 
 const coinsPerTap = (level: number) => TAP!.valueAt(level).coinsPerTap!;
 const energyMax = (level: number) => ENERGY!.valueAt(level).energyMax!;
@@ -80,9 +85,20 @@ function simulate(player: Player, days = 400): Result {
     );
     const hourly = tapsPerHour * perTap;
 
-    // Ежедневный бонус и задания дают примерно три часа дохода — считаем их
-    // активным заработком: без захода в игру их не получить.
-    const activeToday = taps * perTap + hourly * 0.25 * Math.min(day, 30) + hourly * 3;
+    // Бустеры: три полные обоймы сверх восстановленного и три «Разгона»,
+    // каждый из которых умножает двадцать секунд тапания.
+    const fullEnergy = BOOSTERS.find((b) => b.id === 'full_energy')!.perDay;
+    const rushes = BOOSTERS.find((b) => b.id === 'rush')!.perDay;
+    const boosterTaps = fullEnergy * (energyMax(levels.energy) / ENERGY_PER_TAP);
+    const rushBonusTaps = rushes * RUSH_SECONDS * TAPS_PER_SECOND * (RUSH_MULTIPLIER - 1);
+
+    // Ежедневный бонус плюс задания дня: три задания примерно по часу дохода
+    // и сундук за все три.
+    const questIncome = hourly * (QUESTS_PER_DAY + CHEST_HOURS);
+    const activeToday =
+      (taps + boosterTaps + rushBonusTaps) * perTap +
+      hourly * 0.25 * Math.min(day, 30) +
+      questIncome;
     const businessPerHour = owned.reduce(
       (sum, level, index) => sum + Number(levelIncome(BUSINESS_CATALOG[index]!, level)),
       0,
@@ -101,7 +117,7 @@ function simulate(player: Player, days = 400): Result {
         {
           buy: () => { levels.tap += 1; },
           price: Number(TAP!.price(levels.tap)),
-          gain: (taps * perTap * 0.18) / 24,
+          gain: ((taps + boosterTaps + rushBonusTaps) * perTap * 0.18) / 24,
         },
         {
           buy: () => { levels.regen += 1; },
