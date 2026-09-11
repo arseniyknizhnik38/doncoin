@@ -20,10 +20,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Запустить рассылку
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          URL: https://doncoin.vercel.app/api/cron/notify
         run: |
-          code=$(curl -s -o /tmp/out.json -w "%{http_code}" -X POST \
-            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
-            https://doncoin.vercel.app/api/cron/notify)
+          # Без секрета эндпоинт отвечает 404 — по замыслу, чтобы посторонние
+          # не узнали о существовании раздела. Но тогда и этот шаг падал бы
+          # каждые три часа красным крестиком, не объясняя причины. Поэтому
+          # разбираем случаи отдельно.
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::warning::Секрет CRON_SECRET не задан в репозитории"
+            echo "Settings -> Secrets and variables -> Actions -> New repository secret."
+            echo "Имя CRON_SECRET, значение — то же, что в переменных окружения Vercel."
+            echo "Пока его нет, напоминания игрокам не отправляются."
+            exit 0
+          fi
+
+          code=$(curl -s -o /tmp/out.json -w "%{http_code}" -X POST -H "x-cron-secret: $CRON_SECRET" "$URL")
           echo "HTTP $code"
-          cat /tmp/out.json
+          cat /tmp/out.json || true
+          echo
+
+          if [ "$code" = "404" ]; then
+            echo "::error::Секрет репозитория не совпал с тем, что задан в Vercel"
+            exit 1
+          fi
+
+          if [ "$code" = "503" ]; then
+            echo "::error::В Vercel не задана переменная CRON_SECRET"
+            exit 1
+          fi
+
           test "$code" = "200"
