@@ -75,6 +75,24 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
               {formatCoins(my.treasury)}
             </p>
 
+            {/* Ставку проговариваем всем, а не только главе: доля, которую
+                снимают молча, читается как кража, даже когда она мала. */}
+            <p className="mt-1 text-[11px] tracking-wider text-neutral-500">
+              Наверх отстёгивается {my.tributePercent}% с дохода бизнесов
+              {my.isOwner && (
+                <>
+                  {' · '}
+                  <button
+                    type="button"
+                    onClick={() => clans.setTribute(my.tributePercent >= my.tributeMax ? 0 : my.tributePercent + 5)}
+                    className="text-don-gold-soft underline underline-offset-2"
+                  >
+                    изменить
+                  </button>
+                </>
+              )}
+            </p>
+
             <p className="mt-2 text-xs text-neutral-400">
               Уровень семьи{' '}
               <span className="text-don-gold-soft">{my.level ?? 0}</span> — каждому

@@ -11,6 +11,10 @@ export interface MyClan {
   id: string;
   name: string;
   treasury: string;
+  /** Какую долю дохода с бизнесов участники отстёгивают в кассу. */
+  tributePercent: number;
+  /** Потолок ставки — задаётся сервером. */
+  tributeMax: number;
   familyXp: number;
   level: number;
   power: string;

@@ -64,7 +64,7 @@ interface Result {
   passiveShare: number;
 }
 
-function simulate(player: Player, days = 400): Result {
+function simulate(player: Player, days = 400, trace = false): Result {
   let balance = 0;
   let earned = 0;
   let active = 0;
@@ -155,6 +155,14 @@ function simulate(player: Player, days = 400): Result {
       best.buy();
     }
 
+    if (trace && [7, 14, 21, 30, 45, 63, 90].includes(day)) {
+      const fmt = (n) => Math.round(n).toLocaleString('ru-RU');
+      console.log(
+        `  день ${String(day).padStart(3)} | на руках ${fmt(balance).padStart(22)}` +
+          ` | заработано ${fmt(earned).padStart(22)}`,
+      );
+    }
+
     const step = rankStep(BigInt(Math.floor(earned)));
 
     for (let i = 0; i <= step; i += 1) {
@@ -165,7 +173,12 @@ function simulate(player: Player, days = 400): Result {
   return { reached, passiveShare: passive / (active + passive) };
 }
 
-const results = PLAYERS.map((player) => ({ player, result: simulate(player) }));
+console.log('Сколько денег лежит без дела у среднего игрока:\n');
+const results = PLAYERS.map((player) => ({
+  player,
+  result: simulate(player, 400, player.name === 'средний'),
+}));
+console.log();
 
 console.log('Ступень              порог DONC        ' + PLAYERS.map((p) => p.name.padStart(9)).join(''));
 

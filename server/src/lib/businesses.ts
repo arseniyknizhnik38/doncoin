@@ -6,7 +6,12 @@ import {
 } from '../config/businesses.js';
  import { rankLabel } from '../config/ranks.js';
 import { retirementBonus } from '../config/retirement.js';
-import { PERK_BONUS_PER_LEVEL, applyBonus, clanBonusPercent } from '../config/perks.js';
+import {
+  PERK_BONUS_PER_LEVEL,
+  applyBonus,
+  clanBonusPercent,
+  splitTribute,
+} from '../config/perks.js';
 import type { Business, User } from '../generated/prisma/client.js';
 import { prisma } from './prisma.js';
 
@@ -99,8 +104,11 @@ export async function businessBonusPercent(user: User): Promise<number> {
 }
 
 export interface BusinessCollection {
+  /** Сколько дошло до игрока — уже за вычетом доли семьи. */
   earned: bigint;
   perHour: bigint;
+  /** Сколько ушло в кассу семьи. */
+  tribute: bigint;
 }
 
 /**
@@ -117,11 +125,26 @@ export async function collectBusinessIncome(
   const perHour = applyBonus(totalIncomePerHour(rows), bonus);
   const earned = pendingBusinessIncome(user.businessCollectedAt, perHour, now);
 
+  // Доля семьи снимается здесь и только здесь: сбор дохода — единственное
+  // место, где деньги бизнесов приходят игроку, и других путей мимо кассы
+  // у них нет.
+  const clan = user.clanId
+    ? await prisma.clan.findUnique({
+        where: { id: user.clanId },
+        select: { tributePercent: true },
+      })
+    : null;
+
+  const { toTreasury, toPlayer } = splitTribute(earned, clan?.tributePercent ?? 0);
+
   if (earned > 0n) {
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        balance: { increment: earned },
+        balance: { increment: toPlayer },
+        // В заработок идёт всё: отстёгнутое игрок заработал, просто отдал.
+        // Иначе отстёгивание замедляло бы рост ранга, и платить за место в
+        // семье приходилось бы ещё и рангом.
         totalEarned: { increment: earned },
         lifetimeEarned: { increment: earned },
         businessCollectedAt: now,
@@ -129,7 +152,14 @@ export async function collectBusinessIncome(
     });
   }
 
-  return { earned, perHour };
+  if (toTreasury > 0n && user.clanId) {
+    await prisma.clan.update({
+      where: { id: user.clanId },
+      data: { treasury: { increment: toTreasury } },
+    });
+  }
+
+  return { earned: toPlayer, perHour, tribute: toTreasury };
 }
 
 export interface BusinessView {

@@ -168,3 +168,29 @@ export function incomeMultiplier(base: number, ...bonuses: number[]): number {
 export function applyBonus(amount: bigint, percent: number): bigint {
   return (amount * BigInt(100 + percent)) / 100n;
 }
+
+/**
+ * Потолок отстёгивания наверх, в процентах.
+ *
+ * Ставку задаёт глава семьи, но не любую. Дело не в заботе об участниках:
+ * глава, поставивший девяносто процентов, разогнал бы семью за вечер — и
+ * механика привязки превратилась бы в способ её разрушить. Двадцать
+ * процентов заметны, но терпимы.
+ */
+export const TRIBUTE_MAX_PERCENT = 20;
+
+/** Сколько уходит в кассу с заработанного, и сколько остаётся игроку. */
+export function splitTribute(
+  earned: bigint,
+  percent: number,
+): { toTreasury: bigint; toPlayer: bigint } {
+  if (earned <= 0n || percent <= 0) {
+    return { toTreasury: 0n, toPlayer: earned > 0n ? earned : 0n };
+  }
+
+  const capped = Math.min(percent, TRIBUTE_MAX_PERCENT);
+  // Целочисленное деление округляет вниз — в пользу игрока, а не кассы.
+  const toTreasury = (earned * BigInt(capped)) / 100n;
+
+  return { toTreasury, toPlayer: earned - toTreasury };
+}

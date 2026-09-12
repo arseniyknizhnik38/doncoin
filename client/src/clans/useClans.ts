@@ -11,6 +11,8 @@ export interface ClansApi {
   join: (clanId: string) => void;
   leave: () => void;
   donate: (amount: number) => void;
+  /** Глава задаёт долю отстёгивания, 0..tributeMax. */
+  setTribute: (percent: number) => void;
   reload: () => void;
 }
 
@@ -115,6 +117,10 @@ export function useClans(
     join: useCallback((clanId: string) => act(`/${clanId}/join`), [act]),
     leave: useCallback(() => act('/leave'), [act]),
     donate: useCallback((amount: number) => act('/donate', { amount }), [act]),
+    setTribute: useCallback(
+      (percent: number) => act('/tribute', { percent }),
+      [act],
+    ),
     reload: useCallback(() => setReloadToken((value) => value + 1), []),
   };
 }

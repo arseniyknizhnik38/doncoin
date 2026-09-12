@@ -1,5 +1,10 @@
 import { Router, type Request, type Response } from 'express';
-import { clanBonusPercent, clanLevel, clanPower } from '../config/perks.js';
+import {
+  TRIBUTE_MAX_PERCENT,
+  clanBonusPercent,
+  clanLevel,
+  clanPower,
+} from '../config/perks.js';
 import { clanRank, resolveRank } from '../config/ranks.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import {
@@ -87,6 +92,8 @@ async function describeMyClan(clanId: string | null, ownerId: string) {
     id: clan.id,
     name: clan.name,
     treasury: clan.treasury.toString(),
+    tributePercent: clan.tributePercent,
+    tributeMax: TRIBUTE_MAX_PERCENT,
     familyXp: clan.familyXp,
     level: clanLevel(clan),
     power: clanPower(clan).toString(),
@@ -325,4 +332,43 @@ clansRouter.post('/donate', async (req: Request, res: Response) => {
     myClan: await describeMyClan(user.clanId, user.id),
     state: toGameState({ ...fresh, energy }),
   });
+});
+
+/**
+ * POST /api/clans/tribute — глава задаёт долю, которую участники отстёгивают
+ * в кассу с дохода бизнесов.
+ *
+ * Потолок в коде, а не на усмотрение главы: поставивший девяносто процентов
+ * разогнал бы семью за вечер, и механика привязки стала бы способом её
+ * разрушить.
+ */
+clansRouter.post('/tribute', async (req: Request, res: Response) => {
+  const user = await loadUser(res);
+
+  if (!user.clanId) {
+    throw new ClanError('NOT_IN_CLAN', 'Вы не состоите в клане');
+  }
+
+  const clan = await prisma.clan.findUniqueOrThrow({ where: { id: user.clanId } });
+
+  if (clan.ownerId !== user.id) {
+    throw new ClanError('NOT_OWNER', 'Долю задаёт глава семьи', 403);
+  }
+
+  const raw = (req.body as { percent?: unknown }).percent;
+
+  if (typeof raw !== 'number' || !Number.isInteger(raw) || raw < 0 || raw > TRIBUTE_MAX_PERCENT) {
+    throw new ClanError(
+      'BAD_TRIBUTE',
+      `Доля — целое число от 0 до ${TRIBUTE_MAX_PERCENT}`,
+      400,
+    );
+  }
+
+  await prisma.clan.update({
+    where: { id: clan.id },
+    data: { tributePercent: raw },
+  });
+
+  res.json({ myClan: await describeMyClan(clan.id, user.id) });
 });
