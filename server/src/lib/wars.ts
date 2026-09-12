@@ -7,6 +7,7 @@ import {
   warWindow,
   weekNumber,
 } from '../config/wars.js';
+import { recordFeed } from './feed.js';
 import { prisma } from './prisma.js';
 import type { ClanWar } from '../generated/prisma/client.js';
 
@@ -129,8 +130,20 @@ export async function enlistInActiveWar(
  * затем замораживаются вклады, и только потом считается счёт — так он
  * гарантированно не поедет посреди расчёта.
  */
+interface Settled {
+  winner: string;
+  loser: string;
+  paid: bigint;
+}
+
 async function settleWar(war: ClanWar, now: Date): Promise<boolean> {
-  return prisma.$transaction(async (tx) => {
+  // Итог возвращается из транзакции, а не пишется во внешнюю переменную:
+  // присваивание внутри замыкания TypeScript не отслеживает, и тип за его
+  // пределами схлопывается в null.
+  const { finished, settled } = await prisma.$transaction<{
+    finished: boolean;
+    settled: Settled | null;
+  }>(async (tx) => {
     const claimed = await tx.clanWar.updateMany({
       where: { id: war.id, status: 'active' },
       data: { status: 'finished', finishedAt: now },
@@ -138,7 +151,7 @@ async function settleWar(war: ClanWar, now: Date): Promise<boolean> {
 
     if (claimed.count === 0) {
       // Другой запрос или крон закрыли войну раньше — здесь делать нечего.
-      return false;
+      return { finished: false, settled: null };
     }
 
     await tx.$executeRawUnsafe(
@@ -211,8 +224,36 @@ async function settleWar(war: ClanWar, now: Date): Promise<boolean> {
       data: { scoreA, scoreB, winnerId, potPaid: paid },
     });
 
-    return true;
+    if (!winnerId || !loserId) {
+      return { finished: true, settled: null };
+    }
+
+    const sides = await tx.clan.findMany({
+      where: { id: { in: [winnerId, loserId] } },
+      select: { id: true, name: true },
+    });
+
+    return {
+      finished: true,
+      settled: {
+        winner: sides.find((clan) => clan.id === winnerId)?.name ?? 'Семья',
+        loser: sides.find((clan) => clan.id === loserId)?.name ?? 'Семья',
+        paid,
+      },
+    };
   });
+
+  // Новость пишем после транзакции: лента не должна уметь откатывать войну.
+  if (finished && settled) {
+    await recordFeed({
+      kind: 'war_won',
+      actor: settled.winner,
+      rival: settled.loser,
+      amount: settled.paid,
+    });
+  }
+
+  return finished;
 }
 
 /**
@@ -324,6 +365,12 @@ export async function startWarsForWeek(now: Date): Promise<StartReport> {
       });
 
       created += 1;
+
+      await recordFeed({
+        kind: 'war_started',
+        actor: pool.find((clan) => clan.id === clanAId)?.name ?? 'Семья',
+        rival: pool.find((clan) => clan.id === clanBId)?.name ?? 'Семья',
+      });
     } catch (error) {
       // Уникальный индекс (неделя, клан) — значит пару успели создать
       // параллельно. Это не ошибка, просто пропускаем.

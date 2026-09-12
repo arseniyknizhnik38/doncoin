@@ -366,9 +366,21 @@ check('фон приходит в состоянии игры',
   typeof stateWithBackdrop.payload?.state?.backdrop === 'string',
   `${stateWithBackdrop.payload?.state?.backdrop}`);
 
+// ——— Лента «Что слышно»
+const emptyFeed = await call('/api/feed', { token });
+check('лента отвечает', Array.isArray(emptyFeed.payload?.events),
+  JSON.stringify(emptyFeed.payload).slice(0, 80));
+check('пока пусто', emptyFeed.payload?.events?.length === 0,
+  `${emptyFeed.payload?.events?.length}`);
+
 const clan = await call('/api/clans', { token, method: 'POST', body: { name: 'Корлеоне' } });
 check('без ранга клан не создать', clan.status === 409 || clan.status === 403,
   `статус ${clan.status}`);
+
+// Создать клан тестовому игроку нельзя (ранг низкий), поэтому проверяем
+// только то, что лента переживает событие: запись идёт мимо игрока.
+const feedAfter = await call('/api/feed', { token });
+check('лента остаётся читаемой', Array.isArray(feedAfter.payload?.events));
 
 // ——— Реферал
 // Свой код игрок узнаёт из /api/referrals — при входе он не отдаётся.

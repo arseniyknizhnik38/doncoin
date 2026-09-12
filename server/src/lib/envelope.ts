@@ -9,6 +9,7 @@ import {
 import { rankStep, RANKS } from '../config/ranks.js';
 import { utcDayNumber } from '../config/rewards.js';
 import type { User } from '../generated/prisma/client.js';
+import { actorName, recordFeed } from './feed.js';
 import { prisma } from './prisma.js';
 
 export type EnvelopeErrorCode = 'TOO_EARLY' | 'ALREADY_TAKEN' | 'CONFLICT';
@@ -115,6 +116,12 @@ export async function openEnvelope(user: User, now: Date): Promise<OpenedEnvelop
 
   if (taken.count === 0) {
     throw new EnvelopeError('CONFLICT', 'Не получилось, попробуйте ещё раз');
+  }
+
+  // Верхняя ступень попадает в ленту: ради этого она и редкая. О выигрыше,
+  // которого никто не видел, не рассказывают.
+  if (tier.id === ENVELOPE_TIERS[ENVELOPE_TIERS.length - 1]!.id) {
+    await recordFeed({ kind: 'fat_envelope', actor: actorName(user), amount });
   }
 
   return { tier, amount };

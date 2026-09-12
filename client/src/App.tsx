@@ -9,6 +9,8 @@ import { useBackdrops } from './backdrops/useBackdrops';
 import { useBusinesses } from './businesses/useBusinesses';
 import { useCipher } from './cipher/useCipher';
 import { EnvelopeCard } from './envelope/EnvelopeCard';
+import { FeedTicker } from './feed/FeedList';
+import { useFeed } from './feed/useFeed';
 import { useEnvelope } from './envelope/useEnvelope';
 import { ClanScreen } from './clans/ClanScreen';
 import { DealScreen } from './deal/DealScreen';
@@ -93,6 +95,9 @@ export default function App() {
   const boosters = useBoosters(sessionToken, game.applyServerState);
   const cipher = useCipher(sessionToken, game.applyServerState);
   const envelope = useEnvelope(sessionToken, game.applyServerState);
+  // Лента обновляется при открытии клана, но читается и на главном экране —
+  // ключ общий, чтобы не тянуть её дважды.
+  const feed = useFeed(sessionToken, refreshKeys.clan);
   const [statsOpen, setStatsOpen] = useState(false);
   const stats = useAdminStats(sessionToken, statsOpen);
   const ads = useAds(sessionToken, statsOpen);
@@ -147,7 +152,12 @@ export default function App() {
                   offline={auth.offline}
                   daily={daily}
                   tasksReady={tasks.readyCount + quests.readyCount}
-                  envelope={<EnvelopeCard api={envelope} />}
+                  envelope={
+                    <>
+                      <FeedTicker api={feed} />
+                      <EnvelopeCard api={envelope} />
+                    </>
+                  }
                   onOpenTasks={() => {
                     tasks.reload();
                     setQuestsKey((value) => value + 1);
@@ -165,7 +175,7 @@ export default function App() {
               state={game.state}
             />
           ) : tab === 'clan' ? (
-            <ClanScreen clans={clans} />
+            <ClanScreen clans={clans} feed={feed} />
           ) : tab === 'top' ? (
             <LeaderboardScreen board={board} />
           ) : (

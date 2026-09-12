@@ -1,10 +1,14 @@
 import { ErrorState, SkeletonList } from '../ui/States';
 import { ClanWarPanel } from './ClanWarPanel';
 import { useState } from 'react';
+import { FeedList } from '../feed/FeedList';
+import type { FeedApi } from '../feed/useFeed';
 import type { ClansApi } from './useClans';
 
 interface ClanScreenProps {
   clans: ClansApi;
+  /** Лента «Что слышно» — новости семей живут здесь же. */
+  feed: FeedApi;
 }
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
@@ -12,7 +16,7 @@ const formatCoins = (value: string | number) => Number(value).toLocaleString('ru
 const memberName = (member: { firstName: string | null; username: string | null }) =>
   member.firstName ?? (member.username ? `@${member.username}` : 'Аноним');
 
-export function ClanScreen({ clans }: ClanScreenProps) {
+export function ClanScreen({ clans, feed }: ClanScreenProps) {
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -49,6 +53,8 @@ export function ClanScreen({ clans }: ClanScreenProps) {
       {error && (
         <p className="text-center text-xs tracking-wider text-don-blood-light">{error}</p>
       )}
+
+      <FeedList api={feed} />
 
       {my ? (
         <>

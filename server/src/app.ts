@@ -18,6 +18,7 @@ import { boostersRouter } from './routes/boosters.js';
 import { businessesRouter } from './routes/businesses.js';
 import { cipherRouter } from './routes/cipher.js';
 import { envelopeRouter } from './routes/envelope.js';
+import { feedRouter } from './routes/feed.js';
 import { clansRouter } from './routes/clans.js';
 import { cronRouter } from './routes/cron.js';
 import { dailyRouter } from './routes/daily.js';
@@ -62,6 +63,7 @@ export function createApp() {
   app.use('/api/backdrops', backdropsRouter);
   app.use('/api/cipher', cipherRouter);
   app.use('/api/envelope', envelopeRouter);
+  app.use('/api/feed', feedRouter);
   app.use('/api/retirement', retirementRouter);
   app.use('/api/favors', favorsRouter);
   app.use('/api/leaderboard', leaderboardRouter);

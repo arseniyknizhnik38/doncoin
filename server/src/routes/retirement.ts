@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import { describeRetirement } from '../config/retirement.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
+import { actorName, recordFeed } from '../lib/feed.js';
 import { prisma } from '../lib/prisma.js';
 import { retire } from '../lib/retirement.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
@@ -47,6 +48,11 @@ retirementRouter.post('/', async (_req: Request, res: Response) => {
   }
 
   const fresh = await retire(user);
+
+  // Уход на покой — самое редкое событие в игре: игрок добровольно обнуляет
+  // всё нажитое. Такое в ленте уместно.
+  await recordFeed({ kind: 'retired', actor: actorName(user) });
+
   const { energy } = regenerateEnergy(fresh, new Date());
 
   res.json({

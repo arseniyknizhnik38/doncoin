@@ -17,6 +17,7 @@ import {
   settleDueWars,
   startWarsForWeek,
 } from '../lib/wars.js';
+import { recordFeed } from '../lib/feed.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
@@ -178,6 +179,7 @@ clansRouter.post('/', async (req: Request, res: Response) => {
         members: { connect: { id: user.id } },
       },
     });
+    await recordFeed({ kind: 'clan_created', actor: clan.name });
   } catch (error) {
     if ((error as { code?: string }).code === 'P2002') {
       throw new ClanError('NAME_TAKEN', 'Клан с таким названием уже есть');
@@ -292,10 +294,27 @@ clansRouter.post('/donate', async (req: Request, res: Response) => {
     throw new ClanError('NOT_ENOUGH_COINS', 'Недостаточно монет для взноса');
   }
 
-  await prisma.clan.update({
+  const beforeDonation = await prisma.clan.findUnique({
+    where: { id: user.clanId },
+    select: { name: true, treasury: true, familyXp: true },
+  });
+
+  const raised = await prisma.clan.update({
     where: { id: user.clanId },
     data: { treasury: { increment: amount } },
+    select: { name: true, treasury: true, familyXp: true },
   });
+
+  // Уровень семьи нигде не хранится — он считается от кассы и опыта. Момент
+  // взятия уровня ловим сравнением «до и после»: другого способа узнать,
+  // что порог только что перешли, нет.
+  if (beforeDonation && clanLevel(raised) > clanLevel(beforeDonation)) {
+    await recordFeed({
+      kind: 'clan_level',
+      actor: raised.name,
+      amount: BigInt(clanLevel(raised)),
+    });
+  }
 
   // Состояние собираем локально: UPDATE прошёл с условием «денег хватает»,
   // значит результат известен и лишний запрос к базе не нужен.

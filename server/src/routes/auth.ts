@@ -7,6 +7,7 @@ import { collectBusinessIncome } from '../lib/businesses.js';
 import { prisma as db } from '../lib/prisma.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { recordActiveDay } from '../lib/activity.js';
+import { announceRankIfRisen } from '../lib/feed.js';
 import { prisma } from '../lib/prisma.js';
 import { createSessionToken } from '../lib/session.js';
 import { InitDataError, validateInitData } from '../lib/telegram.js';
@@ -56,6 +57,7 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
   // Отмечаем посещение до того, как обновится lastSeenAt: после обновления
   // «день прошлого визита» уже не узнать, а на нём вся проверка и держится.
   await recordActiveDay(stored.id, stored.lastSeenAt, now, isNew);
+  await announceRankIfRisen(stored);
 
   // Пока игрока не было, «семья работала». Начисляем сразу при входе, а не
   // по кнопке: одна запись в базу вместо двух, и деньги нельзя потерять,
