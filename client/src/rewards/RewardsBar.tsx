@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useState } from 'react';
 import type { DailyApi } from './useDaily';
 import type { OfflineEarnings } from './types';
@@ -7,6 +8,8 @@ interface RewardsBarProps {
   daily: DailyApi;
   /** Сколько наград за задания можно забрать. */
   tasksReady: number;
+  /** Карточка конверта дня — стоит рядом с бонусом, это тот же ритуал. */
+  envelope?: React.ReactNode;
   onOpenTasks: () => void;
 }
 
@@ -22,7 +25,13 @@ const formatHours = (hours: number) => {
 };
 
 /** Плашка «пока вас не было» и кнопка ежедневного бонуса. */
-export function RewardsBar({ offline, daily, tasksReady, onOpenTasks }: RewardsBarProps) {
+export function RewardsBar({
+  offline,
+  daily,
+  tasksReady,
+  envelope,
+  onOpenTasks,
+}: RewardsBarProps) {
   const [offlineHidden, setOfflineHidden] = useState(false);
   const showOffline = offline !== null && Number(offline.earned) > 0 && !offlineHidden;
   const status = daily.status;
@@ -31,6 +40,8 @@ export function RewardsBar({ offline, daily, tasksReady, onOpenTasks }: RewardsB
 
   return (
     <div className="flex w-full flex-col gap-2">
+      {envelope}
+
       {showOffline && (
         <button
           type="button"

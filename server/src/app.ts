@@ -8,6 +8,7 @@ import { BoosterError } from './lib/boosters.js';
 import { BusinessError } from './lib/businesses.js';
 import { CipherError } from './lib/cipher.js';
 import { ClanError } from './lib/clans.js';
+import { EnvelopeError } from './lib/envelope.js';
 import { QuestError } from './lib/quests.js';
 import { RetirementError } from './lib/retirement.js';
 import { adminRouter } from './routes/admin.js';
@@ -16,6 +17,7 @@ import { backdropsRouter } from './routes/backdrops.js';
 import { boostersRouter } from './routes/boosters.js';
 import { businessesRouter } from './routes/businesses.js';
 import { cipherRouter } from './routes/cipher.js';
+import { envelopeRouter } from './routes/envelope.js';
 import { clansRouter } from './routes/clans.js';
 import { cronRouter } from './routes/cron.js';
 import { dailyRouter } from './routes/daily.js';
@@ -59,6 +61,7 @@ export function createApp() {
   app.use('/api/boosters', boostersRouter);
   app.use('/api/backdrops', backdropsRouter);
   app.use('/api/cipher', cipherRouter);
+  app.use('/api/envelope', envelopeRouter);
   app.use('/api/retirement', retirementRouter);
   app.use('/api/favors', favorsRouter);
   app.use('/api/leaderboard', leaderboardRouter);
@@ -79,6 +82,7 @@ export function createApp() {
       error instanceof QuestError ||
       error instanceof BoosterError ||
       error instanceof CipherError ||
+      error instanceof EnvelopeError ||
       error instanceof RetirementError;
 
     if (gameRule) {

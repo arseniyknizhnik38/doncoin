@@ -323,6 +323,19 @@ check('сегодняшние заходы посчитаны', today?.activePla
 const board = await call('/api/leaderboard', { token });
 check('лидерборд отвечает', board.status === 200, `статус ${board.status}`);
 
+// ——— Конверт: единственная случайная награда
+const envelope = await call('/api/envelope', { token });
+check('конверт до «Солдата» закрыт', envelope.payload?.envelope?.unlocked === false,
+  JSON.stringify(envelope.payload?.envelope));
+check('сказано, с какого ранга заносят',
+  typeof envelope.payload?.envelope?.unlocksAt === 'string' &&
+    envelope.payload.envelope.unlocksAt.includes('Солдат'),
+  envelope.payload?.envelope?.unlocksAt);
+
+const earlyOpen = await call('/api/envelope/open', { token, method: 'POST' });
+check('новичку конверт не открыть', earlyOpen.payload?.code === 'TOO_EARLY',
+  JSON.stringify(earlyOpen.payload));
+
 // ——— Фоны: первая трата, которая не возвращает деньги
 const skins = await call('/api/backdrops', { token });
 const alley = skins.payload?.backdrops?.find((item) => item.id === 'alley');

@@ -8,6 +8,8 @@ import { useBoosters } from './boosters/useBoosters';
 import { useBackdrops } from './backdrops/useBackdrops';
 import { useBusinesses } from './businesses/useBusinesses';
 import { useCipher } from './cipher/useCipher';
+import { EnvelopeCard } from './envelope/EnvelopeCard';
+import { useEnvelope } from './envelope/useEnvelope';
 import { ClanScreen } from './clans/ClanScreen';
 import { DealScreen } from './deal/DealScreen';
 import { FamilyScreen } from './family/FamilyScreen';
@@ -90,6 +92,7 @@ export default function App() {
   const quests = useQuests(sessionToken, questsKey, game.applyServerState);
   const boosters = useBoosters(sessionToken, game.applyServerState);
   const cipher = useCipher(sessionToken, game.applyServerState);
+  const envelope = useEnvelope(sessionToken, game.applyServerState);
   const [statsOpen, setStatsOpen] = useState(false);
   const stats = useAdminStats(sessionToken, statsOpen);
   const ads = useAds(sessionToken, statsOpen);
@@ -144,6 +147,7 @@ export default function App() {
                   offline={auth.offline}
                   daily={daily}
                   tasksReady={tasks.readyCount + quests.readyCount}
+                  envelope={<EnvelopeCard api={envelope} />}
                   onOpenTasks={() => {
                     tasks.reload();
                     setQuestsKey((value) => value + 1);
