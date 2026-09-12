@@ -69,9 +69,14 @@ async function call(path, { token, method = 'GET', body } = {}) {
   return { status: response.status, payload };
 }
 
-async function login(id, firstName, startParam) {
+async function login(id, firstName, startParam, languageCode) {
   const initData = signInitData(
-    { id, first_name: firstName, username: `player${id}` },
+    {
+      id,
+      first_name: firstName,
+      username: `player${id}`,
+      ...(languageCode ? { language_code: languageCode } : {}),
+    },
     startParam,
   );
 
@@ -90,7 +95,7 @@ console.log(`Проверяем ${API}\n`);
 const health = await call('/api/health');
 check('сервер отвечает', health.payload?.status === 'ok');
 
-const auth = await login(777001, 'Дон');
+const auth = await login(777001, 'Дон', undefined, 'ru');
 check('вход по initData', auth.status === 200, JSON.stringify(auth.payload));
 
 const token = auth.payload?.session?.token;
@@ -107,6 +112,18 @@ check('стартовая обойма 600 тапов', start?.energyMax / start
 check('стартовая награда за тап 10', start?.coinsPerTap === 10, `${start?.coinsPerTap}`);
 check('стартовый ранг — Аутсайдер', start?.rank?.id === 'outsider', start?.rank?.id);
 check('ранг со звёздами', start?.rank?.star === 1 && start?.rank?.stars === 3);
+
+// ——— Язык: русские настройки дают русский, всё остальное английский
+check('русские настройки дают русский', auth.payload?.language === 'ru',
+  auth.payload?.language);
+
+const foreigner = await login(777009, 'Ahmad', undefined, 'id');
+check('чужой язык даёт английский', foreigner.payload?.language === 'en',
+  foreigner.payload?.language);
+
+const noLang = await login(777010, 'Nobody');
+check('без указания языка — английский', noLang.payload?.language === 'en',
+  noLang.payload?.language);
 
 // ——— Подделанная подпись не проходит
 const forged = await fetch(`${API}/api/auth/telegram`, {
@@ -302,7 +319,7 @@ check('чужому админка не отвечает', outsider.status === 4
 
 const stats = await call('/api/admin/stats', { token });
 check('сводка владельцу отдаётся', stats.status === 200);
-check('игроков двое', stats.payload?.players?.total === 2, `${stats.payload?.players?.total}`);
+check('игроки посчитаны', stats.payload?.players?.total === 4, `${stats.payload?.players?.total}`);
 
 // ——— Удержание и приток
 check('удержание считается по четырём дням', stats.payload?.retention?.length === 4,
@@ -316,8 +333,8 @@ check('приток за две недели', stats.payload?.days?.length === 1
   `${stats.payload?.days?.length}`);
 
 const today = stats.payload?.days?.find((entry) => entry.ago === 0);
-check('сегодняшние новички посчитаны', today?.newPlayers === 2, `${today?.newPlayers}`);
-check('сегодняшние заходы посчитаны', today?.activePlayers === 2, `${today?.activePlayers}`);
+check('сегодняшние новички посчитаны', today?.newPlayers === 4, `${today?.newPlayers}`);
+check('сегодняшние заходы посчитаны', today?.activePlayers === 4, `${today?.activePlayers}`);
 
 // ——— Лидерборд и кланы
 const board = await call('/api/leaderboard', { token });

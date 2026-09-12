@@ -33,6 +33,7 @@ import { useQuests } from './quests/useQuests';
 import { SettingsPanel } from './settings/SettingsPanel';
 import { useSettings } from './settings/useSettings';
 import { TasksPanel } from './tasks/TasksPanel';
+import { LangProvider, useT } from './i18n';
 import { ErrorState } from './ui/States';
 import { useTasks } from './tasks/useTasks';
 import { useAuth } from './telegram/useAuth';
@@ -49,7 +50,21 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'friends', label: 'Семья' },
 ];
 
+/**
+ * Оболочка: язык приходит с сервера, поэтому провайдер стоит снаружи всего
+ * остального — иначе часть экрана успела бы отрисоваться на другом языке.
+ */
 export default function App() {
+  const auth = useAuth();
+
+  return (
+    <LangProvider lang={auth.language}>
+      <Game auth={auth} />
+    </LangProvider>
+  );
+}
+
+function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
   const [tab, setTab] = useState<Tab>('game');
 
   // Данные вкладок обновляются при их открытии: каталог, кланы и топ иначе
@@ -68,7 +83,7 @@ export default function App() {
   }, []);
 
   const { isTelegram, displayName } = useTelegram();
-  const auth = useAuth();
+  const t = useT();
   const game = useGame(
     auth.status === 'authorized' ? auth.sessionToken : null,
     auth.state,
@@ -194,7 +209,7 @@ export default function App() {
                     : 'text-neutral-500'
                 }`}
               >
-                {item.label}
+                {t(item.label)}
               </button>
             ))}
           </nav>

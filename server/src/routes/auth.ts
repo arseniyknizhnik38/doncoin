@@ -115,6 +115,9 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
     // Дальнейшие запросы идут с этим токеном, а не с initData.
     session: { token: session.token, expiresAt: session.expiresAt },
     isAdmin: isAdmin(user.telegramId),
+    // Язык решает сервер и сообщает клиенту: иначе две стороны могут
+    // разойтись, и половина экрана окажется на другом языке.
+    language: user.language,
     user: {
       id: user.id,
       telegramId: user.telegramId,

@@ -39,6 +39,9 @@ const [TAP, ENERGY, REGEN] = UPGRADES;
 /** Сколько тапов в секунду выдаёт человек — нужно для оценки «Разгона». */
 const TAPS_PER_SECOND = 7;
 
+/** Суммарная прибавка улучшений к доходу бизнеса, в долях. */
+const BIZ_UPGRADE_BOOST = Number(process.env.BIZ_BOOST ?? 0);
+
 const coinsPerTap = (level: number) => TAP!.valueAt(level).coinsPerTap!;
 const energyMax = (level: number) => ENERGY!.valueAt(level).energyMax!;
 const energyPerSecond = (level: number) => REGEN!.valueAt(level).energyPerSecond!;
@@ -100,7 +103,9 @@ function simulate(player: Player, days = 400, trace = false): Result {
       hourly * 0.25 * Math.min(day, 30) +
       questIncome;
     const businessPerHour = owned.reduce(
-      (sum, level, index) => sum + Number(levelIncome(BUSINESS_CATALOG[index]!, level)),
+      (sum, level, index) =>
+        sum +
+        Number(levelIncome(BUSINESS_CATALOG[index]!, level)) * (1 + BIZ_UPGRADE_BOOST),
       0,
     );
     const passiveToday = businessPerHour * businessHours + hourly * 0.15 * 8;

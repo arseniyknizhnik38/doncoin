@@ -5,6 +5,7 @@ import {
   generateReferralCode,
   normalizeReferralCode,
 } from './referrals.js';
+import { pickLang } from '../config/i18n.js';
 import type { ParsedInitData } from './telegram.js';
 import { START_STATE } from './upgrades.js';
 
@@ -76,7 +77,13 @@ export async function upsertUserFromTelegram(
     return { user, isNew: false };
   }
 
-  return createUser({ telegramId, username, firstName, startParam: parsed.startParam });
+  return createUser({
+    telegramId,
+    username,
+    firstName,
+    startParam: parsed.startParam,
+    languageCode: parsed.user.language_code ?? null,
+  });
 }
 
 interface CreateUserInput {
@@ -84,6 +91,8 @@ interface CreateUserInput {
   username: string | null;
   firstName: string | null;
   startParam: string | null;
+  /** Код языка из Telegram: по нему выбирается язык интерфейса. */
+  languageCode: string | null;
 }
 
 async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: boolean }> {
@@ -106,6 +115,7 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
           telegramId: input.telegramId,
           username: input.username,
           firstName: input.firstName,
+          language: pickLang(input.languageCode),
           referralCode: generateReferralCode(),
           referredByCode: input.startParam,
           referredById: inviter?.id ?? null,

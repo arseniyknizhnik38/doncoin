@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../i18n';
 
 interface OnboardingProps {
   onDone: () => void;
@@ -42,6 +43,7 @@ const STEPS: readonly Step[] = [
 ];
 
 export function Onboarding({ onDone }: OnboardingProps) {
+  const t = useT();
   const [index, setIndex] = useState(0);
   const step = STEPS[index]!;
   const last = index === STEPS.length - 1;
@@ -51,14 +53,14 @@ export function Onboarding({ onDone }: OnboardingProps) {
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-between px-8 py-12">
         <div className="flex flex-col gap-4">
           <p className="text-[10px] tracking-[0.35em] text-don-blood-light uppercase">
-            {step.badge}
+            {t(step.badge)}
           </p>
 
           <h2 className="text-4xl font-black tracking-[0.08em] text-don-gold uppercase">
-            {step.title}
+            {t(step.title)}
           </h2>
 
-          <p className="text-base leading-relaxed text-neutral-300">{step.body}</p>
+          <p className="text-base leading-relaxed text-neutral-300">{t(step.body)}</p>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -78,7 +80,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
             onClick={() => (last ? onDone() : setIndex(index + 1))}
             className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-3.5 text-base font-semibold tracking-wide text-don-gold-soft active:scale-95"
           >
-            {last ? 'За работу' : 'Дальше'}
+            {last ? t('За работу') : t('Дальше')}
           </button>
 
           {!last && (
@@ -87,7 +89,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
               onClick={onDone}
               className="text-xs tracking-wider text-neutral-600"
             >
-              Пропустить
+              {t('Пропустить')}
             </button>
           )}
         </div>

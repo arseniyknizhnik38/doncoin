@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { initDataRaw, useSignal } from '@telegram-apps/sdk-react';
 import type { GameState } from '../game/types';
+import type { Lang } from '../i18n';
 import type { DailyStatus, OfflineEarnings } from '../rewards/types';
 import { isTelegramEnv } from './init';
 
@@ -33,6 +34,8 @@ export interface AuthState {
   daily: DailyStatus | null;
   /** Показывать ли раздел со сводкой. */
   isAdmin: boolean;
+  /** Язык интерфейса, выбранный сервером по настройкам Telegram. */
+  language: Lang;
   /** Войти заново — например, когда сессия истекла. */
   reauth: () => void;
 }
@@ -56,6 +59,7 @@ export function useAuth(): AuthState {
     offline: null,
     daily: null,
     isAdmin: false,
+    language: 'ru',
   });
   const [attempt, setAttempt] = useState(0);
 
@@ -98,6 +102,7 @@ export function useAuth(): AuthState {
             offline && Number(offline.earned) > 0 ? offline : prev.offline,
           daily: (payload.daily ?? null) as DailyStatus | null,
           isAdmin: Boolean(payload.isAdmin),
+          language: payload.language === 'en' ? 'en' : 'ru',
         }));
       })
       .catch((error: unknown) => {
@@ -114,6 +119,7 @@ export function useAuth(): AuthState {
           offline: null,
           daily: null,
           isAdmin: false,
+          language: 'ru',
         });
       });
 
