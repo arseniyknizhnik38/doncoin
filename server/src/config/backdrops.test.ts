@@ -24,6 +24,41 @@ describe('каталог фонов', () => {
     expect(BACKDROPS[0]!.freeFromStep).toBe(0);
     expect(BACKDROPS[0]!.price).toBe(0n);
   });
+
+  it('цена ниже порога своего ранга — иначе купить нельзя в принципе', () => {
+    // Баланс никогда не превышает пожизненный заработок, а ранг считается от
+    // заработка. Значит цена выше порога недостижима по построению: набрав
+    // её, игрок уже получил бы фон даром.
+    //
+    // Первая версия каталога была именно такой — все пять платных фонов
+    // оказались мёртвым грузом, и заметно это стало только на глаз.
+    for (const backdrop of BACKDROPS) {
+      if (backdrop.price === 0n) {
+        continue;
+      }
+
+      const threshold = RANKS[backdrop.freeFromStep]!.minBalance;
+
+      expect(
+        backdrop.price,
+        `«${backdrop.title}» стоит дороже порога своего ранга — купить нельзя`,
+      ).toBeLessThan(threshold);
+    }
+  });
+
+  it('цена не символическая: не меньше десятой доли порога', () => {
+    // Другая крайность: слишком дёшево — и сток перестаёт быть стоком,
+    // фон покупается мимоходом и ничего не значит.
+    for (const backdrop of BACKDROPS) {
+      if (backdrop.price === 0n) {
+        continue;
+      }
+
+      const threshold = RANKS[backdrop.freeFromStep]!.minBalance;
+
+      expect(backdrop.price * 10n).toBeGreaterThan(threshold);
+    }
+  });
 });
 
 describe('что положено по рангу', () => {
