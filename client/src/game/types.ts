@@ -42,6 +42,8 @@ export interface GameState {
   rushUntil: string | null;
   /** Во сколько раз «Разгон» умножает награду за тап. */
   rushMultiplier: number;
+  /** Файл фона: выбранный или положенный по рангу, null — фона нет. */
+  backdrop: string | null;
   /** Ранг, вычисленный сервером из баланса. */
   rank: RankView;
 }

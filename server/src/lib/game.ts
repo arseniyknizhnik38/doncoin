@@ -1,9 +1,10 @@
 import type { User } from '../generated/prisma/client.js';
+import { backdropForStep, findBackdrop } from '../config/backdrops.js';
 import { RUSH_MULTIPLIER } from '../config/boosters.js';
 import { PERK_BONUS_PER_LEVEL } from '../config/perks.js';
 import { MAX_RETIREMENTS, RETIREMENT_BONUS_PERCENT, retirementBonus } from '../config/retirement.js';
 import { ENERGY_PER_TAP } from './energy.js';
-import { type RankView, resolveRank } from '../config/ranks.js';
+import { type RankView, rankStep, resolveRank } from '../config/ranks.js';
 import { prisma } from './prisma.js';
 
 /** Максимум тапов в одном запросе — клиент шлёт их пачками. */
@@ -42,6 +43,8 @@ export interface GameState {
   rushUntil: string | null;
   /** Во сколько раз «Разгон» умножает награду за тап. */
   rushMultiplier: number;
+  /** Файл фона: выбранный игроком или положенный по рангу, иначе null. */
+  backdrop: string | null;
   /** Ранг вычисляется из баланса, в базе не хранится. */
   rank: RankView;
 }
@@ -85,6 +88,7 @@ export function toGameState(user: {
   respect: number;
   respectProgress: number;
   rushEndsAt: Date | null;
+  equippedBackdrop?: string | null;
 }): GameState {
   return {
     // BigInt не сериализуется в JSON — отдаём строкой.
@@ -105,8 +109,21 @@ export function toGameState(user: {
         ? user.rushEndsAt.toISOString()
         : null,
     rushMultiplier: RUSH_MULTIPLIER,
+    backdrop: resolveBackdrop(user.totalEarned, user.equippedBackdrop ?? null),
     rank: resolveRank(user.totalEarned),
   };
+}
+
+/**
+ * Какой фон показывать: выбранный игроком или положенный по рангу.
+ *
+ * Выбранный не перепроверяем на владение — это делает маршрут при установке.
+ * Здесь важнее, чтобы экран не остался без фона из-за рассинхрона.
+ */
+function resolveBackdrop(totalEarned: bigint, equipped: string | null): string | null {
+  const chosen = equipped ? findBackdrop(equipped) : undefined;
+
+  return (chosen ?? backdropForStep(rankStep(totalEarned)))?.file ?? null;
 }
 
 export interface TapResult {
@@ -137,6 +154,7 @@ interface TapRow {
   userId: string;
   referredById: string | null;
   referralRewarded: boolean;
+  equippedBackdrop: string | null;
   rushEndsAt: Date | null;
   totalEarned: bigint;
   energy: number;
@@ -231,6 +249,7 @@ export async function applyTaps(
       u.id AS "userId",
       u."referredById" AS "referredById",
       u."referralRewarded" AS "referralRewarded",
+      u."equippedBackdrop" AS "equippedBackdrop",
       u."totalEarned" AS "totalEarned",
       u.energy,
       u."energyMax" AS "energyMax",
@@ -286,6 +305,7 @@ export async function applyTaps(
       tapsPerRespect: TAPS_PER_RESPECT,
       rushUntil: rushActive ? rushEndsAt!.toISOString() : null,
       rushMultiplier: RUSH_MULTIPLIER,
+      backdrop: resolveBackdrop(totalEarned, row.equippedBackdrop ?? null),
       rank: resolveRank(totalEarned),
     },
   };

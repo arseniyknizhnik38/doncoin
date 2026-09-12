@@ -323,6 +323,36 @@ check('сегодняшние заходы посчитаны', today?.activePla
 const board = await call('/api/leaderboard', { token });
 check('лидерборд отвечает', board.status === 200, `статус ${board.status}`);
 
+// ——— Фоны: первая трата, которая не возвращает деньги
+const skins = await call('/api/backdrops', { token });
+const alley = skins.payload?.backdrops?.find((item) => item.id === 'alley');
+const hall = skins.payload?.backdrops?.find((item) => item.id === 'marble_hall');
+
+check('каталог фонов отдаётся', skins.payload?.backdrops?.length === 6,
+  `${skins.payload?.backdrops?.length}`);
+check('фон своего ранга достался даром', alley?.owned === true && alley?.byRank === true);
+check('он же и выбран по умолчанию', alley?.equipped === true);
+check('дорогой фон не выдан', hall?.owned === false);
+check('у недоступного видна цена', Number(hall?.price) > 0, hall?.price);
+check('и ранг, на котором он бесплатен', typeof hall?.freeAt === 'string' && hall.freeAt.includes('Дон'),
+  hall?.freeAt);
+
+const poorBuyBackdrop = await call(`/api/backdrops/marble_hall/buy`, { token, method: 'POST' });
+check('без денег фон не продаётся', poorBuyBackdrop.status === 409,
+  `статус ${poorBuyBackdrop.status}`);
+
+const ownedBuy = await call('/api/backdrops/alley/buy', { token, method: 'POST' });
+check('свой фон повторно не продают', ownedBuy.status === 409, `статус ${ownedBuy.status}`);
+
+const notOwnedEquip = await call('/api/backdrops/marble_hall/equip', { token, method: 'POST' });
+check('чужой фон не поставить', notOwnedEquip.status === 409,
+  `статус ${notOwnedEquip.status}`);
+
+const stateWithBackdrop = await call('/api/game/state', { token });
+check('фон приходит в состоянии игры',
+  typeof stateWithBackdrop.payload?.state?.backdrop === 'string',
+  `${stateWithBackdrop.payload?.state?.backdrop}`);
+
 const clan = await call('/api/clans', { token, method: 'POST', body: { name: 'Корлеоне' } });
 check('без ранга клан не создать', clan.status === 409 || clan.status === 403,
   `статус ${clan.status}`);

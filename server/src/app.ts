@@ -12,6 +12,7 @@ import { QuestError } from './lib/quests.js';
 import { RetirementError } from './lib/retirement.js';
 import { adminRouter } from './routes/admin.js';
 import { authRouter } from './routes/auth.js';
+import { backdropsRouter } from './routes/backdrops.js';
 import { boostersRouter } from './routes/boosters.js';
 import { businessesRouter } from './routes/businesses.js';
 import { cipherRouter } from './routes/cipher.js';
@@ -56,6 +57,7 @@ export function createApp() {
   app.use('/api/daily', dailyRouter);
   app.use('/api/quests', questsRouter);
   app.use('/api/boosters', boostersRouter);
+  app.use('/api/backdrops', backdropsRouter);
   app.use('/api/cipher', cipherRouter);
   app.use('/api/retirement', retirementRouter);
   app.use('/api/favors', favorsRouter);

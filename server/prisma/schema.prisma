@@ -127,6 +127,14 @@ model User {
   /// Дни, когда игрок заходил — по ним считается удержание.
   activeDays    DailyActive[]
 
+  /// Купленные фоны и тот, что выбран сейчас.
+  ///
+  /// null — показывается фон своего ранга. Хранится идентификатор из
+  /// каталога, а не ссылка на таблицу: каталог живёт в коде, и добавление
+  /// фона не должно требовать миграции.
+  equippedBackdrop String?
+  backdrops        BackdropPurchase[]
+
   /// Уведомления от бота: игрок может их отключить, а бот — узнать, что
   /// его заблокировали, и перестать писать.
   notificationsEnabled Boolean   @default(true)
@@ -461,4 +469,24 @@ model DailyActive {
 
   @@unique([userId, dayNumber])
   @@index([dayNumber])
+}
+
+/// Купленный фон.
+///
+/// Фоны — первая трата в игре, которая не возвращает деньги. Улучшения,
+/// бизнесы и перки увеличивают доход, поэтому к середине игры баланс растёт
+/// быстрее, чем находится, на что его деть. Здесь монеты исчезают насовсем,
+/// а взамен остаётся то, что видно на экране.
+model BackdropPurchase {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Идентификатор из каталога (server/src/config/backdrops.ts).
+  backdropId String
+
+  price     BigInt   @default(0)
+  boughtAt  DateTime @default(now())
+
+  @@unique([userId, backdropId])
 }

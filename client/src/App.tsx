@@ -5,6 +5,7 @@ import { useCiphers } from './admin/useCiphers';
 import { useAdminStats } from './admin/useAdminStats';
 import { BoosterBar } from './boosters/BoosterBar';
 import { useBoosters } from './boosters/useBoosters';
+import { useBackdrops } from './backdrops/useBackdrops';
 import { useBusinesses } from './businesses/useBusinesses';
 import { useCipher } from './cipher/useCipher';
 import { ClanScreen } from './clans/ClanScreen';
@@ -77,6 +78,7 @@ export default function App() {
   const clans = useClans(sessionToken, refreshKeys.clan, game.applyServerState);
   const businesses = useBusinesses(sessionToken, refreshKeys.shop, game.applyServerState);
   const perks = usePerks(sessionToken, refreshKeys.shop, game.applyServerState);
+  const backdrops = useBackdrops(sessionToken, refreshKeys.shop, game.applyServerState);
   const favors = useFavors(sessionToken, refreshKeys.friends, game.applyServerState);
   const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
   const board = useLeaderboard(sessionToken, refreshKeys.top);
@@ -115,7 +117,7 @@ export default function App() {
       {/* Обстановка ранга. Пока картинки для ранга нет — остаётся подложка
           ниже, и экран выглядит как раньше, а не сломанным. */}
       {game.state && (
-        <RankBackdrop rankId={game.state.rank.id} visible={tab === 'game'} />
+        <RankBackdrop file={game.state.backdrop} visible={tab === 'game'} />
       )}
 
       {/* Бордовое свечение и золотая линия — «премиальная мафиозная» подложка */}
@@ -155,6 +157,7 @@ export default function App() {
               upgrades={upgrades}
               businesses={businesses}
               perks={perks}
+              backdrops={backdrops}
               state={game.state}
             />
           ) : tab === 'clan' ? (

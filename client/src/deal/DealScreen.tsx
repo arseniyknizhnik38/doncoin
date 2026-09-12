@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { BackdropList } from '../backdrops/BackdropList';
+import type { BackdropsApi } from '../backdrops/useBackdrops';
 import { BusinessList } from '../businesses/BusinessList';
 import type { BusinessesApi } from '../businesses/useBusinesses';
 import type { GameState } from '../game/types';
@@ -7,12 +9,13 @@ import type { PerksApi } from '../perks/usePerks';
 import { UpgradeList } from '../upgrades/UpgradeList';
 import type { UpgradesApi } from '../upgrades/useUpgrades';
 
-type Mode = 'upgrades' | 'businesses' | 'perks';
+type Mode = 'upgrades' | 'businesses' | 'perks' | 'backdrops';
 
 interface DealScreenProps {
   upgrades: UpgradesApi;
   businesses: BusinessesApi;
   perks: PerksApi;
+  backdrops: BackdropsApi;
   state: GameState;
 }
 
@@ -22,7 +25,13 @@ const formatCoins = (value: string | number) => Number(value).toLocaleString('ru
  * Вкладка «Дело»: личная прокачка и бизнесы под одним переключателем.
  * Отдельная вкладка для бизнесов не влезала — их и так пять.
  */
-export function DealScreen({ upgrades, businesses, perks, state }: DealScreenProps) {
+export function DealScreen({
+  upgrades,
+  businesses,
+  perks,
+  backdrops,
+  state,
+}: DealScreenProps) {
   const [mode, setMode] = useState<Mode>('upgrades');
 
   return (
@@ -45,6 +54,7 @@ export function DealScreen({ upgrades, businesses, perks, state }: DealScreenPro
             ['upgrades', 'Прокачка'],
             ['businesses', 'Бизнесы'],
             ['perks', 'Влияние'],
+            ['backdrops', 'Вид'],
           ] as [Mode, string][]
         ).map(([id, label]) => (
           <button
@@ -66,8 +76,10 @@ export function DealScreen({ upgrades, businesses, perks, state }: DealScreenPro
         <UpgradeList api={upgrades} state={state} />
       ) : mode === 'businesses' ? (
         <BusinessList api={businesses} state={state} />
-      ) : (
+      ) : mode === 'perks' ? (
         <PerkList api={perks} />
+      ) : (
+        <BackdropList api={backdrops} state={state} />
       )}
     </div>
   );

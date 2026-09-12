@@ -1,0 +1,91 @@
+import { describe, expect, it } from 'vitest';
+import { BACKDROPS, backdropForStep, describeBackdrops, findBackdrop } from './backdrops.js';
+import { RANKS } from './ranks.js';
+
+describe('каталог фонов', () => {
+  it('покрывает все шесть рангов и не пропускает ступеней', () => {
+    const steps = BACKDROPS.map((backdrop) => backdrop.freeFromStep);
+
+    expect(steps).toEqual([0, 3, 6, 9, 12, 15]);
+    // Каждый порог — первая звезда своего ранга: фон меняется вместе с
+    // персонажем, а не в середине ранга.
+    steps.forEach((step) => expect(RANKS[step]?.star).toBe(1));
+  });
+
+  it('идёт по возрастанию цены', () => {
+    const prices = BACKDROPS.map((backdrop) => backdrop.price);
+
+    for (let i = 1; i < prices.length; i += 1) {
+      expect(prices[i]).toBeGreaterThan(prices[i - 1]!);
+    }
+  });
+
+  it('первый фон бесплатен и купить его нельзя', () => {
+    expect(BACKDROPS[0]!.freeFromStep).toBe(0);
+    expect(BACKDROPS[0]!.price).toBe(0n);
+  });
+});
+
+describe('что положено по рангу', () => {
+  it('даёт самый поздний из открытых', () => {
+    expect(backdropForStep(0)?.id).toBe('alley');
+    expect(backdropForStep(2)?.id).toBe('alley');
+    expect(backdropForStep(3)?.id).toBe('diner');
+    expect(backdropForStep(8)?.id).toBe('pool_hall');
+    expect(backdropForStep(17)?.id).toBe('marble_hall');
+  });
+});
+
+describe('витрина', () => {
+  it('свой фон отдаёт даром, чужой — за деньги', () => {
+    const views = describeBackdrops(3, 1_000_000n, [], null);
+    const diner = views.find((view) => view.id === 'diner')!;
+    const hall = views.find((view) => view.id === 'marble_hall')!;
+
+    expect(diner.owned).toBe(true);
+    expect(diner.byRank).toBe(true);
+    expect(diner.price).toBeNull();
+
+    expect(hall.owned).toBe(false);
+    expect(hall.price).not.toBeNull();
+  });
+
+  it('купленный засчитывается, но не выдаёт себя за ранговый', () => {
+    const views = describeBackdrops(0, 0n, ['restaurant'], null);
+    const restaurant = views.find((view) => view.id === 'restaurant')!;
+
+    expect(restaurant.owned).toBe(true);
+    // Важно для интерфейса: у купленного не должно быть подписи «достался
+    // по рангу», иначе игрок решит, что заплатил зря.
+    expect(restaurant.byRank).toBe(false);
+    expect(restaurant.price).toBeNull();
+  });
+
+  it('без выбора показывает ранговый', () => {
+    const views = describeBackdrops(6, 0n, [], null);
+
+    expect(views.find((view) => view.equipped)?.id).toBe('pool_hall');
+  });
+
+  it('выбор игрока важнее ранга', () => {
+    const views = describeBackdrops(6, 0n, [], 'alley');
+
+    expect(views.find((view) => view.equipped)?.id).toBe('alley');
+  });
+
+  it('по карману считает от баланса, а не от ранга', () => {
+    const price = findBackdrop('pool_hall')!.price;
+    const rich = describeBackdrops(0, price, [], null);
+    const poor = describeBackdrops(0, price - 1n, [], null);
+
+    expect(rich.find((view) => view.id === 'pool_hall')?.affordable).toBe(true);
+    expect(poor.find((view) => view.id === 'pool_hall')?.affordable).toBe(false);
+  });
+
+  it('не предлагает купить то, что уже есть', () => {
+    const views = describeBackdrops(17, 0n, [], null);
+
+    expect(views.every((view) => view.owned && view.price === null)).toBe(true);
+    expect(views.every((view) => !view.affordable)).toBe(true);
+  });
+});
