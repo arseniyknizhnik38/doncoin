@@ -15,6 +15,7 @@ import { RewardsBar } from './rewards/RewardsBar';
 import { useDaily } from './rewards/useDaily';
 import { useClans } from './clans/useClans';
 import { GameScreen } from './game/GameScreen';
+import { RankBackdrop } from './game/RankBackdrop';
 import { LeaderboardScreen } from './leaderboard/LeaderboardScreen';
 import { useLeaderboard } from './leaderboard/useLeaderboard';
 import { useGame } from './game/useGame';
@@ -111,6 +112,12 @@ export default function App() {
 
   return (
     <main className="relative flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden bg-don-black px-4 text-center sm:px-6">
+      {/* Обстановка ранга. Пока картинки для ранга нет — остаётся подложка
+          ниже, и экран выглядит как раньше, а не сломанным. */}
+      {game.state && (
+        <RankBackdrop rankId={game.state.rank.id} visible={tab === 'game'} />
+      )}
+
       {/* Бордовое свечение и золотая линия — «премиальная мафиозная» подложка */}
       <div
         aria-hidden
