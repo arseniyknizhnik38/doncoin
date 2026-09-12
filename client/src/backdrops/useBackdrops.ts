@@ -14,8 +14,8 @@ export interface BackdropView {
   price: string | null;
   affordable: boolean;
   equipped: boolean;
-  /** Ранг, на котором достанется бесплатно. */
-  freeAt: string;
+  /** Ранг, на котором достанется бесплатно, null — не достанется никогда. */
+  freeAt: string | null;
 }
 
 export interface BackdropsApi {

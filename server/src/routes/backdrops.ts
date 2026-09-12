@@ -73,7 +73,7 @@ backdropsRouter.post('/:id/buy', async (req: Request, res: Response) => {
 
   const step = rankStep(user.totalEarned);
 
-  if (step >= backdrop.freeFromStep) {
+  if (backdrop.freeFromStep !== null && step >= backdrop.freeFromStep) {
     res.status(409).json({ error: 'Этот фон уже ваш', code: 'ALREADY_OWNED' });
     return;
   }
@@ -156,7 +156,9 @@ backdropsRouter.post('/:id/equip', async (req: Request, res: Response) => {
 
   const step = rankStep(user.totalEarned);
 
-  if (step < backdrop.freeFromStep) {
+  // Фон вне рангов достаётся только покупкой, поэтому владение проверяем
+  // всегда; ранговый — лишь пока ранг не дорос.
+  if (backdrop.freeFromStep === null || step < backdrop.freeFromStep) {
     const bought = await prisma.backdropPurchase.findUnique({
       where: { userId_backdropId: { userId: user.id, backdropId: backdrop.id } },
     });

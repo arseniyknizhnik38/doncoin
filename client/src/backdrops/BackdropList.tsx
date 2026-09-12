@@ -82,7 +82,9 @@ export function BackdropList({ api, state }: BackdropListProps) {
 
               {!backdrop.owned && (
                 <p className="mt-1 text-[11px] text-neutral-600">
-                  Бесплатно на ранге «{backdrop.freeAt}»
+                  {backdrop.freeAt
+                    ? `Бесплатно на ранге «${backdrop.freeAt}»`
+                    : 'Рангом не даётся — только покупка'}
                 </p>
               )}
 

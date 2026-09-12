@@ -9,7 +9,7 @@ describe('каталог фонов', () => {
     expect(steps).toEqual([0, 3, 6, 9, 12, 15]);
     // Каждый порог — первая звезда своего ранга: фон меняется вместе с
     // персонажем, а не в середине ранга.
-    steps.forEach((step) => expect(RANKS[step]?.star).toBe(1));
+    steps.forEach((step) => expect(RANKS[step!]?.star).toBe(1));
   });
 
   it('идёт по возрастанию цены', () => {
@@ -37,6 +37,11 @@ describe('каталог фонов', () => {
         continue;
       }
 
+      // Фон вне рангов сравнивать не с чем: его нельзя получить, переждав.
+      if (backdrop.freeFromStep === null) {
+        continue;
+      }
+
       const threshold = RANKS[backdrop.freeFromStep]!.minBalance;
 
       expect(
@@ -46,17 +51,23 @@ describe('каталог фонов', () => {
     }
   });
 
-  it('цена не символическая: не меньше десятой доли порога', () => {
-    // Другая крайность: слишком дёшево — и сток перестаёт быть стоком,
-    // фон покупается мимоходом и ничего не значит.
+  it('ранговый фон стоит около десятой доли порога', () => {
+    // Верхняя граница — чтобы покупка была возможна (см. выше). Нижняя —
+    // чтобы цена не выглядела случайной.
+    //
+    // Ровно десятая доля выбрана не из жадности: ранговый фон игрок всё
+    // равно получит через день-другой, то есть платит он за «увидеть
+    // раньше». За это не отдают день дохода — разумный игрок подождёт, и
+    // витрина будет стоять пустой.
     for (const backdrop of BACKDROPS) {
-      if (backdrop.price === 0n) {
+      if (backdrop.price === 0n || backdrop.freeFromStep === null) {
         continue;
       }
 
       const threshold = RANKS[backdrop.freeFromStep]!.minBalance;
 
-      expect(backdrop.price * 10n).toBeGreaterThan(threshold);
+      expect(backdrop.price * 20n).toBeGreaterThan(threshold);
+      expect(backdrop.price * 5n).toBeLessThan(threshold);
     }
   });
 });

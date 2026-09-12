@@ -13,26 +13,38 @@ import { RANKS } from './ranks.js';
  * первый настоящий сток: монеты исчезают насовсем, доход не меняется, зато
  * остаётся то, что видно на экране каждый заход.
  *
- * Цена — четверть порога того ранга, которому фон принадлежит.
+ * Цена — около десятой доли порога того ранга, которому фон принадлежит.
  *
- * Больше поставить нельзя, и это не вопрос щедрости. Баланс никогда не
+ * Верхний предел жёсткий и считается, а не выбирается. Баланс никогда не
  * превышает пожизненный заработок (баланс = заработок минус траты), а ранг
  * считается от заработка. Значит цена выше порога недостижима по построению:
  * чтобы её набрать, надо заработать больше порога — а тогда фон уже выдан
  * даром. Первая версия каталога была именно такой, и купить в ней нельзя
  * было ни один фон.
  *
- * Четверть порога — это примерно день дохода на своём ранге: покупка раньше
- * срока реальна, но остаётся жертвой, потому что те же деньги, вложенные в
- * бизнес, работали бы дальше.
+ * Но и подходить к этому пределу незачем, и вот почему. Ранговый фон игрок
+ * всё равно получит через день-другой, когда возьмёт ранг. Значит покупка —
+ * это плата за «увидеть раньше», а не за «получить». За такое не отдают день
+ * дохода: разумный игрок просто подождёт, и витрина будет стоять пустой.
+ * Десятая доля порога — цена импульса, а не расчёта.
+ *
+ * Настоящим стоком это не делает и делать не может: сток — это то, что
+ * нельзя получить иначе. Для него нужны фоны, которые не даёт ни один ранг;
+ * каталог такие поддерживает (freeFromStep: null), но картинок под них пока
+ * нет.
  */
 
 export interface BackdropDefinition {
   id: string;
   title: string;
   description: string;
-  /** С какой ступени ранга (0..17) достаётся бесплатно. */
-  freeFromStep: number;
+  /**
+   * С какой ступени ранга (0..17) достаётся бесплатно.
+   *
+   * null — не даёт ни один ранг, только покупка. Такие фоны и есть
+   * настоящий сток: их нельзя получить, переждав.
+   */
+  freeFromStep: number | null;
   /** Сколько стоит до этого. 0 — нельзя купить, только дорасти. */
   price: bigint;
   /** Файл в client/public. */
@@ -53,7 +65,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
     title: 'Закусочная',
     description: 'Столик у окна и свои люди за стойкой',
     freeFromStep: 3,
-    price: 20_000n,
+    price: 8_000n,
     file: '/bg-associate.webp',
   },
   {
@@ -61,7 +73,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
     title: 'Бильярдная',
     description: 'Здесь решают, кому что достанется',
     freeFromStep: 6,
-    price: 600_000n,
+    price: 250_000n,
     file: '/bg-soldier.webp',
   },
   {
@@ -69,7 +81,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
     title: 'Ресторан',
     description: 'Стены умеют молчать',
     freeFromStep: 9,
-    price: 18_000_000n,
+    price: 7_000_000n,
     file: '/bg-capo.webp',
   },
   {
@@ -77,7 +89,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
     title: 'Кабинет',
     description: 'Окно во весь город, и город внизу',
     freeFromStep: 12,
-    price: 550_000_000n,
+    price: 220_000_000n,
     file: '/bg-consigliere.webp',
   },
   {
@@ -85,7 +97,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
     title: 'Мраморный зал',
     description: 'Сюда приходят просить',
     freeFromStep: 15,
-    price: 16_000_000_000n,
+    price: 6_500_000_000n,
     file: '/bg-don.webp',
   },
 ];
@@ -96,7 +108,9 @@ export function findBackdrop(id: string): BackdropDefinition | undefined {
 
 /** Фон, положенный игроку по рангу: самый поздний из открытых. */
 export function backdropForStep(step: number): BackdropDefinition | undefined {
-  return [...BACKDROPS].reverse().find((backdrop) => step >= backdrop.freeFromStep);
+  return [...BACKDROPS]
+    .reverse()
+    .find((backdrop) => backdrop.freeFromStep !== null && step >= backdrop.freeFromStep);
 }
 
 export interface BackdropView {
@@ -112,8 +126,8 @@ export interface BackdropView {
   price: string | null;
   affordable: boolean;
   equipped: boolean;
-  /** Подпись ранга, на котором достанется бесплатно. */
-  freeAt: string;
+  /** Подпись ранга, на котором достанется бесплатно, null — не достанется. */
+  freeAt: string | null;
 }
 
 export function describeBackdrops(
@@ -125,9 +139,10 @@ export function describeBackdrops(
   const byRank = backdropForStep(step);
 
   return BACKDROPS.map((backdrop) => {
-    const unlockedByRank = step >= backdrop.freeFromStep;
+    const unlockedByRank =
+      backdrop.freeFromStep !== null && step >= backdrop.freeFromStep;
     const owned = unlockedByRank || purchased.includes(backdrop.id);
-    const rank = RANKS[backdrop.freeFromStep];
+    const rank = backdrop.freeFromStep === null ? null : RANKS[backdrop.freeFromStep];
 
     return {
       id: backdrop.id,
@@ -140,7 +155,7 @@ export function describeBackdrops(
       affordable: !owned && backdrop.price > 0n && balance >= backdrop.price,
       // Ничего не выбрано — стоит тот, что положен по рангу.
       equipped: equipped === null ? backdrop.id === byRank?.id : equipped === backdrop.id,
-      freeAt: rank ? `${rank.title} ${'★'.repeat(rank.star)}` : '',
+      freeAt: rank ? `${rank.title} ${'★'.repeat(rank.star)}` : null,
     };
   });
 }
