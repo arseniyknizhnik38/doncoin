@@ -167,7 +167,7 @@ function LastResult({ result }: { result: NonNullable<WarState['last']> }) {
       </p>
       {result.potPaid !== '0' && (
         <p className="mt-1 text-[11px] text-neutral-500">
-          {result.outcome === 'win' ? 'Взяли с проигравших' : 'Ушло из общака'}:{' '}
+          {result.outcome === 'win' ? 'Взяли с проигравших' : 'Ушло из кассы'}:{' '}
           <span className="text-don-gold-soft">{formatCoins(result.potPaid)}</span>
         </p>
       )}

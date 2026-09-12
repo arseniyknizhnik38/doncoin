@@ -16,7 +16,7 @@ const displayName = (entry: { firstName: string | null; username: string | null 
   entry.firstName ?? (entry.username ? `@${entry.username}` : 'Аноним');
 
 /**
- * GET /api/leaderboard — топ игроков по заработанному и топ кланов по общаку,
+ * GET /api/leaderboard — топ игроков по заработанному и топ кланов по кассе,
  * плюс собственная позиция в обоих.
  *
  * Позиция считается через COUNT «сколько выше меня» — по индексу это дешевле,

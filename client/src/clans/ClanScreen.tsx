@@ -63,7 +63,7 @@ export function ClanScreen({ clans }: ClanScreenProps) {
             </div>
 
             <p className="mt-3 text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
-              Общак
+              Касса
             </p>
             <p className="text-2xl font-bold text-don-gold tabular-nums">
               {formatCoins(my.treasury)}
@@ -176,7 +176,7 @@ export function ClanScreen({ clans }: ClanScreenProps) {
                   <div className="min-w-0">
                     <p className="truncate text-sm text-neutral-200">{clan.name}</p>
                     <p className="text-[10px] tracking-wider text-neutral-500">
-                      {clan.memberCount} в семье · общак {formatCoins(clan.treasury)}
+                      {clan.memberCount} в семье · касса {formatCoins(clan.treasury)}
                     </p>
                   </div>
                   {data.canJoin && (

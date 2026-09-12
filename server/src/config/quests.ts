@@ -95,12 +95,12 @@ export const QUESTS: readonly QuestDefinition[] = [
   },
   {
     id: 'donate_1h',
-    title: 'Взнос в общак',
+    title: 'Взнос в кассу',
     measure: 'donated',
     target: (user) => activeIncomePerHour(user),
     rewardHours: 1,
     rewardRespect: 10,
-    describe: (target) => `Внести в общак ${coins(target)} DONC`,
+    describe: (target) => `Внести в кассу ${coins(target)} DONC`,
   },
   {
     id: 'daily_claim',
