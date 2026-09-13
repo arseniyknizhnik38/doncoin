@@ -70,6 +70,18 @@ export const EN: Record<string, string> = {
     'You came back — {inviter} vouched for you. A cut for both:',
   'Вернулся. Куш:': 'You came back. Your cut:',
 
+  // ——— Шифр Омерты
+  'Шифр Омерты': 'Omerta Code',
+  'Разгадан': 'Cracked',
+  'Новый шифр — завтра.': 'A new code tomorrow.',
+  'Попытки на сегодня кончились. Новый шифр — завтра.': 'No tries left today. A new code tomorrow.',
+  'Разложи предметы в правильном порядке. Кто знает — тот молчит. Почти.':
+    'Put the items in the right order. Those who know keep quiet. Mostly.',
+  'Пустая ячейка': 'Empty slot',
+  'Попыток осталось: {n}': 'Tries left: {n}',
+  'На своих местах: {hits} из {total}': 'In place: {hits} of {total}',
+  'Проверить': 'Check',
+
   // ——— Конверт
   'Вам занесли конверт': 'An envelope came for you',
   'Открываем…': 'Opening…',

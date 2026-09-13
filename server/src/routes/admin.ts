@@ -5,6 +5,7 @@ import { isValidCipher, normalizeCipher } from '../config/cipher.js';
 import { utcDayNumber } from '../config/rewards.js';
 import { dailyCounts, retention } from '../lib/analytics.js';
 import { setCipher } from '../lib/cipher.js';
+import { omertaForOwner } from '../lib/omerta.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
@@ -375,4 +376,9 @@ adminRouter.post('/ads/:id/stop', async (req: Request, res: Response) => {
   }
 
   res.json({ stopped: true });
+});
+
+/** GET /api/admin/omerta — ответ Шифра Омерты на сегодня и завтра. */
+adminRouter.get('/omerta', async (_req: Request, res: Response) => {
+  res.json({ omerta: await omertaForOwner(new Date()) });
 });

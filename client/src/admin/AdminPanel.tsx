@@ -1,6 +1,7 @@
 import { ErrorState, SkeletonList } from '../ui/States';
 import { AdsPanel } from './AdsPanel';
 import { CipherPanel } from './CipherPanel';
+import { OmertaPanel } from './OmertaPanel';
 import type { AdsApi } from './useAds';
 import type { CiphersApi } from './useCiphers';
 import type { AdminStatsApi } from './useAdminStats';
@@ -48,11 +49,13 @@ export function AdminPanel({
   api,
   ads,
   ciphers,
+  token,
   onClose,
 }: {
   api: AdminStatsApi;
   ads: AdsApi;
   ciphers: CiphersApi;
+  token: string | null;
   onClose: () => void;
 }) {
   const { stats, loading, error } = api;
@@ -171,6 +174,7 @@ export function AdminPanel({
             {/* Шифр задаётся каждый день, поэтому лежит рядом с рекламой:
                 обе панели владелец открывает в одном заходе. */}
             <CipherPanel api={ciphers} />
+            <OmertaPanel token={token} />
 
             <Section title="Топ по заработку">
               {stats.top.map((player, index) => (

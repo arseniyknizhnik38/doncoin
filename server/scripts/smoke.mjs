@@ -279,6 +279,37 @@ const solvedTwice = await call('/api/cipher/solve', {
 });
 check('дважды шифр не оплачивается', solvedTwice.status === 409, `статус ${solvedTwice.status}`);
 
+// ——— Шифр Омерты
+const omerta = await call('/api/omerta', { token });
+check('Омерта: двенадцать предметов', omerta.payload?.omerta?.items?.length === 12);
+check('Омерта: ответ до разгадки не отдаётся', omerta.payload?.omerta?.answer === null);
+check('Омерта: три попытки', omerta.payload?.omerta?.attemptsLeft === 3);
+
+const ownerOmerta = await call('/api/admin/omerta', { token });
+const answer = ownerOmerta.payload?.omerta?.today?.combination?.map((item) => item.id) ?? [];
+check('Омерта: владелец видит ответ на сегодня и завтра', answer.length === 4 &&
+  ownerOmerta.payload?.omerta?.tomorrow?.combination?.length === 4);
+
+const badGuess = await call('/api/omerta/guess', {
+  token, method: 'POST', body: { guess: [answer[0], answer[0], answer[1], answer[2]] },
+});
+check('Омерта: повтор предмета отвергается', badGuess.status === 400, `статус ${badGuess.status}`);
+
+// Сдвиг по кругу: ни один предмет не остаётся на своём месте.
+const shifted = [...answer.slice(1), answer[0]];
+const miss = await call('/api/omerta/guess', { token, method: 'POST', body: { guess: shifted } });
+check('Омерта: неверная раскладка — ноль на местах', miss.payload?.hits === 0,
+  JSON.stringify(miss.payload).slice(0, 120));
+check('Омерта: попытка списалась', miss.payload?.omerta?.attemptsLeft === 2);
+
+const hit = await call('/api/omerta/guess', { token, method: 'POST', body: { guess: answer } });
+check('Омерта: верная раскладка оплачивается', Number(hit.payload?.reward) >= 10_000,
+  JSON.stringify(hit.payload).slice(0, 120));
+check('Омерта: после разгадки ответ виден', hit.payload?.omerta?.answer?.join() === answer.join());
+
+const hitTwice = await call('/api/omerta/guess', { token, method: 'POST', body: { guess: answer } });
+check('Омерта: дважды не оплачивается', hitTwice.status === 409, `статус ${hitTwice.status}`);
+
 // ——— Рекламные кампании
 const ad = await call('/api/admin/ads', {
   token,

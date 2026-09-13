@@ -1,5 +1,7 @@
 import { CipherCard } from '../cipher/CipherCard';
 import type { CipherApi } from '../cipher/useCipher';
+import { OmertaCard } from '../omerta/OmertaCard';
+import type { OmertaApi } from '../omerta/useOmerta';
 import { QuestList } from '../quests/QuestList';
 import type { QuestsApi } from '../quests/useQuests';
 import { ErrorState, SkeletonList } from '../ui/States';
@@ -9,13 +11,14 @@ interface TasksPanelProps {
   tasks: TasksApi;
   quests: QuestsApi;
   cipher: CipherApi;
+  omerta: OmertaApi;
   onClose: () => void;
 }
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
 /** Панель заданий поверх экрана — чтобы не заводить шестую вкладку. */
-export function TasksPanel({ tasks, quests, cipher, onClose }: TasksPanelProps) {
+export function TasksPanel({ tasks, quests, cipher, omerta, onClose }: TasksPanelProps) {
   return (
     <div className="fixed inset-0 z-20 flex flex-col bg-don-black/95 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 overflow-y-auto px-6 py-8">
@@ -35,6 +38,7 @@ export function TasksPanel({ tasks, quests, cipher, onClose }: TasksPanelProps) 
 
         {/* Шифр и задания дня — сверху: одноразовые задания кончаются за
             вечер, а эти две штуки и есть причина открыть игру завтра. */}
+        <OmertaCard api={omerta} />
         <CipherCard api={cipher} />
         <QuestList api={quests} />
 

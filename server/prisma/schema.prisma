@@ -143,6 +143,13 @@ model User {
   cipherDay      Int @default(0)
   cipherAttempts Int @default(0)
 
+  /// Шифр Омерты: попытки за день, когда разгадан и чем кончилась последняя
+  /// попытка. Счётчик протухает вместе со сменой omertaDay.
+  omertaDay       Int     @default(0)
+  omertaAttempts  Int     @default(0)
+  omertaSolvedDay Int     @default(0)
+  omertaLastHits  Int?
+
   /// Прогресс по заданиям дня и разгаданные шифры.
   questDays     DailyQuestDay[]
   cipherSolves  CipherSolve[]
@@ -194,6 +201,7 @@ model User {
   /// Лидерборд сортирует и считает позицию по этому полю.
   @@index([lifetimeEarned])
   @@index([totalEarned])
+  @@index([omertaSolvedDay])
 }
 
 /// Еженедельное рекламное поручение: подписаться на канал.

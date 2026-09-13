@@ -8,6 +8,7 @@ import { useBoosters } from './boosters/useBoosters';
 import { useBackdrops } from './backdrops/useBackdrops';
 import { useBusinesses } from './businesses/useBusinesses';
 import { useCipher } from './cipher/useCipher';
+import { useOmerta } from './omerta/useOmerta';
 import { EnvelopeCard } from './envelope/EnvelopeCard';
 import { FeedTicker } from './feed/FeedList';
 import { useFeed } from './feed/useFeed';
@@ -109,6 +110,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
   const quests = useQuests(sessionToken, questsKey, game.applyServerState);
   const boosters = useBoosters(sessionToken, game.applyServerState);
   const cipher = useCipher(sessionToken, game.applyServerState);
+  const omerta = useOmerta(sessionToken, game.applyServerState);
   const envelope = useEnvelope(sessionToken, game.applyServerState);
   // Лента обновляется при открытии клана, но читается и на главном экране —
   // ключ общий, чтобы не тянуть её дважды.
@@ -167,7 +169,11 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
                   offline={auth.offline}
                   comeback={auth.comeback}
                   daily={daily}
-                  tasksReady={tasks.readyCount + quests.readyCount}
+                  tasksReady={
+                    tasks.readyCount +
+                    quests.readyCount +
+                    (omerta.omerta && !omerta.omerta.solved && omerta.omerta.attemptsLeft > 0 ? 1 : 0)
+                  }
                   envelope={
                     <>
                       <FeedTicker api={feed} />
@@ -221,6 +227,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               tasks={tasks}
               quests={quests}
               cipher={cipher}
+              omerta={omerta}
               onClose={() => setTasksOpen(false)}
             />
           )}
@@ -259,6 +266,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               api={stats}
               ads={ads}
               ciphers={ciphers}
+              token={sessionToken}
               onClose={() => setStatsOpen(false)}
             />
           )}
