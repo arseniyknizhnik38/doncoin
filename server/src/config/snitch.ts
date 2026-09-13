@@ -68,21 +68,21 @@ export function canCallSnitch(
  */
 export const SNITCH_QUOTES: Record<Lang, readonly string[]> = {
   ru: [
-    '🐟 Сутки тебя не видно. {inviter} говорит, тебя заметили у здания федералов. Зайди и докажи, что ты не крыса. Вернёшься — куш и тебе, и {inviter}.',
-    '🐟 Кто пропадает на сутки, тот либо в больнице, либо даёт показания. В больнице тебя нет. {inviter} за тебя поручился — не подставляй. Заходи, обоим занесут куш.',
-    '🐟 Федералы тебе уже новое имя выдали? {inviter} ждёт объяснений. Покажись в семье — вернувшимся полагается куш, тебе и {inviter}.',
-    '🐟 В семье молчат только двое: мёртвые и стукачи. Ты вроде живой. {inviter} волнуется. Зайди — и вам обоим прилетит куш.',
+    '🐟 Толстый Бобби говорит, что последнее время ты перестал появляться на людях. Среди умников пошли сомнения, и подозрения на твой счёт растут. {inviter} пока за тебя впрягается. Покажись — и вам обоим занесут куш.',
+    '🐟 На районе базарят, что тебя видели в машине без номеров с двумя в костюмах. Умники считают дни, пока ты не появишься. {inviter} говорит, что ты не такой. Докажи — зайди, и куш получите оба.',
+    '🐟 Кривой Сэл за столом спросил, где ты пропадаешь. Никто не ответил. Нехорошая была тишина. {inviter} за тебя поручился своим словом — не делай из него дурака. Появись, и обоим прилетит куш.',
+    '🐟 Толстый Бобби уже второй день поглядывает на твой пустой стул. Говорит, так пропадают только те, у кого появились новые друзья с корочками. {inviter} пока держит за тебя слово. Зайди — и куш на двоих.',
   ],
   en: [
-    '🐟 Nobody has seen you for a day. {inviter} says you were spotted outside the federal building. Come back and prove you are no rat. Show up and you and {inviter} both get a cut.',
-    '🐟 A man who vanishes for a day is either in the hospital or talking to the feds. You are not in the hospital. {inviter} vouched for you — do not make them look bad. Come back and you both get a cut.',
-    '🐟 Did the feds give you a new name already? {inviter} wants an explanation. Show your face — the ones who come back get a cut, you and {inviter}.',
-    '🐟 Only two kinds keep quiet in this family: the dead and the snitches. You look alive. {inviter} is worried. Come back and you both get a cut.',
+    '🐟 Fat Bobby says you stopped showing your face around lately. The wiseguys are starting to have doubts, and the talk about you is getting louder. {inviter} is still standing up for you. Show up and you both get a cut.',
+    '🐟 Word on the street is you were seen in an unmarked car with two guys in suits. The wiseguys are counting the days. {inviter} says you are not that kind. Prove it — come back and you both get a cut.',
+    '🐟 Crooked Sal asked at the table where you have been. Nobody answered. It was a bad kind of quiet. {inviter} put their word on you — do not make a fool of them. Show up and you both get a cut.',
+    '🐟 Fat Bobby keeps looking at your empty chair. Says the only guys who disappear like that are the ones with new friends carrying badges. {inviter} is still vouching for you. Come back — a cut for both of you.',
   ],
 };
 
 /** Сообщение пригласившему, когда кент вернулся. */
 export const COMEBACK_TO_INVITER: Record<Lang, string> = {
-  ru: '🤝 {friend} вернулся — не стукач, свой. За то, что поручился, тебе куш: +{amount} DONC.',
-  en: '🤝 {friend} came back — no rat, one of ours. For vouching, here is your cut: +{amount} DONC.',
+  ru: '🤝 {friend} снова на людях. Толстый Бобби отозвал своих — пацан чистый. Ты за него впрягся и не прогадал: твой куш +{amount} DONC.',
+  en: '🤝 {friend} is back on the street. Fat Bobby called off his guys — the kid is clean. You stood up for them and it paid: your cut +{amount} DONC.',
 };
