@@ -30,6 +30,11 @@ export function pickLang(code: string | null | undefined): Lang {
 }
 
 /** Достаёт нужный язык. */
+/** Язык, уже записанный у игрока: в базе строка, доверяем только двум значениям. */
+export function pickLangStored(stored: string): Lang {
+  return stored === 'en' ? 'en' : 'ru';
+}
+
 export function t(text: Text, lang: Lang): string {
   return text[lang];
 }

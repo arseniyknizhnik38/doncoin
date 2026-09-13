@@ -111,7 +111,10 @@ async function runNotify(_req: Request, res: Response) {
       sent += 1;
       await prisma.user.update({
         where: { id: user.id },
-        data: { lastNotifiedAt: now },
+        data:
+          draft.kind === 'snitch'
+            ? { lastNotifiedAt: now, snitchCalledAt: now, snitchPending: true }
+            : { lastNotifiedAt: now },
       });
     } else if (result === 'blocked') {
       blocked += 1;

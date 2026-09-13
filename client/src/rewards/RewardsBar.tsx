@@ -1,10 +1,14 @@
 import type React from 'react';
 import { useState } from 'react';
+import { useT } from '../i18n';
+import type { Comeback } from '../telegram/useAuth';
 import type { DailyApi } from './useDaily';
 import type { OfflineEarnings } from './types';
 
 interface RewardsBarProps {
   offline: OfflineEarnings | null;
+  /** Куш за то, что вернулся, пока семья подозревала в стукачестве. */
+  comeback?: Comeback | null;
   daily: DailyApi;
   /** Сколько наград за задания можно забрать. */
   tasksReady: number;
@@ -27,6 +31,7 @@ const formatHours = (hours: number) => {
 /** Плашка «пока вас не было» и кнопка ежедневного бонуса. */
 export function RewardsBar({
   offline,
+  comeback = null,
   daily,
   tasksReady,
   envelope,
@@ -35,11 +40,33 @@ export function RewardsBar({
   const [offlineHidden, setOfflineHidden] = useState(false);
   const showOffline = offline !== null && Number(offline.earned) > 0 && !offlineHidden;
   const status = daily.status;
-
-
+  const [comebackHidden, setComebackHidden] = useState(false);
+  const t = useT();
 
   return (
     <div className="flex w-full flex-col gap-2">
+      {comeback && !comebackHidden && (
+        <button
+          type="button"
+          onClick={() => setComebackHidden(true)}
+          className="w-full rounded-xl border border-don-gold/60 bg-don-ink/90 px-4 py-2.5 text-left"
+        >
+          <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
+            🐟 {t('Не стукач')}
+          </p>
+          <p className="text-sm text-neutral-200">
+            {comeback.inviter
+              ? t('Вернулся — {inviter} за тебя поручился. Куш обоим:', {
+                  inviter: comeback.inviter,
+                })
+              : t('Вернулся. Куш:')}{' '}
+            <span className="font-semibold text-don-gold-soft">
+              +{formatCoins(comeback.amount)}
+            </span>
+          </p>
+        </button>
+      )}
+
       {envelope}
 
       {showOffline && (

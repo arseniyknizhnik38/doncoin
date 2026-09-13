@@ -14,6 +14,12 @@ export interface AuthUser {
   createdAt: string;
 }
 
+export interface Comeback {
+  amount: string;
+  /** Кто поручился. */
+  inviter: string | null;
+}
+
 export type AuthStatus = 'idle' | 'loading' | 'authorized' | 'error';
 
 export interface AuthState {
@@ -32,6 +38,8 @@ export interface AuthState {
   offline: OfflineEarnings | null;
   /** Состояние ежедневного бонуса на момент входа. */
   daily: DailyStatus | null;
+  /** Куш за возвращение, когда кента подозревали в стукачестве. */
+  comeback: Comeback | null;
   /** Показывать ли раздел со сводкой. */
   isAdmin: boolean;
   /** Язык интерфейса, выбранный сервером по настройкам Telegram. */
@@ -58,6 +66,7 @@ export function useAuth(): AuthState {
     sessionToken: null,
     offline: null,
     daily: null,
+    comeback: null,
     isAdmin: false,
     language: 'ru',
   });
@@ -101,6 +110,8 @@ export function useAuth(): AuthState {
           offline:
             offline && Number(offline.earned) > 0 ? offline : prev.offline,
           daily: (payload.daily ?? null) as DailyStatus | null,
+          // Как и оффлайн-доход: повторный вход куша не несёт, прежний не затираем.
+          comeback: (payload.comeback ?? prev.comeback) as Comeback | null,
           isAdmin: Boolean(payload.isAdmin),
           language: payload.language === 'en' ? 'en' : 'ru',
         }));
@@ -118,6 +129,7 @@ export function useAuth(): AuthState {
           sessionToken: null,
           offline: null,
           daily: null,
+          comeback: null,
           isAdmin: false,
           language: 'ru',
         });

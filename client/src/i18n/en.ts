@@ -64,6 +64,12 @@ export const EN: Record<string, string> = {
   'дн.': 'd',
   'Через': 'In',
 
+  // ——— Кента подозревали
+  'Не стукач': 'No rat',
+  'Вернулся — {inviter} за тебя поручился. Куш обоим:':
+    'You came back — {inviter} vouched for you. A cut for both:',
+  'Вернулся. Куш:': 'You came back. Your cut:',
+
   // ——— Конверт
   'Вам занесли конверт': 'An envelope came for you',
   'Открываем…': 'Opening…',

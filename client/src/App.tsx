@@ -165,6 +165,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               rewards={
                 <RewardsBar
                   offline={auth.offline}
+                  comeback={auth.comeback}
                   daily={daily}
                   tasksReady={tasks.readyCount + quests.readyCount}
                   envelope={

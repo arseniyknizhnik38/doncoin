@@ -5,8 +5,11 @@ import { levelIncome } from '../config/businesses.js';
 import { ENERGY_PER_TAP } from './energy.js';
 import { regenerateEnergy } from './game.js';
 import { prisma } from './prisma.js';
+import { actorName } from './feed.js';
+import { format, pickLangStored } from '../config/i18n.js';
+import { SNITCH_QUOTES, canCallSnitch } from '../config/snitch.js';
 
-export type NotificationKind = 'streak' | 'business' | 'energy';
+export type NotificationKind = 'snitch' | 'streak' | 'business' | 'energy';
 
 export interface NotificationDraft {
   kind: NotificationKind;
@@ -30,13 +33,19 @@ export interface NotifyContext {
   catalog: Business[];
   levelsByUser: Map<string, Map<string, number>>;
   clanById: Map<string, { treasury: bigint; familyXp: number }>;
+  /** Имена пригласивших — для сообщения «кента подозревают». */
+  inviterNameById: Map<string, string>;
 }
 
 export async function buildNotifyContext(users: User[]): Promise<NotifyContext> {
   const userIds = users.map((user) => user.id);
   const clanIds = [...new Set(users.map((user) => user.clanId).filter(Boolean))] as string[];
 
-  const [catalog, owned, clans] = await Promise.all([
+  const inviterIds = [
+    ...new Set(users.map((user) => user.referredById).filter(Boolean)),
+  ] as string[];
+
+  const [catalog, owned, clans, inviters] = await Promise.all([
     prisma.business.findMany(),
     userIds.length > 0
       ? prisma.userBusiness.findMany({ where: { userId: { in: userIds } } })
@@ -45,6 +54,12 @@ export async function buildNotifyContext(users: User[]): Promise<NotifyContext> 
       ? prisma.clan.findMany({
           where: { id: { in: clanIds } },
           select: { id: true, treasury: true, familyXp: true },
+        })
+      : [],
+    inviterIds.length > 0
+      ? prisma.user.findMany({
+          where: { id: { in: inviterIds } },
+          select: { id: true, firstName: true, username: true },
         })
       : [],
   ]);
@@ -61,6 +76,7 @@ export async function buildNotifyContext(users: User[]): Promise<NotifyContext> 
     catalog,
     levelsByUser,
     clanById: new Map(clans.map((clan) => [clan.id, clan])),
+    inviterNameById: new Map(inviters.map((inviter) => [inviter.id, actorName(inviter)])),
   };
 }
 
@@ -95,6 +111,21 @@ export function draftNotification(
   now: Date,
   context: NotifyContext,
 ): NotificationDraft | null {
+  // 0. Кент пропал на сутки — его подозревают. Это сильнее всего остального:
+  // тут не монеты, а человек, который за тебя поручился.
+  const inviterName = user.referredById
+    ? context.inviterNameById.get(user.referredById)
+    : undefined;
+
+  if (inviterName && canCallSnitch(user, now)) {
+    const quotes = SNITCH_QUOTES[pickLangStored(user.language)];
+    // Цитата по часу, а не случайно: так функция остаётся чистой и
+    // проверяемой, а разные прогоны всё равно дают разные строки.
+    const quote = quotes[Math.floor(now.getTime() / 3_600_000) % quotes.length]!;
+
+    return { kind: 'snitch', text: format(quote, { inviter: inviterName }) };
+  }
+
   // 1. Стрик сгорит: бонус за сегодня не забран, а серия уже набрана.
   const daily = dailyStatus(user, now);
   const mskHour = (now.getUTCHours() + 3) % 24;

@@ -10,6 +10,7 @@ import { recordActiveDay } from '../lib/activity.js';
 import { announceRankIfRisen } from '../lib/feed.js';
 import { prisma } from '../lib/prisma.js';
 import { createSessionToken } from '../lib/session.js';
+import { payComebackIfPending } from '../lib/snitch.js';
 import { InitDataError, validateInitData } from '../lib/telegram.js';
 import { upsertUserFromTelegram } from '../lib/users.js';
 import { authRateLimit } from '../middleware/rateLimit.js';
@@ -58,6 +59,9 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
   // «день прошлого визита» уже не узнать, а на нём вся проверка и держится.
   await recordActiveDay(stored.id, stored.lastSeenAt, now, isNew);
   await announceRankIfRisen(stored);
+  // Кента подозревали в стукачестве, а он вернулся — куш обоим. До
+  // обновлений ниже: они делают increment, и куш войдёт в итоговый баланс.
+  const comeback = isNew ? null : await payComebackIfPending(stored);
 
   // Пока игрока не было, «семья работала». Начисляем сразу при входе, а не
   // по кнопке: одна запись в базу вместо двух, и деньги нельзя потерять,
@@ -132,6 +136,9 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
       hours: Number(offline.hours.toFixed(2)),
       capped: offline.capped,
     },
+    comeback: comeback
+      ? { amount: comeback.amount.toString(), inviter: comeback.inviter }
+      : null,
     daily: { ...dailyStatus(withBusiness, now), streakCap: DAILY_STREAK_CAP },
     business: {
       earned: business.earned.toString(),

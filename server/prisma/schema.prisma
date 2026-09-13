@@ -164,6 +164,11 @@ model User {
   notificationsBlocked Boolean   @default(false)
   lastNotifiedAt       DateTime?
 
+  /// «Кента подозревают»: когда бот последний раз написал приглашённому,
+  /// что его приняли за стукача, и ждёт ли куш его возвращения.
+  snitchCalledAt DateTime?
+  snitchPending  Boolean   @default(false)
+
   /// Выполненные еженедельные поручения.
   favorCompletions FavorCompletion[]
 

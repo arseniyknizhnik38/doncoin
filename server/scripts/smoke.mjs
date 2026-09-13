@@ -470,5 +470,10 @@ const afterExtra = await call('/api/referrals', { token });
 check('дважды за одного друга не платят',
   Number(afterExtra.payload?.earned) === 25_000, afterExtra.payload?.earned);
 
+// Куш за возвращение платится только после «подозрения» от бота.
+const friendRelogin = await login(777003, 'Приведённый', referrals.payload?.code);
+check('обычный перевход кента куша не даёт', friendRelogin.payload?.comeback === null,
+  JSON.stringify(friendRelogin.payload?.comeback));
+
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);
