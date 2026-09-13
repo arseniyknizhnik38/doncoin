@@ -165,7 +165,7 @@ const kiosk = businesses.payload?.businesses?.find((item) => item.slug === 'stre
 const offshore = businesses.payload?.businesses?.find((item) => item.slug === 'offshore');
 check('каталог бизнесов из 12', businesses.payload?.businesses?.length === 12,
   `${businesses.payload?.businesses?.length}`);
-check('ларёк доступен сразу', kiosk?.locked === false);
+check('мясная лавка доступна сразу', kiosk?.locked === false);
 check('оффшор закрыт рангом', offshore?.locked === true);
 check('у закрытого указан нужный ранг', typeof offshore?.requiredRank === 'string' && offshore.requiredRank.includes('Консильери'), offshore?.requiredRank);
 

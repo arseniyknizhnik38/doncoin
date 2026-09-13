@@ -38,8 +38,8 @@ export interface BusinessSeed {
 export const BUSINESS_CATALOG: readonly BusinessSeed[] = [
   {
     slug: 'street_food',
-    name: 'Ларёк с шаурмой',
-    description: 'Три квадратных метра и очередь до ночи',
+    name: 'Мясная лавка',
+    description: 'Колбасы на витрине, а настоящие дела — в подсобке',
     category: 'Общепит',
     baseCost: 5_000n,
     baseIncomePerHour: 180n,
