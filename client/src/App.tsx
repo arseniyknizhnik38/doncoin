@@ -99,7 +99,6 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
   const businesses = useBusinesses(sessionToken, refreshKeys.shop, game.applyServerState);
   const perks = usePerks(sessionToken, refreshKeys.shop, game.applyServerState);
   const backdrops = useBackdrops(sessionToken, refreshKeys.shop, game.applyServerState);
-  const favors = useFavors(sessionToken, refreshKeys.friends, game.applyServerState);
   const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
   const board = useLeaderboard(sessionToken, refreshKeys.top);
   const tasks = useTasks(sessionToken, game.applyServerState);
@@ -108,6 +107,8 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
   // ним двигают тапы и покупки, а не сама панель.
   const [questsKey, setQuestsKey] = useState(0);
   const quests = useQuests(sessionToken, questsKey, game.applyServerState);
+  // Подписки на каналы живут в заданиях и обновляются вместе с ними.
+  const favors = useFavors(sessionToken, questsKey, game.applyServerState);
   const boosters = useBoosters(sessionToken, game.applyServerState);
   const cipher = useCipher(sessionToken, game.applyServerState);
   const omerta = useOmerta(sessionToken, game.applyServerState);
@@ -172,6 +173,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
                   tasksReady={
                     tasks.readyCount +
                     quests.readyCount +
+                    (favors.data?.favors.filter((favor) => !favor.completed).length ?? 0) +
                     (omerta.omerta && !omerta.omerta.solved && omerta.omerta.attemptsLeft > 0 ? 1 : 0)
                   }
                   envelope={
@@ -201,7 +203,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
           ) : tab === 'top' ? (
             <LeaderboardScreen board={board} />
           ) : (
-            <FamilyScreen referrals={referrals} favors={favors} />
+            <FamilyScreen referrals={referrals} />
           )}
 
           <nav className="relative mb-3 flex w-full max-w-md shrink-0 gap-1 rounded-xl border border-don-blood/40 bg-don-ink/80 p-1.5">
@@ -228,6 +230,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               quests={quests}
               cipher={cipher}
               omerta={omerta}
+              favors={favors}
               onClose={() => setTasksOpen(false)}
             />
           )}
