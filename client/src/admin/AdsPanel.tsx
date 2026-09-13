@@ -246,15 +246,44 @@ export function AdsPanel({ api }: { api: AdsApi }) {
             </p>
           )}
 
-          {ad.status !== 'stopped' && (
+          <p className="mt-0.5 text-[11px] text-neutral-600">
+            Подписку проверяем по: {ad.channelChatId}
+          </p>
+
+          {api.diagnoses[ad.id] && (
+            <p
+              className={`mt-2 text-xs ${
+                api.diagnoses[ad.id] === 'checking'
+                  ? 'text-neutral-500'
+                  : (api.diagnoses[ad.id] as { ok: boolean }).ok
+                    ? 'text-emerald-400'
+                    : 'text-don-blood-light'
+              }`}
+            >
+              {api.diagnoses[ad.id] === 'checking'
+                ? 'Проверяем…'
+                : (api.diagnoses[ad.id] as { message: string }).message}
+            </p>
+          )}
+
+          <div className="mt-2 flex gap-4">
             <button
               type="button"
-              onClick={() => api.stop(ad.id)}
-              className="mt-2 text-[11px] tracking-wider text-don-blood-light"
+              onClick={() => api.diagnose(ad.id)}
+              className="text-[11px] tracking-wider text-don-gold-soft"
             >
-              Снять с показа
+              Проверить бота
             </button>
-          )}
+            {ad.status !== 'stopped' && (
+              <button
+                type="button"
+                onClick={() => api.stop(ad.id)}
+                className="text-[11px] tracking-wider text-don-blood-light"
+              >
+                Снять с показа
+              </button>
+            )}
+          </div>
         </div>
       ))}
 

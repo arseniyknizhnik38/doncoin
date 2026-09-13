@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { adReward, isRunning, slotsLeft } from '../config/ads.js';
+import { isAdmin } from '../config/admin.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
 import { SubscriptionCheckError, checkSubscription } from '../lib/telegramApi.js';
@@ -127,8 +128,12 @@ favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
         `[favors] проверка подписки не прошла (${favor.channelName}): ${error.code} — ${error.detail ?? ''}`,
       );
 
+      // Владельцу — настоящая причина прямо на карточке: иначе, чтобы понять,
+      // что бот не админ канала, нужно лезть в логи сервера.
       res.status(503).json({
-        error: 'Не получилось проверить подписку, попробуйте позже',
+        error: isAdmin(user.telegramId)
+          ? `Проверка не работает: ${error.code} — ${error.detail ?? error.message}. Подробнее — «Проверить бота» в Сводке.`
+          : 'Не получилось проверить подписку, попробуйте позже',
         code: 'CHECK_UNAVAILABLE',
       });
       return;

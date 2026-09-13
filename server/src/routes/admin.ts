@@ -7,6 +7,7 @@ import { dailyCounts, retention } from '../lib/analytics.js';
 import { setCipher } from '../lib/cipher.js';
 import { omertaForOwner } from '../lib/omerta.js';
 import { prisma } from '../lib/prisma.js';
+import { diagnoseChannel } from '../lib/telegramApi.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
 
@@ -376,6 +377,32 @@ adminRouter.post('/ads/:id/stop', async (req: Request, res: Response) => {
   }
 
   res.json({ stopped: true });
+});
+
+/**
+ * POST /api/admin/ads/:id/diagnose — сможет ли бот проверять подписку.
+ *
+ * Игрок при сбое видит только «не получилось проверить»; здесь владелец
+ * узнаёт конкретную причину и что исправить.
+ */
+adminRouter.post('/ads/:id/diagnose', async (req: Request, res: Response) => {
+  const rawId = req.params.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
+  const favor = await prisma.favor.findUnique({ where: { id: id ?? '' } });
+
+  if (!favor) {
+    res.status(404).json({ error: 'Кампания не найдена', code: 'AD_NOT_FOUND' });
+    return;
+  }
+
+  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+
+  if (!botToken) {
+    res.json({ diagnosis: { ok: false, message: 'На сервере не задан TELEGRAM_BOT_TOKEN' } });
+    return;
+  }
+
+  res.json({ diagnosis: await diagnoseChannel(favor.channelChatId, botToken) });
 });
 
 /** GET /api/admin/omerta — ответ Шифра Омерты на сегодня и завтра. */

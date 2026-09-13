@@ -41,6 +41,14 @@ export interface AdsApi {
   create: (draft: AdDraft) => Promise<boolean>;
   stop: (id: string) => void;
   reload: () => void;
+  /** Итог «Проверить бота» по кампаниям. */
+  diagnoses: Record<string, Diagnosis | 'checking'>;
+  diagnose: (id: string) => void;
+}
+
+export interface Diagnosis {
+  ok: boolean;
+  message: string;
 }
 
 /**
@@ -130,5 +138,29 @@ export function useAds(token: string | null, enabled: boolean): AdsApi {
     [token, reload],
   );
 
-  return { ads, loading, saving, error, create, stop, reload };
+  const [diagnoses, setDiagnoses] = useState<AdsApi['diagnoses']>({});
+
+  const diagnose = useCallback(
+    (id: string) => {
+      if (!token) {
+        return;
+      }
+
+      setDiagnoses((prev) => ({ ...prev, [id]: 'checking' }));
+
+      apiFetch<{ diagnosis: Diagnosis }>(`/api/admin/ads/${id}/diagnose`, token, {
+        method: 'POST',
+      })
+        .then((payload) => setDiagnoses((prev) => ({ ...prev, [id]: payload.diagnosis })))
+        .catch((cause: unknown) =>
+          setDiagnoses((prev) => ({
+            ...prev,
+            [id]: { ok: false, message: cause instanceof Error ? cause.message : 'Ошибка сети' },
+          })),
+        );
+    },
+    [token],
+  );
+
+  return { ads, loading, saving, error, create, stop, reload, diagnoses, diagnose };
 }

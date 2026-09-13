@@ -168,3 +168,85 @@ export async function sendMessage(
     return 'failed';
   }
 }
+
+export interface ChannelDiagnosis {
+  ok: boolean;
+  /** Что сказать владельцу — по-человечески и с тем, что делать. */
+  message: string;
+}
+
+async function botApi<T>(
+  botToken: string,
+  method: string,
+  params: Record<string, string>,
+): Promise<{ ok: boolean; result?: T; description?: string }> {
+  const url = new URL(`https://api.telegram.org/bot${botToken}/${method}`);
+
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
+
+  const response = await fetch(url, { signal: AbortSignal.timeout(5_000) });
+
+  return (await response.json()) as { ok: boolean; result?: T; description?: string };
+}
+
+/**
+ * Проверяет, сможет ли бот проверять подписку на канал.
+ *
+ * Игрок видит только «не получилось проверить», а причин несколько: канал
+ * указан не тем идентификатором, бота нет в канале, бот есть, но не
+ * администратор. Эта проверка называет конкретную.
+ */
+export async function diagnoseChannel(
+  chatId: string,
+  botToken: string,
+): Promise<ChannelDiagnosis> {
+  try {
+    const me = await botApi<{ id: number; username: string }>(botToken, 'getMe', {});
+
+    if (!me.ok || !me.result) {
+      return { ok: false, message: `Токен бота не принят Telegram: ${me.description ?? ''}` };
+    }
+
+    const bot = `@${me.result.username}`;
+    const chat = await botApi<{ title?: string }>(botToken, 'getChat', { chat_id: chatId });
+
+    if (!chat.ok) {
+      return {
+        ok: false,
+        message:
+          `Telegram не находит канал «${chatId}» (${chat.description ?? 'без описания'}). ` +
+          'Для публичного канала укажите @username точно как в ссылке, для закрытого — ' +
+          `числовой id вида -100…, и добавьте ${bot} в канал администратором.`,
+      };
+    }
+
+    const title = chat.result?.title ?? chatId;
+    const member = await botApi<ChatMember>(botToken, 'getChatMember', {
+      chat_id: chatId,
+      user_id: String(me.result.id),
+    });
+
+    if (!member.ok || !member.result) {
+      return {
+        ok: false,
+        message: `Канал «${title}» найден, но бот не может читать участников (${member.description ?? ''}). Сделайте ${bot} администратором.`,
+      };
+    }
+
+    if (member.result.status === 'administrator' || member.result.status === 'creator') {
+      return { ok: true, message: `Всё в порядке: ${bot} — администратор канала «${title}».` };
+    }
+
+    return {
+      ok: false,
+      message: `${bot} есть в канале «${title}», но не администратор (статус: ${member.result.status}). Без прав администратора Telegram не отдаёт боту подписчиков.`,
+    };
+  } catch (cause) {
+    return {
+      ok: false,
+      message: `Не удалось связаться с Telegram: ${cause instanceof Error ? cause.message : ''}`,
+    };
+  }
+}
