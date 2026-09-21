@@ -22,14 +22,9 @@ export function EnvelopeCard({ api }: { api: EnvelopeApi }) {
       <button
         type="button"
         onClick={api.dismiss}
-        className="w-full rounded-xl border border-don-gold/60 bg-don-ink px-4 py-3 text-left active:scale-95"
+        className="w-full truncate rounded-xl border border-don-gold/60 bg-don-ink px-3 py-1.5 text-center text-sm font-semibold text-don-gold-soft active:scale-95"
       >
-        <p className="text-[10px] tracking-[0.25em] text-don-gold uppercase">
-          {api.justOpened.title}
-        </p>
-        <p className="mt-1 text-xl font-bold text-don-gold-soft tabular-nums">
-          +{formatCoins(api.justOpened.amount)}
-        </p>
+        {api.justOpened.title}: +{formatCoins(api.justOpened.amount)}
       </button>
     );
   }
@@ -38,7 +33,7 @@ export function EnvelopeCard({ api }: { api: EnvelopeApi }) {
   // работает лучше пустого места.
   if (!envelope.unlocked) {
     return (
-      <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-2.5 text-center text-[11px] tracking-wider text-neutral-600">
+      <p className="truncate rounded-xl border border-dashed border-don-blood/40 px-3 py-1 text-center text-[11px] tracking-wider text-neutral-600">
         Заносить начнут с ранга «{envelope.unlocksAt}»
       </p>
     );
@@ -46,7 +41,7 @@ export function EnvelopeCard({ api }: { api: EnvelopeApi }) {
 
   if (!envelope.available) {
     return (
-      <p className="rounded-xl border border-don-blood/40 bg-don-ink/60 px-4 py-2.5 text-center text-[11px] tracking-wider text-neutral-500">
+      <p className="truncate rounded-xl border border-don-blood/40 bg-don-ink/60 px-3 py-1 text-center text-[11px] tracking-wider text-neutral-500">
         {envelope.opened
           ? `${envelope.opened.title}: +${formatCoins(envelope.opened.amount)}. Следующий завтра`
           : 'Сегодняшний конверт уже у вас'}
@@ -59,7 +54,7 @@ export function EnvelopeCard({ api }: { api: EnvelopeApi }) {
       type="button"
       disabled={api.opening}
       onClick={api.open}
-      className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft active:scale-95 disabled:opacity-50"
+      className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-3 py-2 text-sm font-semibold text-don-gold-soft active:scale-95 disabled:opacity-50"
     >
       {api.opening ? 'Открываем…' : 'Вам занесли конверт'}
     </button>

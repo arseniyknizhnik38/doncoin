@@ -53,46 +53,46 @@ export function GameScreen({
   const perTap = rushActive ? state.coinsPerTap * state.rushMultiplier : state.coinsPerTap;
 
   return (
-    <div className="relative flex w-full max-w-md min-h-0 flex-1 flex-col items-center justify-between gap-3 overflow-y-auto py-3 sm:gap-6 sm:py-6">
-      <header className="flex w-full flex-col items-center gap-2 px-2">
-        <p className="text-[11px] tracking-[0.3em] text-neutral-500 uppercase">
-          {displayName ?? 'Дон'}
-        </p>
+    <div className="relative flex w-full max-w-md min-h-0 flex-1 flex-col items-center gap-2 overflow-hidden py-2">
+      <header className="flex w-full shrink-0 flex-col items-center gap-1.5 px-2">
+        {/* Имя и Respect — одной строкой по краям: обе подписи мелкие, и
+            каждая своей строкой отнимала у персонажа высоту зря. */}
+        <div className="flex w-full items-center justify-between">
+          <p className="truncate text-[11px] tracking-[0.25em] text-neutral-500 uppercase">
+            {displayName ?? 'Дон'}
+          </p>
+          <span
+            className="flex shrink-0 items-center gap-1"
+            title={`${state.respectProgress} / ${state.tapsPerRespect} тапов до следующего Respect`}
+          >
+            <StarIcon />
+            <span className="text-sm font-semibold text-neutral-200 tabular-nums">
+              {formatBalance(String(state.respect))}
+            </span>
+          </span>
+        </div>
+
+        <div className="flex items-baseline gap-2">
+          <span className="text-4xl font-black text-don-gold tabular-nums drop-shadow-[0_0_24px_rgba(232,180,72,0.3)]">
+            {formatBalance(state.balance)}
+          </span>
+          <span className="text-xs tracking-[0.2em] text-neutral-500 uppercase">
+            DONC
+          </span>
+        </div>
 
         <RankProgress rank={state.rank} earned={state.totalEarned} />
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-baseline gap-2">
-            <span className="text-5xl font-black text-don-gold tabular-nums drop-shadow-[0_0_24px_rgba(232,180,72,0.3)]">
-              {formatBalance(state.balance)}
-            </span>
-            <span className="text-sm tracking-[0.2em] text-neutral-500 uppercase">
-              DONC
-            </span>
-          </div>
-        </div>
-
-        <div
-          className="flex items-center gap-1.5 rounded-full border border-don-blood/50 bg-don-ink/70 px-3 py-1"
-          title={`${state.respectProgress} / ${state.tapsPerRespect} тапов до следующего Respect`}
-        >
-          <StarIcon />
-          <span className="text-base font-semibold text-neutral-200 tabular-nums">
-            {formatBalance(String(state.respect))}
-          </span>
-          <span className="text-[10px] tracking-[0.2em] text-neutral-500 uppercase">
-            Respect
-          </span>
-        </div>
       </header>
 
-      {rewards}
-      {boosters}
+      <div className="w-full shrink-0">{rewards}</div>
+      <div className="w-full shrink-0">{boosters}</div>
 
-      {/* mt-auto прижимает фигуру к низу: иначе она ездит по вертикали вслед
-          за плашками наград, которые то появляются, то нет, и ноги оказываются
-          то на земле, то в небе над кварталом. */}
-      <div className="mt-auto">
+      {/* Персонажу достаётся вся оставшаяся высота, сколько бы ни заняли
+          плашки сверху, и он прижат к низу этого места — ноги всегда на
+          одной линии. Раньше рост задавался долей экрана: вместе с плашками
+          фигура не помещалась, и её приходилось выискивать прокруткой, а
+          листаться игре нельзя вовсе. */}
+      <div className="flex min-h-0 w-full flex-1 items-end justify-center">
         <TapCoin
           coinsPerTap={perTap}
           disabled={empty}
@@ -101,7 +101,7 @@ export function GameScreen({
         />
       </div>
 
-      <footer className="flex w-full flex-col gap-2 px-2">
+      <footer className="flex w-full shrink-0 flex-col gap-1.5 px-2">
         <div className="flex items-center justify-between text-xs tracking-wider text-neutral-400">
           <span>
             Обойма{' '}
@@ -114,7 +114,7 @@ export function GameScreen({
           </span>
         </div>
 
-        <div className="h-3 w-full overflow-hidden rounded-full border border-don-blood/50 bg-black/60">
+        <div className="h-2.5 w-full overflow-hidden rounded-full border border-don-blood/50 bg-black/60">
           <div
             className="h-full rounded-full bg-gradient-to-r from-don-blood via-don-gold to-don-gold-soft transition-[width] duration-300"
             style={{ width: `${energyPercent}%` }}

@@ -107,7 +107,7 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
       onPointerDown={handleTap}
       disabled={disabled}
       aria-label="Тапнуть"
-      className={`relative touch-manipulation select-none transition-transform duration-75 ${
+      className={`relative flex h-full max-h-full items-end justify-center touch-manipulation select-none transition-transform duration-75 ${
         sprite ? '' : 'rounded-full'
       } ${pressed ? 'scale-95' : 'scale-100'} ${disabled ? 'opacity-40' : ''}`}
     >
@@ -119,11 +119,10 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
               это единственное, что отличает «стоит» от «висит». */}
           <span className="pointer-events-none absolute inset-x-10 bottom-[3%] h-5 rounded-[50%] bg-black/55 blur-[6px]" />
           <span className="pointer-events-none absolute inset-x-4 bottom-[2%] h-7 rounded-[50%] bg-black/35 blur-xl" />
-          {/* Размер выверялся на фонах, а не на пустом экране. Половина высоты
-              годилась на улице, но в комнате голова упиралась в полки: фигура
-              оказывалась крупнее обстановки, и масштаб рассыпался. 40% — та
-              граница, где человек ещё крупный, но всё ещё внутри сцены. */}
-          <span className="don-frame relative block h-[min(28rem,40vh)] w-[min(28rem,40vh)]">
+          {/* Размер задаёт не доля экрана, а место, которое осталось от плашек:
+              высота берётся от родителя, ширина равна ей. Так фигура всегда
+              настолько крупная, насколько это возможно без прокрутки. */}
+          <span className="don-frame relative block aspect-square h-full max-h-full">
             <span
               className="don-strip block"
               style={{

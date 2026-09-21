@@ -24,15 +24,15 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
     target === null ? 100 : Math.min(100, Math.round((current / target) * 100));
 
   return (
-    <div className="flex w-full flex-col items-center gap-2">
-      <p className="text-2xl font-black tracking-[0.18em] text-don-gold-soft uppercase">
+    <div className="flex w-full flex-col items-center gap-1">
+      <p className="text-lg font-black tracking-[0.18em] text-don-gold-soft uppercase">
         {rank.title}
       </p>
 
       {/* Звёзды внутри ранга: повышение видно каждые пару дней, а персонажа
           художник рисует по-прежнему одного на ранг. */}
       <p
-        className="-mt-1 text-sm tracking-[0.3em]"
+        className="-mt-1 text-xs tracking-[0.3em]"
         aria-label={`Звезда ${rank.star} из ${rank.stars}`}
       >
         {Array.from({ length: rank.stars }, (_, index) => (
@@ -51,7 +51,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
         </p>
       )}
 
-      <div className="h-2 w-full overflow-hidden rounded-full border border-don-blood/40 bg-black/60">
+      <div className="h-1.5 w-full overflow-hidden rounded-full border border-don-blood/40 bg-black/60">
         <div
           className="h-full rounded-full bg-gradient-to-r from-don-blood via-don-gold to-don-gold-soft transition-[width] duration-500"
           style={{ width: `${percent}%` }}
@@ -60,7 +60,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
 
       {rank.next ? (
         <p className="text-[11px] tracking-wider text-neutral-500">
-          {formatCoins(current)} / {formatCoins(rank.next.minBalance)} ДонКоинов до{' '}
+          {formatCoins(current)} / {formatCoins(rank.next.minBalance)} до{' '}
           <span className="text-don-gold-soft">
             {rank.next.title} {'★'.repeat(rank.next.star)}
           </span>

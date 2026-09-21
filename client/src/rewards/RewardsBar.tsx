@@ -44,7 +44,7 @@ export function RewardsBar({
   const t = useT();
 
   return (
-    <div className="flex w-full flex-col gap-2">
+    <div className="flex w-full flex-col gap-1.5">
       {comeback && !comebackHidden && (
         <button
           type="button"
@@ -73,64 +73,51 @@ export function RewardsBar({
         <button
           type="button"
           onClick={() => setOfflineHidden(true)}
-          className="w-full rounded-xl border border-don-gold/40 bg-don-ink/80 px-4 py-2.5 text-left"
+          className="w-full truncate rounded-xl border border-don-gold/40 bg-don-ink/80 px-3 py-1.5 text-left text-xs text-neutral-300"
         >
-          <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
-            Пока вас не было
-          </p>
-          <p className="text-sm text-neutral-200">
-            Семья заработала{' '}
-            <span className="font-semibold text-don-gold-soft">
-              +{formatCoins(offline.earned)}
-            </span>{' '}
-            за {formatHours(offline.hours)}
-            {offline.capped && (
-              <span className="text-neutral-500"> · копится не больше 8 часов</span>
-            )}
-          </p>
+          Пока вас не было:{' '}
+          <span className="font-semibold text-don-gold-soft">
+            +{formatCoins(offline.earned)}
+          </span>{' '}
+          за {formatHours(offline.hours)}
         </button>
       )}
 
-      {daily.justClaimed ? (
-        <p className="rounded-xl border border-don-gold/40 bg-don-ink/80 px-4 py-2.5 text-sm text-don-gold-soft">
-          Бонус получен: +{formatCoins(daily.justClaimed)}
-        </p>
-      ) : (
-        status?.available && (
-          <button
-            type="button"
-            disabled={daily.claiming}
-            onClick={daily.claim}
-            className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
-          >
-            {daily.claiming
-              ? 'Забираем…'
-              : `Забрать бонус дня ${status.nextStreak}${
-                  status.milestone ? ' ×3' : ''
-                } · +${formatCoins(status.reward)}`}
-          </button>
-        )
-      )}
+      {/* Бонус дня и задания — одной строкой. Раньше это были две кнопки во
+          всю ширину плюс строка про тройной бонус: три полосы ради двух
+          нажатий, и всё это отнимало высоту у персонажа. */}
+      <div className="flex w-full gap-2">
+        {daily.justClaimed ? (
+          <p className="flex-1 truncate rounded-xl border border-don-gold/40 bg-don-ink/80 px-3 py-2 text-center text-xs text-don-gold-soft">
+            Бонус: +{formatCoins(daily.justClaimed)}
+          </p>
+        ) : (
+          status?.available && (
+            <button
+              type="button"
+              disabled={daily.claiming}
+              onClick={daily.claim}
+              className="flex-1 truncate rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-3 py-2 text-xs font-semibold text-don-gold-soft disabled:opacity-50"
+            >
+              {daily.claiming
+                ? 'Забираем…'
+                : `Бонус дня${status.milestone ? ' ×3' : ''} · +${formatCoins(status.reward)}`}
+            </button>
+          )
+        )}
 
-      {/* Обещание следующей крупной награды — то, ради чего серию не бросают. */}
-      {status && status.daysToMilestone !== null && (
-        <p className="text-center text-[11px] tracking-wider text-neutral-500">
-          Через {status.daysToMilestone}{' '}
-          {status.daysToMilestone === 1 ? 'день' : 'дн.'} — тройной бонус
-        </p>
-      )}
-
-      <button
-        type="button"
-        onClick={onOpenTasks}
-        className={`w-full rounded-xl border px-4 py-2 text-sm ${
-          tasksReady > 0
-            ? 'border-don-gold/50 bg-don-ink text-don-gold-soft'
-            : 'border-don-blood/40 bg-don-ink/60 text-neutral-400'
-        }`}
-      >
-        Задания{tasksReady > 0 ? ` · готово ${tasksReady}` : ''}
-      </button>
+        <button
+          type="button"
+          onClick={onOpenTasks}
+          className={`flex-1 truncate rounded-xl border px-3 py-2 text-xs ${
+            tasksReady > 0
+              ? 'border-don-gold/50 bg-don-ink text-don-gold-soft'
+              : 'border-don-blood/40 bg-don-ink/60 text-neutral-400'
+          }`}
+        >
+          Задания{tasksReady > 0 ? ` · ${tasksReady}` : ''}
+        </button>
+      </div>
 
       {daily.error && (
         <p className="text-center text-xs tracking-wider text-don-blood-light">
