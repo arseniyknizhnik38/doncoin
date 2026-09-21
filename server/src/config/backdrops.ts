@@ -111,6 +111,14 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
     file: '/bg-pool.webp',
   },
   {
+    id: 'villa',
+    title: 'Вилла в Италии',
+    description: 'Море, лимоны и никакого Ньюарка',
+    freeFromStep: null,
+    price: 30_000_000_000n,
+    file: '/bg-villa.webp',
+  },
+  {
     id: 'marble_hall',
     title: 'Особняк',
     description: 'Рояль, бар и сад за окном',
