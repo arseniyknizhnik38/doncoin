@@ -266,3 +266,27 @@ npx ffmpeg -y -i strip.png -c:v libwebp -lossless 1 client/public/don-consiglier
 
 С первого раза нижний край вышел на 187 — на пиксель выше остальных, поэтому
 отступ сверху в `pad` стал 12. Итог: рост 170, нижний край 188, 105 КБ.
+
+## Пример: как собран «Дон»
+
+Исходник 624×624, фон 0x3B4D5C, фигура в кадре 330×547 и заметно смещена
+вправо — она держит букет, и центр тяжести кадра уехал вместе с ним.
+Поэтому здесь, в отличие от остальных, пришлось двигать кадр по обеим осям:
+`pad` опускает фигуру на две точки, `crop` сдвигает её влево на 51.
+
+```bash
+npx ffmpeg -y -i ИСХОДНИК.mp4 -vf "fps=8" all/f%03d.png
+node scripts/find-sprite-loop.mjs all          # лучшее окно: кадры 8..15
+
+npx ffmpeg -y -start_number 8 -i all/f%03d.png -frames:v 8 \
+  -vf "scale=195:195:flags=neighbor,pad=246:197:33:2:color=0x3B4D5C,crop=192:192:51:0" \
+  frames/f%02d.png
+
+node scripts/cut-sprite-background.mjs frames strip.png --shadow
+npx ffmpeg -y -i strip.png -c:v libwebp -lossless 1 client/public/don-don.webp
+```
+
+Центр меряется по всей фигуре вместе с букетом, поэтому сам человек стоит
+чуть левее середины — так и надо: иначе букет выпирал бы за край кадра.
+
+Итог: рост 170, нижний край 188, 149 КБ.
