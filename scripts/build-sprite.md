@@ -221,3 +221,24 @@ node scripts/build-background.mjs ИСХОДНИК.png soldier
 держать в тех же пределах; выше 400 КБ скрипт предупредит. У пиксель-арта
 вес растёт от числа цветов и мелкой ряби, а не от размера картинки — если
 получилось тяжело, уменьшать надо детализацию, а не разрешение.
+
+## Пример: как собран «Консильери»
+
+Исходник 624×624, 24 кадра в секунду, 5 секунд. Фон 0x40484D, фигура в кадре
+272×590. Единственный из четырёх, где петля нашлась чистая: стык 7.36 при
+шаге 7.44 — рывка на повторе не видно.
+
+```bash
+npx ffmpeg -y -i ИСХОДНИК.mp4 -vf "fps=8" all/f%03d.png
+node scripts/find-sprite-loop.mjs all          # лучшее окно: кадры 14..21
+
+npx ffmpeg -y -start_number 14 -i all/f%03d.png -frames:v 8 \
+  -vf "scale=180:180:flags=neighbor,pad=192:193:10:12:color=0x40484D,crop=192:192:0:0" \
+  frames/f%02d.png
+
+node scripts/cut-sprite-background.mjs frames strip.png --shadow
+npx ffmpeg -y -i strip.png -c:v libwebp -lossless 1 client/public/don-consigliere.webp
+```
+
+С первого раза нижний край вышел на 187 — на пиксель выше остальных, поэтому
+отступ сверху в `pad` стал 12. Итог: рост 170, нижний край 188, 105 КБ.

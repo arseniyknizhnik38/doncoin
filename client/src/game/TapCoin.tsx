@@ -26,6 +26,7 @@ const RANK_SPRITES: Record<string, string> = {
   associate: '/don-associate.webp',
   soldier: '/don-soldier.webp',
   capo: '/don-capo.webp',
+  consigliere: '/don-consigliere.webp',
 };
 
 /** Сколько персонаж «живёт» после последнего тапа, прежде чем замереть. */
