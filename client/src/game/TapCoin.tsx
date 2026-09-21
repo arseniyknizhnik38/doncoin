@@ -119,10 +119,11 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
               это единственное, что отличает «стоит» от «висит». */}
           <span className="pointer-events-none absolute inset-x-10 bottom-[3%] h-5 rounded-[50%] bg-black/55 blur-[6px]" />
           <span className="pointer-events-none absolute inset-x-4 bottom-[2%] h-7 rounded-[50%] bg-black/35 blur-xl" />
-          {/* 24rem — это ровно 384 точки, вдвое больше кадра 192: при целом
-              увеличении пиксели остаются квадратными. Дробное дало бы рябь
-              на контурах, и персонаж стал бы выглядеть мыльным. */}
-          <span className="don-frame relative block h-[min(24rem,44vh)] w-[min(24rem,44vh)]">
+          {/* Половина высоты экрана: персонаж — главное, что на нём есть, и
+              мельче он читается как иконка, а не как человек. Верхний предел
+              в 36rem держит его в рамках на планшете, где половина экрана —
+              это уже великан. */}
+          <span className="don-frame relative block h-[min(36rem,50vh)] w-[min(36rem,50vh)]">
             <span
               className="don-strip block"
               style={{
