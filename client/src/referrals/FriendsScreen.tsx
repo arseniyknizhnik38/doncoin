@@ -53,7 +53,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
 
       {/* Условие проговариваем сразу. Иначе человек приводит друга, денег не
           видит и считает, что игра его обманула. */}
-      <p className="-mt-2 text-center text-[11px] tracking-wider text-neutral-600">
+      <p className="-mt-2 text-center text-[11px] tracking-wider text-neutral-400">
         Награда приходит, когда друг сделает {formatCoins(data.qualifyTaps)} тапов
       </p>
 
@@ -64,7 +64,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
             {data.invitedCount}
           </p>
           {data.invitedCount > data.confirmedCount && (
-            <p className="text-[10px] tracking-wider text-neutral-600">
+            <p className="text-[10px] tracking-wider text-neutral-400">
               засчитано {data.confirmedCount}
             </p>
           )}
@@ -89,14 +89,14 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
           <button
             type="button"
             onClick={handleShare}
-            className="flex-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft active:scale-95"
+            className="flex-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft active:scale-95"
           >
             Позвать в Telegram
           </button>
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded-lg border border-don-gold/40 px-4 py-2.5 text-sm text-don-gold active:scale-95"
+            className="rounded-lg border border-don-gold/40 px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm text-don-gold active:scale-95"
           >
             {copied ? 'Готово' : 'Копировать'}
           </button>

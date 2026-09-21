@@ -94,7 +94,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
                 <button
                   type="button"
                   onClick={() => openChannel(favor.channelUrl)}
-                  className="flex-1 rounded-lg border border-don-gold/40 px-4 py-2.5 text-sm text-don-gold active:scale-95"
+                  className="min-h-11 flex-1 rounded-lg border border-don-gold/40 px-4 py-2.5 text-sm text-don-gold active:scale-95"
                 >
                   Перейти
                 </button>
@@ -102,7 +102,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
                   type="button"
                   disabled={checking !== null}
                   onClick={() => api.check(favor.id)}
-                  className="flex-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+                  className="min-h-11 flex-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
                 >
                   {checking === favor.id ? 'Проверяем…' : 'Проверить'}
                 </button>

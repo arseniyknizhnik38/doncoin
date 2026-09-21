@@ -3,7 +3,7 @@ import { initDataRaw, useSignal } from '@telegram-apps/sdk-react';
 import type { GameState } from '../game/types';
 import type { Lang } from '../i18n';
 import type { DailyStatus, OfflineEarnings } from '../rewards/types';
-import { isTelegramEnv } from './init';
+import { devInitData, isTelegramEnv } from './init';
 
 export interface AuthUser {
   id: string;
@@ -54,7 +54,8 @@ export interface AuthState {
  */
 export function useAuth(): AuthState {
   // Сигнал, а не useRawInitData(): тот бросает исключение вне Telegram.
-  const rawInitData = useSignal(initDataRaw);
+  const signalInitData = useSignal(initDataRaw);
+  const rawInitData = signalInitData ?? devInitData() ?? undefined;
   const [state, setState] = useState<
     Omit<AuthState, 'initDataRaw' | 'reauth'>
   >({

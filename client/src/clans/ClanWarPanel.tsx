@@ -96,7 +96,7 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
             {formatCoins(war.me.score)}
           </p>
         </div>
-        <span className="shrink-0 pb-1 text-[10px] tracking-[0.2em] text-neutral-600">
+        <span className="shrink-0 pb-1 text-[10px] tracking-[0.2em] text-neutral-400">
           VS
         </span>
         <div className="min-w-0 text-right">
@@ -137,7 +137,7 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
               <span className="truncate text-neutral-400">
                 {fighterName(fighter)}
                 {fighter.left && (
-                  <span className="ml-1 text-[10px] text-neutral-600">вышел</span>
+                  <span className="ml-1 text-[10px] text-neutral-400">вышел</span>
                 )}
               </span>
               <span className="shrink-0 text-don-gold-soft tabular-nums">

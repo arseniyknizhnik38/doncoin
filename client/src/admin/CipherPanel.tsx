@@ -63,7 +63,7 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
             maxLength={32}
             placeholder="КОД"
             aria-label="Код шифра"
-            className="min-w-0 flex-1 rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-neutral-100 uppercase placeholder:tracking-normal placeholder:text-neutral-600"
+            className="min-w-0 flex-1 rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-neutral-100 uppercase placeholder:tracking-normal placeholder:text-neutral-400"
           />
         </div>
 
@@ -73,19 +73,19 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
           maxLength={120}
           placeholder="Подсказка: где искать"
           aria-label="Подсказка"
-          className="mt-2 w-full rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600"
+          className="mt-2 w-full rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-400"
         />
 
         <button
           type="button"
           onClick={submit}
           disabled={api.saving || code.trim().length < 3}
-          className="mt-2 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+          className="mt-2 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
         >
           {api.saving ? 'Сохраняем…' : 'Задать шифр'}
         </button>
 
-        <p className="mt-2 text-[11px] text-neutral-600">
+        <p className="mt-2 text-[11px] text-neutral-400">
           Код должен появиться в канале раньше, чем игроки пойдут его искать,
           поэтому удобнее готовить на завтра.
         </p>
@@ -116,7 +116,7 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
       ))}
 
       {api.ciphers?.length === 0 && !api.loading && (
-        <p className="text-xs text-neutral-600">
+        <p className="text-xs text-neutral-400">
           Шифров нет. Пока их нет, карточка в игре не показывается.
         </p>
       )}

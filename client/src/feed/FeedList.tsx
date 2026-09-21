@@ -35,7 +35,7 @@ export function FeedList({ api }: { api: FeedApi }) {
 
   if (!events || events.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-5 text-center text-xs tracking-wider text-neutral-600">
+      <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-5 text-center text-xs tracking-wider text-neutral-400">
         {api.loading ? 'Слушаем улицу…' : 'Пока тихо. Первая новость — за вами.'}
       </p>
     );
@@ -57,7 +57,7 @@ export function FeedList({ api }: { api: FeedApi }) {
           }`}
         >
           <p className="text-xs text-neutral-200">{event.text}</p>
-          <p className="mt-0.5 text-[10px] tracking-wider text-neutral-600">
+          <p className="mt-0.5 text-[10px] tracking-wider text-neutral-400">
             {when(event.createdAt)}
           </p>
         </div>

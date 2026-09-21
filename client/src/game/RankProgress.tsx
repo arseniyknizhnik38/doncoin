@@ -25,7 +25,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
 
   return (
     <div className="flex w-full flex-col items-center gap-1">
-      <p className="text-lg font-black tracking-[0.18em] text-don-gold-soft uppercase">
+      <p className="text-base font-black tracking-[0.18em] text-don-gold-soft uppercase">
         {rank.title}
       </p>
 
@@ -51,7 +51,9 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
         </p>
       )}
 
-      <div className="h-1.5 w-full overflow-hidden rounded-full border border-don-blood/40 bg-black/60">
+      {/* Трек светлее фона: чёрная полоса на чёрном экране не читалась
+          вовсе, и прогресс был виден только по подписи. */}
+      <div className="h-1.5 w-full overflow-hidden rounded-full border border-don-blood/50 bg-white/10">
         <div
           className="h-full rounded-full bg-gradient-to-r from-don-blood via-don-gold to-don-gold-soft transition-[width] duration-500"
           style={{ width: `${percent}%` }}
@@ -60,7 +62,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
 
       {rank.next ? (
         <p className="text-[11px] tracking-wider text-neutral-500">
-          {formatCoins(current)} / {formatCoins(rank.next.minBalance)} до{' '}
+          Ещё {formatCoins(Number(rank.next.minBalance) - current)} до{' '}
           <span className="text-don-gold-soft">
             {rank.next.title} {'★'.repeat(rank.next.star)}
           </span>

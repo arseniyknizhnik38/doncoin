@@ -98,7 +98,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
               id ? 'border-don-gold/60 bg-black/50' : 'border-dashed border-don-blood/50 bg-black/20'
             }`}
           >
-            {id ? byId.get(id)?.emoji : <span className="text-sm text-neutral-600">{index + 1}</span>}
+            {id ? byId.get(id)?.emoji : <span className="text-sm text-neutral-400">{index + 1}</span>}
           </button>
         ))}
       </div>
@@ -143,7 +143,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
           api.guess(cells as string[]);
           setSlots([]);
         }}
-        className="mt-3 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+        className="mt-3 min-h-11 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
       >
         {api.sending ? '…' : t('Проверить')}
       </button>

@@ -61,7 +61,7 @@ export function DealScreen({
             key={id}
             type="button"
             onClick={() => setMode(id)}
-            className={`flex-1 rounded-lg px-2 py-2 text-xs font-semibold transition-colors sm:text-sm ${
+            className={`min-h-11 flex-1 rounded-lg px-2 py-2 text-xs font-semibold transition-colors sm:text-sm ${
               mode === id
                 ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
                 : 'text-neutral-500'

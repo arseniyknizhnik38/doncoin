@@ -48,7 +48,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
             key={id}
             type="button"
             onClick={() => setScope(id)}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+            className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
               scope === id
                 ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
                 : 'text-neutral-500'

@@ -61,12 +61,12 @@ export function UpgradeList({ api, state }: UpgradeListProps) {
               type="button"
               disabled={disabled}
               onClick={() => api.buy(upgrade.id)}
-              className={`mt-3 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+              className={`mt-3 min-h-11 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                 isMax
                   ? 'border border-don-gold/30 text-don-gold/60'
                   : affordable
                     ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft active:scale-95'
-                    : 'border border-neutral-700 text-neutral-600'
+                    : 'border border-neutral-700 text-neutral-400'
               }`}
             >
               {isMax

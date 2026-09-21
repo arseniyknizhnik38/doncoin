@@ -32,11 +32,11 @@ export function BoosterBar({ api }: BoosterBarProps) {
             disabled={spent || api.using !== null || active}
             onClick={() => api.use(booster.id)}
             title={booster.description}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
+            className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
               active
                 ? 'border-don-gold bg-don-gold/15 text-don-gold'
                 : spent
-                  ? 'border-neutral-800 text-neutral-600'
+                  ? 'border-neutral-800 text-neutral-400'
                   : 'border-don-blood/50 bg-don-ink/80 text-don-gold-soft active:scale-95'
             }`}
           >

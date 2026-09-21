@@ -81,7 +81,7 @@ export function BackdropList({ api, state }: BackdropListProps) {
               <p className="mt-0.5 text-xs text-neutral-500">{backdrop.description}</p>
 
               {!backdrop.owned && (
-                <p className="mt-1 text-[11px] text-neutral-600">
+                <p className="mt-1 text-[11px] text-neutral-400">
                   {backdrop.freeAt
                     ? `Бесплатно на ранге «${backdrop.freeAt}»`
                     : 'Рангом не даётся — только покупка'}
@@ -93,7 +93,7 @@ export function BackdropList({ api, state }: BackdropListProps) {
                   type="button"
                   disabled={api.busy !== null}
                   onClick={() => api.equip(backdrop.id)}
-                  className="mt-3 w-full rounded-lg border border-don-gold/40 px-4 py-2.5 text-sm font-semibold text-don-gold active:scale-95 disabled:opacity-50"
+                  className="mt-3 min-h-11 w-full rounded-lg border border-don-gold/40 px-4 py-2.5 text-sm font-semibold text-don-gold active:scale-95 disabled:opacity-50"
                 >
                   {api.busy === backdrop.id ? 'Ставим…' : 'Поставить'}
                 </button>
@@ -102,10 +102,10 @@ export function BackdropList({ api, state }: BackdropListProps) {
                   type="button"
                   disabled={!affordable || api.busy !== null}
                   onClick={() => api.buy(backdrop.id)}
-                  className={`mt-3 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+                  className={`mt-3 min-h-11 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                     affordable
                       ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft active:scale-95'
-                      : 'border border-neutral-700 text-neutral-600'
+                      : 'border border-neutral-700 text-neutral-400'
                   }`}
                 >
                   {api.busy === backdrop.id

@@ -112,7 +112,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                 value={amount}
                 onChange={(event) => setAmount(event.target.value.replace(/\D/g, ''))}
                 placeholder="Сумма взноса"
-                className="min-w-0 flex-1 rounded-lg border border-don-blood/40 bg-black/50 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600"
+                className="min-w-0 flex-1 rounded-lg border border-don-blood/40 bg-black/50 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-400"
               />
               <button
                 type="button"
@@ -121,7 +121,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                   clans.donate(Number(amount));
                   setAmount('');
                 }}
-                className="rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
+                className="min-h-11 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
               >
                 Внести
               </button>
@@ -131,7 +131,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
               type="button"
               disabled={busy}
               onClick={clans.leave}
-              className="mt-3 w-full rounded-lg border border-neutral-700 px-4 py-2 text-xs tracking-wider text-neutral-400 disabled:opacity-40"
+              className="mt-3 w-full rounded-lg border border-neutral-700 px-4 min-h-11 inline-flex items-center justify-center py-2 text-xs tracking-wider text-neutral-400 disabled:opacity-40"
             >
               {my.isOwner ? 'Распустить клан' : 'Выйти из клана'}
             </button>
@@ -169,7 +169,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                   maxLength={24}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Название клана"
-                  className="min-w-0 flex-1 rounded-lg border border-don-blood/40 bg-black/50 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600"
+                  className="min-w-0 flex-1 rounded-lg border border-don-blood/40 bg-black/50 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-400"
                 />
                 <button
                   type="button"
@@ -178,7 +178,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                     clans.create(name);
                     setName('');
                   }}
-                  className="rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
+                  className="min-h-11 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
                 >
                   Создать
                 </button>
@@ -208,7 +208,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                       type="button"
                       disabled={busy}
                       onClick={() => clans.join(clan.id)}
-                      className="shrink-0 rounded-lg border border-don-gold/40 px-3 py-1.5 text-xs text-don-gold disabled:opacity-40"
+                      className="min-h-11 shrink-0 rounded-lg border border-don-gold/40 px-3 py-1.5 text-xs text-don-gold disabled:opacity-40"
                     >
                       Вступить
                     </button>

@@ -18,9 +18,9 @@ const EMPTY: AdDraft = {
 const STATUS_COLORS: Record<string, string> = {
   running: 'text-emerald-400/80',
   scheduled: 'text-neutral-400',
-  finished: 'text-neutral-600',
+  finished: 'text-neutral-400',
   sold_out: 'text-don-gold-soft',
-  stopped: 'text-neutral-600',
+  stopped: 'text-neutral-400',
 };
 
 function Field({
@@ -38,13 +38,13 @@ function Field({
         {label}
       </span>
       {children}
-      {hint && <span className="text-[10px] text-neutral-600">{hint}</span>}
+      {hint && <span className="text-[10px] text-neutral-400">{hint}</span>}
     </label>
   );
 }
 
 const inputClass =
-  'rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-600';
+  'rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-400';
 
 /**
  * Управление рекламными кампаниями.
@@ -194,7 +194,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
           <button
             type="submit"
             disabled={api.saving}
-            className="mt-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+            className="mt-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
           >
             {api.saving ? 'Сохраняем…' : 'Запустить'}
           </button>
@@ -224,7 +224,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
           </div>
 
           {ad.advertiser && (
-            <p className="mt-0.5 text-[11px] text-neutral-600">{ad.advertiser}</p>
+            <p className="mt-0.5 text-[11px] text-neutral-400">{ad.advertiser}</p>
           )}
 
           <p className="mt-1 text-xs text-neutral-400">
@@ -234,19 +234,19 @@ export function AdsPanel({ api }: { api: AdsApi }) {
               {ad.slots !== null && ` из ${formatNumber(ad.slots)}`}
             </span>
             {ad.rewardHours !== null ? (
-              <span className="text-neutral-600"> · {ad.rewardHours} ч дохода</span>
+              <span className="text-neutral-400"> · {ad.rewardHours} ч дохода</span>
             ) : (
-              <span className="text-neutral-600"> · {formatNumber(ad.rewardDonc)} DONC</span>
+              <span className="text-neutral-400"> · {formatNumber(ad.rewardDonc)} DONC</span>
             )}
           </p>
 
           {ad.endsAt && (
-            <p className="mt-0.5 text-[11px] text-neutral-600">
+            <p className="mt-0.5 text-[11px] text-neutral-400">
               До {new Date(ad.endsAt).toLocaleDateString('ru-RU')}
             </p>
           )}
 
-          <p className="mt-0.5 text-[11px] text-neutral-600">
+          <p className="mt-0.5 text-[11px] text-neutral-400">
             Подписку проверяем по: {ad.channelChatId}
           </p>
 
@@ -288,7 +288,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
       ))}
 
       {api.ads?.length === 0 && !api.loading && (
-        <p className="text-xs text-neutral-600">
+        <p className="text-xs text-neutral-400">
           Кампаний нет. Первая же принесёт подписчиков рекламодателю и монеты игрокам.
         </p>
       )}

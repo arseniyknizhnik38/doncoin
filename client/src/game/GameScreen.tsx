@@ -37,9 +37,13 @@ export function GameScreen({
           обойма. Всё остальное — бонус дня, задания, бустеры, конверт — живёт
           в меню: каждая плашка здесь отнимала высоту у персонажа, ради
           которого экран и существует. */}
-      <header className="flex w-full shrink-0 flex-col items-center gap-1.5 px-2">
+      {/* Отступ сверху — под угловые кнопки: без него баланс оказывался
+          зажат между шестерёнкой и сводкой. */}
+      <header className="mt-11 flex w-full shrink-0 flex-col items-center gap-1.5 px-2">
         <div className="flex items-baseline gap-2">
-          <span className="text-4xl font-black text-don-gold tabular-nums drop-shadow-[0_0_24px_rgba(232,180,72,0.3)]">
+          {/* Деньги — главное число экрана, поэтому крупнее названия ранга.
+              Было наоборот: ранг кричал, счёт шептал. */}
+          <span className="text-[2.75rem] leading-none font-black text-don-gold tabular-nums drop-shadow-[0_0_24px_rgba(232,180,72,0.3)]">
             {formatBalance(state.balance)}
           </span>
           <span className="text-xs tracking-[0.2em] text-neutral-500 uppercase">

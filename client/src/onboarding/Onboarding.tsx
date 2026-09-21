@@ -87,7 +87,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
             <button
               type="button"
               onClick={onDone}
-              className="text-xs tracking-wider text-neutral-600"
+              className="text-xs tracking-wider text-neutral-400"
             >
               {t('Пропустить')}
             </button>

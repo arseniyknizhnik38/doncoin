@@ -70,7 +70,7 @@ export function AdminPanel({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-don-blood/50 px-3 py-1.5 text-sm text-neutral-400"
+            className="rounded-lg border border-don-blood/50 px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
           >
             Закрыть
           </button>

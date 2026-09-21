@@ -18,9 +18,29 @@ export const TELEGRAM_COLORS = {
 
 let insideTelegram = false;
 
-/** true — приложение запущено внутри Telegram и SDK проинициализирован. */
+/**
+ * true — приложение запущено внутри Telegram и SDK проинициализирован.
+ *
+ * В режиме разработки достаточно положить подписанные initData в
+ * localStorage под ключом `devInitData`: экран тогда рисуется как в
+ * Telegram, и интерфейс можно смотреть в обычном браузере. В сборке для
+ * прода эта ветка вырезается целиком — `import.meta.env.DEV` там ложь.
+ */
 export function isTelegramEnv(): boolean {
-  return insideTelegram;
+  return insideTelegram || (import.meta.env.DEV && devInitData() !== null);
+}
+
+/** Подписанные initData для локального просмотра. Только в разработке. */
+export function devInitData(): string | null {
+  if (!import.meta.env.DEV) {
+    return null;
+  }
+
+  try {
+    return localStorage.getItem('devInitData');
+  } catch {
+    return null;
+  }
 }
 
 /** `stableHeight` → `--tg-viewport-stable-height` и т.д. */

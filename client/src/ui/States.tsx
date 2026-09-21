@@ -31,7 +31,7 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
         <button
           type="button"
           onClick={onRetry}
-          className="rounded-lg border border-don-gold/40 px-4 py-2 text-sm text-don-gold active:scale-95"
+          className="rounded-lg border border-don-gold/40 px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm text-don-gold active:scale-95"
         >
           Повторить
         </button>

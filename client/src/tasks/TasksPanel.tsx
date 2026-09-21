@@ -75,7 +75,7 @@ export function TasksPanel({
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="rounded-lg border border-don-blood/50 px-3 py-1.5 text-sm text-neutral-400"
+            className="rounded-lg border border-don-blood/50 px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
           >
             Закрыть
           </button>
@@ -112,7 +112,7 @@ export function TasksPanel({
               type="button"
               disabled={daily.claiming}
               onClick={daily.claim}
-              className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+              className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
             >
               {daily.claiming
                 ? 'Забираем…'
@@ -205,13 +205,13 @@ export function TasksPanel({
                 )}
 
                 {task.claimed ? (
-                  <p className="mt-2 text-xs tracking-wider text-neutral-600">Получено</p>
+                  <p className="mt-2 text-xs tracking-wider text-neutral-400">Получено</p>
                 ) : task.done ? (
                   <button
                     type="button"
                     disabled={tasks.claiming !== null}
                     onClick={() => tasks.claim(task.id)}
-                    className="mt-3 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+                    className="mt-3 min-h-11 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
                   >
                     {tasks.claiming === task.id ? 'Забираем…' : 'Забрать награду'}
                   </button>

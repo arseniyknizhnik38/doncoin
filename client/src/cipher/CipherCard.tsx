@@ -72,7 +72,7 @@ export function CipherCard({ api }: CipherCardProps) {
 
       {/* Попытки ограничены, чтобы код не подбирали перебором. Молчать об
           этом нельзя: иначе игрок узнаёт о лимите, только упершись в него. */}
-      <p className="mt-1 text-[11px] tracking-wider text-neutral-600">
+      <p className="mt-1 text-[11px] tracking-wider text-neutral-400">
         Попыток осталось: {cipher.attemptsLeft}
       </p>
 
@@ -90,12 +90,12 @@ export function CipherCard({ api }: CipherCardProps) {
           maxLength={32}
           placeholder="Код"
           aria-label="Код шифра"
-          className="min-w-0 flex-1 rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-neutral-100 uppercase placeholder:tracking-normal placeholder:text-neutral-600"
+          className="min-w-0 flex-1 rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-neutral-100 uppercase placeholder:tracking-normal placeholder:text-neutral-400"
         />
         <button
           type="submit"
           disabled={api.sending || !code.trim()}
-          className="shrink-0 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+          className="shrink-0 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
         >
           {api.sending ? '…' : 'Ввести'}
         </button>

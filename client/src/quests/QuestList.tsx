@@ -71,16 +71,16 @@ export function QuestList({ api }: QuestListProps) {
               </span>
 
               {quest.claimed ? (
-                <span className="text-[11px] tracking-wider text-neutral-600">Получено</span>
+                <span className="text-[11px] tracking-wider text-neutral-400">Получено</span>
               ) : (
                 <button
                   type="button"
                   disabled={!quest.done || api.claiming !== null}
                   onClick={() => api.claim(quest.id)}
-                  className={`rounded-lg px-3 py-1 text-xs font-semibold ${
+                  className={`min-h-11 inline-flex items-center justify-center rounded-lg px-4 py-1 text-xs font-semibold ${
                     quest.done
                       ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft active:scale-95'
-                      : 'border border-neutral-700 text-neutral-600'
+                      : 'border border-neutral-700 text-neutral-400'
                   }`}
                 >
                   {api.claiming === quest.id ? 'Забираем…' : 'Забрать'}
@@ -96,9 +96,9 @@ export function QuestList({ api }: QuestListProps) {
         type="button"
         disabled={!state.chest.ready || api.claiming !== null}
         onClick={api.claimChest}
-        className={`rounded-xl border px-4 py-2.5 text-sm font-semibold ${
+        className={`rounded-xl border px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold ${
           state.chest.claimed
-            ? 'border-neutral-800 text-neutral-600'
+            ? 'border-neutral-800 text-neutral-400'
             : state.chest.ready
               ? 'border-don-gold bg-don-gold/10 text-don-gold active:scale-95'
               : 'border-don-blood/40 text-neutral-500'

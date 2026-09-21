@@ -160,7 +160,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
     : rawAuthError || 'Не удалось войти';
 
   return (
-    <main className="relative flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden bg-don-black px-4 text-center sm:px-6">
+    <main className="relative flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden bg-don-black px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-center sm:px-6">
       {/* Обстановка ранга. Пока картинки для ранга нет — остаётся подложка
           ниже, и экран выглядит как раньше, а не сломанным. */}
       {game.state && (
@@ -203,7 +203,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
                 key={item.id}
                 type="button"
                 onClick={() => (item.id === 'tasks' ? openTasks() : openTab(item.id as Tab))}
-                className={`relative flex-1 rounded-lg px-1 py-2.5 text-[10px] font-semibold tracking-wide transition-colors sm:text-sm ${
+                className={`relative min-h-11 flex-1 rounded-lg px-1 py-2.5 text-[10px] font-semibold tracking-wide transition-colors sm:text-sm ${
                   tab === item.id
                     ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
                     : 'text-neutral-500'
@@ -242,7 +242,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               type="button"
               onClick={() => setSettingsOpen(true)}
               aria-label="Настройки"
-              className="absolute top-2 left-4 rounded-lg border border-don-blood/40 px-2 py-1 text-[10px] tracking-wider text-neutral-500"
+              className="absolute top-2 left-4 flex h-11 w-11 items-center justify-center rounded-full border border-don-blood/40 text-base text-neutral-400 active:scale-95"
             >
               ⚙
             </button>
@@ -260,9 +260,10 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
             <button
               type="button"
               onClick={() => setStatsOpen(true)}
-              className="absolute top-2 right-4 rounded-lg border border-don-blood/40 px-2 py-1 text-[10px] tracking-wider text-neutral-500"
+              aria-label="Сводка"
+              className="absolute top-2 right-4 flex h-11 w-11 items-center justify-center rounded-full border border-don-blood/40 text-base text-neutral-400 active:scale-95"
             >
-              Сводка
+              ▤
             </button>
           )}
 
