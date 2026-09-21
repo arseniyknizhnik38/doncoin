@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { BACKDROPS, backdropForStep, describeBackdrops, findBackdrop } from './backdrops.js';
+import {
+  BACKDROPS,
+  backdropForStep,
+  describeBackdrops,
+  effectiveBackdrop,
+  findBackdrop,
+} from './backdrops.js';
 import { RANKS } from './ranks.js';
 
 describe('каталог фонов', () => {
@@ -139,10 +145,28 @@ describe('витрина', () => {
     expect(views.find((view) => view.equipped)?.id).toBe('pool_hall');
   });
 
-  it('выбор игрока важнее ранга', () => {
-    const views = describeBackdrops(6, 0n, [], 'alley');
+  it('выбор игрока важнее ранга, пока ранг не вырос', () => {
+    const views = describeBackdrops(6, 0n, [], 'pool_hall');
 
-    expect(views.find((view) => view.equipped)?.id).toBe('alley');
+    expect(views.find((view) => view.equipped)?.id).toBe('pool_hall');
+  });
+
+  it('повышение переселяет из прежней комнаты', () => {
+    // Без этого фоны переставали показывать рост: один раз выбранная
+    // подворотня оставалась на экране и у Капо, и у Дона.
+    expect(effectiveBackdrop(9, 'alley')?.id).toBe('restaurant');
+    expect(effectiveBackdrop(17, 'diner')?.id).toBe('marble_hall');
+
+    const views = describeBackdrops(9, 0n, [], 'alley');
+
+    expect(views.find((view) => view.equipped)?.id).toBe('restaurant');
+  });
+
+  it('купленный фон повышение не снимает', () => {
+    // За него заплачено, и ранг тут ни при чём — иначе покупка обнулялась бы
+    // на следующем повышении.
+    expect(effectiveBackdrop(17, 'pool')?.id).toBe('pool');
+    expect(effectiveBackdrop(17, 'villa')?.id).toBe('villa');
   });
 
   it('по карману считает от баланса, а не от ранга', () => {

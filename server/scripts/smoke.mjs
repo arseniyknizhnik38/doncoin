@@ -389,8 +389,13 @@ const skins = await call('/api/backdrops', { token });
 const alley = skins.payload?.backdrops?.find((item) => item.id === 'alley');
 const hall = skins.payload?.backdrops?.find((item) => item.id === 'marble_hall');
 
-check('каталог фонов отдаётся', skins.payload?.backdrops?.length === 6,
+// Шесть ранговых плюс те, которые не даёт ни один ранг: бассейн, ипподром,
+// яхта и вилла. Последние и есть единственный сток монет в игре.
+check('каталог фонов отдаётся', skins.payload?.backdrops?.length === 10,
   `${skins.payload?.backdrops?.length}`);
+check('фоны вне рангов даром не достаются',
+  skins.payload?.backdrops?.filter((item) => item.freeAt === null).length === 4,
+  `${skins.payload?.backdrops?.filter((item) => item.freeAt === null).length}`);
 check('фон своего ранга достался даром', alley?.owned === true && alley?.byRank === true);
 check('он же и выбран по умолчанию', alley?.equipped === true);
 check('дорогой фон не выдан', hall?.owned === false);

@@ -155,6 +155,38 @@ export function backdropForStep(step: number): BackdropDefinition | undefined {
     .find((backdrop) => backdrop.freeFromStep !== null && step >= backdrop.freeFromStep);
 }
 
+/**
+ * Какой фон показывать на самом деле.
+ *
+ * Выбор игрока хранится вечно, и из-за этого повышение переставало быть
+ * видно: человек один раз нажал «Выбрать» на своей подворотне, дорос до
+ * Капо — и остался стоять в подворотне. Смысл фонов ровно в обратном: они
+ * и есть то, по чему видно рост.
+ *
+ * Поэтому ранговый выбор живёт только до следующего повышения: как только
+ * ранг выдаёт комнату позже выбранной, показывается новая. Купленные фоны
+ * это не трогает — за них заплачено, и снимать их самовольно нельзя.
+ */
+export function effectiveBackdrop(
+  step: number,
+  equipped: string | null,
+): BackdropDefinition | undefined {
+  const chosen = equipped ? findBackdrop(equipped) : undefined;
+  const byRank = backdropForStep(step);
+
+  if (!chosen) {
+    return byRank;
+  }
+
+  const outgrown =
+    chosen.freeFromStep !== null &&
+    byRank !== undefined &&
+    byRank.freeFromStep !== null &&
+    byRank.freeFromStep > chosen.freeFromStep;
+
+  return outgrown ? byRank : chosen;
+}
+
 export interface BackdropView {
   id: string;
   title: string;
@@ -178,8 +210,6 @@ export function describeBackdrops(
   purchased: readonly string[],
   equipped: string | null,
 ): BackdropView[] {
-  const byRank = backdropForStep(step);
-
   return BACKDROPS.map((backdrop) => {
     const unlockedByRank =
       backdrop.freeFromStep !== null && step >= backdrop.freeFromStep;
@@ -195,8 +225,9 @@ export function describeBackdrops(
       byRank: unlockedByRank,
       price: owned || backdrop.price === 0n ? null : backdrop.price.toString(),
       affordable: !owned && backdrop.price > 0n && balance >= backdrop.price,
-      // Ничего не выбрано — стоит тот, что положен по рангу.
-      equipped: equipped === null ? backdrop.id === byRank?.id : equipped === backdrop.id,
+      // Отмечаем тот, который реально виден на экране, а не тот, что лежит
+      // в базе: после повышения это разные фоны.
+      equipped: backdrop.id === effectiveBackdrop(step, equipped)?.id,
       freeAt: rank ? `${rank.title} ${'★'.repeat(rank.star)}` : null,
     };
   });

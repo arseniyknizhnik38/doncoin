@@ -1,5 +1,5 @@
 import type { User } from '../generated/prisma/client.js';
-import { backdropForStep, findBackdrop } from '../config/backdrops.js';
+import { effectiveBackdrop } from '../config/backdrops.js';
 import { RUSH_MULTIPLIER } from '../config/boosters.js';
 import { PERK_BONUS_PER_LEVEL } from '../config/perks.js';
 import { MAX_RETIREMENTS, RETIREMENT_BONUS_PERCENT, retirementBonus } from '../config/retirement.js';
@@ -121,9 +121,7 @@ export function toGameState(user: {
  * Здесь важнее, чтобы экран не остался без фона из-за рассинхрона.
  */
 function resolveBackdrop(totalEarned: bigint, equipped: string | null): string | null {
-  const chosen = equipped ? findBackdrop(equipped) : undefined;
-
-  return (chosen ?? backdropForStep(rankStep(totalEarned)))?.file ?? null;
+  return effectiveBackdrop(rankStep(totalEarned), equipped)?.file ?? null;
 }
 
 export interface TapResult {
