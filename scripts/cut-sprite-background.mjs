@@ -163,6 +163,68 @@ for (const frame of frames) {
   };
 
   flood(fromEdges, nearBackgroundOrCleared, clear);
+  clearTrappedGaps(data, nearBackground, clear);
+}
+
+/**
+ * Снимает фон, запертый внутри фигуры.
+ *
+ * Тень под ногами распознаётся не всегда: у «Аутсайдера» она оказалась
+ * тёмно-бирюзовой — вдвое темнее фона и слишком цветной, чтобы пройти
+ * проверку. Тень осталась, а вместе с ней остался и серый лоскут между ног:
+ * заливка от краёв к нему не пробилась.
+ *
+ * Снимать всё, похожее на фон, по одному лишь цвету нельзя — на этом уже
+ * обожглись: вместе с фоном исчезли белки глаз и белая майка. Поэтому
+ * условий три, и каждое отсекает свой случай:
+ *
+ *  - ниже середины кадра — глаза и рубашка остаются выше;
+ *  - уже пятой части кадра — просвет между ног узкий, а крупный кусок
+ *    такого цвета означал бы, что мы ошиблись с фоном;
+ *  - цвет совпадает с фоном по тому же правилу, что и заливка с краёв.
+ */
+function clearTrappedGaps(data, nearBackground, clear) {
+  const seen = new Uint8Array(width * height);
+
+  for (let y = Math.round(height / 2); y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const start = y * width + x;
+
+      if (seen[start] || data[start * 4 + 3] < 128 || !nearBackground(x, y)) {
+        continue;
+      }
+
+      // Собираем связную область целиком, чтобы узнать её ширину.
+      const area = [];
+      let left = x;
+      let right = x;
+      const queue = [start];
+      seen[start] = 1;
+
+      while (queue.length > 0) {
+        const p = queue.pop();
+        const px = p % width;
+        const py = (p - px) / width;
+        area.push([px, py]);
+        left = Math.min(left, px);
+        right = Math.max(right, px);
+
+        for (const [nx, ny] of [[px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]]) {
+          if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+          const q = ny * width + nx;
+          if (seen[q] || data[q * 4 + 3] < 128 || !nearBackground(nx, ny)) continue;
+          seen[q] = 1;
+          queue.push(q);
+        }
+      }
+
+      if (right - left + 1 <= width / 5) {
+        for (const [ax, ay] of area) {
+          clear(ax, ay);
+        }
+      }
+    }
+  }
 }
 
 // Склеиваем в горизонтальную ленту.
