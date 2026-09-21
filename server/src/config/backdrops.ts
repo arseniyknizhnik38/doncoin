@@ -62,8 +62,8 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'diner',
-    title: 'Закусочная',
-    description: 'Столик у окна и свои люди за стойкой',
+    title: 'Лавка',
+    description: 'Колбасы на витрине, разговоры у стойки',
     freeFromStep: 3,
     price: 8_000n,
     file: '/bg-associate.webp',
