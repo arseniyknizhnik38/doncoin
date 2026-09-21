@@ -94,8 +94,8 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'marble_hall',
-    title: 'Мраморный зал',
-    description: 'Сюда приходят просить',
+    title: 'Особняк',
+    description: 'Рояль, бар и сад за окном',
     freeFromStep: 15,
     price: 6_500_000_000n,
     file: '/bg-don.webp',
