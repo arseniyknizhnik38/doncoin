@@ -36,6 +36,12 @@ export function RankBackdrop({ file, visible }: RankBackdropProps) {
           и вкладки — без этого они читаются через раз, и насколько плохо,
           зависит от того, что нарисовал художник. */}
       <div className="absolute inset-0 bg-gradient-to-b from-don-black/85 via-don-black/35 to-don-black/90" />
+
+      {/* Круглое затемнение к краям. Комната нарисована подробно — полки,
+          картины, бильярд, — и на ровном свету она спорит с фигурой за
+          внимание. Уведённые в тень края возвращают её на место: фон
+          становится фоном. */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_42%_at_50%_58%,transparent_30%,rgba(10,7,7,0.55)_100%)]" />
     </div>
   );
 }
