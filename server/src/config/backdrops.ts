@@ -119,6 +119,14 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
     file: '/bg-racetrack.webp',
   },
   {
+    id: 'yacht',
+    title: 'Яхта',
+    description: 'Берег далеко, и разговоров никто не слышит',
+    freeFromStep: null,
+    price: 1_300_000_000n,
+    file: '/bg-yacht.webp',
+  },
+  {
     id: 'villa',
     title: 'Вилла в Италии',
     description: 'Море, лимоны и никакого Ньюарка',
