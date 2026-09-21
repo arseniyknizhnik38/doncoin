@@ -2,6 +2,10 @@ import { CipherCard } from '../cipher/CipherCard';
 import type { CipherApi } from '../cipher/useCipher';
 import { FavorsScreen } from '../favors/FavorsScreen';
 import type { FavorsApi } from '../favors/useFavors';
+import { EnvelopeCard } from '../envelope/EnvelopeCard';
+import type { EnvelopeApi } from '../envelope/useEnvelope';
+import { FeedTicker } from '../feed/FeedList';
+import type { FeedApi } from '../feed/useFeed';
 import { OmertaCard } from '../omerta/OmertaCard';
 import type { OmertaApi } from '../omerta/useOmerta';
 import { QuestList } from '../quests/QuestList';
@@ -14,6 +18,8 @@ interface TasksPanelProps {
   quests: QuestsApi;
   cipher: CipherApi;
   omerta: OmertaApi;
+  envelope: EnvelopeApi;
+  feed: FeedApi;
   favors: FavorsApi;
   onClose: () => void;
 }
@@ -21,7 +27,7 @@ interface TasksPanelProps {
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
 /** Панель заданий поверх экрана — чтобы не заводить шестую вкладку. */
-export function TasksPanel({ tasks, quests, cipher, omerta, favors, onClose }: TasksPanelProps) {
+export function TasksPanel({ tasks, quests, cipher, omerta, envelope, feed, favors, onClose }: TasksPanelProps) {
   return (
     <div className="fixed inset-0 z-20 flex flex-col bg-don-black/95 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 overflow-y-auto px-6 py-8">
@@ -41,6 +47,11 @@ export function TasksPanel({ tasks, quests, cipher, omerta, favors, onClose }: T
 
         {/* Шифр и задания дня — сверху: одноразовые задания кончаются за
             вечер, а эти две штуки и есть причина открыть игру завтра. */}
+        {/* Конверт и городские слухи переехали сюда с главного экрана: там
+            они были двумя полосами поверх персонажа, а здесь лежит всё
+            остальное, что делается раз в день. */}
+        <EnvelopeCard api={envelope} />
+        <FeedTicker api={feed} />
         <OmertaCard api={omerta} />
         {/* Подписки на каналы — сразу под Омертой: это заработок игры, и
             пропускать их из виду нельзя. Пустой блок не показываем. */}

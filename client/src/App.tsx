@@ -9,8 +9,6 @@ import { useBackdrops } from './backdrops/useBackdrops';
 import { useBusinesses } from './businesses/useBusinesses';
 import { useCipher } from './cipher/useCipher';
 import { useOmerta } from './omerta/useOmerta';
-import { EnvelopeCard } from './envelope/EnvelopeCard';
-import { FeedTicker } from './feed/FeedList';
 import { useFeed } from './feed/useFeed';
 import { useEnvelope } from './envelope/useEnvelope';
 import { ClanScreen } from './clans/ClanScreen';
@@ -173,14 +171,9 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
                   tasksReady={
                     tasks.readyCount +
                     quests.readyCount +
+                    (envelope.envelope?.available ? 1 : 0) +
                     (favors.data?.favors.filter((favor) => !favor.completed).length ?? 0) +
                     (omerta.omerta && !omerta.omerta.solved && omerta.omerta.attemptsLeft > 0 ? 1 : 0)
-                  }
-                  envelope={
-                    <>
-                      <FeedTicker api={feed} />
-                      <EnvelopeCard api={envelope} />
-                    </>
                   }
                   onOpenTasks={() => {
                     tasks.reload();
@@ -230,6 +223,8 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               quests={quests}
               cipher={cipher}
               omerta={omerta}
+              envelope={envelope}
+              feed={feed}
               favors={favors}
               onClose={() => setTasksOpen(false)}
             />

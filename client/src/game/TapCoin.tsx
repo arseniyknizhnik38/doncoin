@@ -119,10 +119,11 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
               это единственное, что отличает «стоит» от «висит». */}
           <span className="pointer-events-none absolute inset-x-10 bottom-[3%] h-5 rounded-[50%] bg-black/55 blur-[6px]" />
           <span className="pointer-events-none absolute inset-x-4 bottom-[2%] h-7 rounded-[50%] bg-black/35 blur-xl" />
-          {/* Размер задаёт не доля экрана, а место, которое осталось от плашек:
-              высота берётся от родителя, ширина равна ей. Так фигура всегда
-              настолько крупная, насколько это возможно без прокрутки. */}
-          <span className="don-frame relative block aspect-square h-full max-h-full">
+          {/* Размер задаёт место, оставшееся от плашек, но не больше 40% экрана.
+              Потолок нужен из-за фонов: мебель на них нарисована под человека
+              примерно такого роста, и на длинном телефоне фигура без предела
+              становится выше стола, за которым должна сидеть. */}
+          <span className="don-frame relative block aspect-square h-full max-h-[40vh]">
             <span
               className="don-strip block"
               style={{

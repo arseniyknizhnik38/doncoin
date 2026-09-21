@@ -1,4 +1,3 @@
-import type React from 'react';
 import { useState } from 'react';
 import { useT } from '../i18n';
 import type { Comeback } from '../telegram/useAuth';
@@ -12,8 +11,6 @@ interface RewardsBarProps {
   daily: DailyApi;
   /** Сколько наград за задания можно забрать. */
   tasksReady: number;
-  /** Карточка конверта дня — стоит рядом с бонусом, это тот же ритуал. */
-  envelope?: React.ReactNode;
   onOpenTasks: () => void;
 }
 
@@ -34,7 +31,6 @@ export function RewardsBar({
   comeback = null,
   daily,
   tasksReady,
-  envelope,
   onOpenTasks,
 }: RewardsBarProps) {
   const [offlineHidden, setOfflineHidden] = useState(false);
@@ -66,8 +62,6 @@ export function RewardsBar({
           </p>
         </button>
       )}
-
-      {envelope}
 
       {showOffline && (
         <button
