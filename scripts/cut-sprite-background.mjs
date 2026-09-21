@@ -40,10 +40,26 @@ const TOLERANCE = 42;
  * Нижняя граница важнее верхней: под неё не должны попасть тёмный контур
  * и чёрная обувь, которые у тёмного персонажа вчетверо темнее тени.
  */
-const SHADOW_LIGHT_MIN_RATIO = 0.55;
+const SHADOW_LIGHT_MIN_RATIO = Number(flag('--shadow-min', 0.55));
 const SHADOW_LIGHT_MAX_RATIO = 0.93;
-const SHADOW_MAX_SATURATION = 34;
+const SHADOW_MAX_SATURATION = Number(flag('--shadow-sat', 34));
 const SHADOW_FROM_Y_RATIO = 0.85;
+
+/**
+ * Значение флага из командной строки.
+ *
+ * Границы тени подобраны под обычный случай — нейтрально-серую тень чуть
+ * темнее фона. Но художник рисует её как захочет: у «Аутсайдера» она вышла
+ * тёмно-бирюзовой, вдвое темнее фона и слишком цветной, и под кроссовками
+ * оставалось голубое пятно. Менять пороги для всех ради одного исходника
+ * опасно — тёмная обувь у других персонажей попадёт под тот же нож, поэтому
+ * они задаются флагом для конкретной сборки.
+ */
+function flag(name, fallback) {
+  const index = process.argv.indexOf(name);
+
+  return index === -1 ? fallback : process.argv[index + 1];
+}
 
 const files = fs.readdirSync(dir).filter((f) => f.endsWith('.png')).sort();
 const frames = files.map((f) => PNG.sync.read(fs.readFileSync(path.join(dir, f))));
@@ -164,6 +180,7 @@ for (const frame of frames) {
 
   flood(fromEdges, nearBackgroundOrCleared, clear);
   clearTrappedGaps(data, nearBackground, clear);
+
 }
 
 /**

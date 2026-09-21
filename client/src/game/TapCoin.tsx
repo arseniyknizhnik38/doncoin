@@ -114,12 +114,13 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
     >
       {sprite ? (
         <>
-          {/* Тень под ногами, а не свечение. Свечение здесь и стояло, и от него
-              фигура выглядела подвешенной над фоном: свет из-под ног читается
-              как воздух между ними и землёй. Тень же цепляет фигуру к земле —
-              это единственное, что отличает «стоит» от «висит». */}
-          <span className="pointer-events-none absolute inset-x-10 bottom-[3%] h-5 rounded-[50%] bg-black/55 blur-[6px]" />
-          <span className="pointer-events-none absolute inset-x-4 bottom-[2%] h-7 rounded-[50%] bg-black/35 blur-xl" />
+          {/* Тень под ногами, а не свечение: свет из-под ног читается как
+              воздух между фигурой и землёй, и человек повисает над сценой.
+              Ступенями, без размытия — по той же причине, что и контур:
+              плавный градиент на фоне из крупных блоков выдаёт наложение. */}
+          <span className="pointer-events-none absolute inset-x-[22%] bottom-[2.5%] h-3 rounded-[50%] bg-black/55" />
+          <span className="pointer-events-none absolute inset-x-[15%] bottom-[1.5%] h-4 rounded-[50%] bg-black/35" />
+          <span className="pointer-events-none absolute inset-x-[9%] bottom-[0.5%] h-5 rounded-[50%] bg-black/20" />
           {/* Размер задаёт место, оставшееся от плашек, но не больше 40% экрана.
               Потолок нужен из-за фонов: мебель на них нарисована под человека
               примерно такого роста, и на длинном телефоне фигура без предела
