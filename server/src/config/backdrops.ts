@@ -54,8 +54,8 @@ export interface BackdropDefinition {
 export const BACKDROPS: readonly BackdropDefinition[] = [
   {
     id: 'alley',
-    title: 'Подворотня',
-    description: 'Где всё начиналось',
+    title: 'Свой квартал',
+    description: 'Угол, где тебя знают',
     freeFromStep: 0,
     price: 0n,
     file: '/bg-outsider.webp',
