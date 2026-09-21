@@ -111,6 +111,14 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
     file: '/bg-pool.webp',
   },
   {
+    id: 'racetrack',
+    title: 'Ложа на ипподроме',
+    description: 'Отсюда смотрят, как бегут твои деньги',
+    freeFromStep: null,
+    price: 45_000_000n,
+    file: '/bg-racetrack.webp',
+  },
+  {
     id: 'villa',
     title: 'Вилла в Италии',
     description: 'Море, лимоны и никакого Ньюарка',
