@@ -70,8 +70,8 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'pool_hall',
-    title: 'Бильярдная',
-    description: 'Здесь решают, кому что достанется',
+    title: 'Задняя комната',
+    description: 'Карты, эспрессо и разговоры не для всех',
     freeFromStep: 6,
     price: 250_000n,
     file: '/bg-soldier.webp',
