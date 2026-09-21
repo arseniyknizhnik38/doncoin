@@ -4,7 +4,11 @@ import { RANKS } from './ranks.js';
 
 describe('каталог фонов', () => {
   it('покрывает все шесть рангов и не пропускает ступеней', () => {
-    const steps = BACKDROPS.map((backdrop) => backdrop.freeFromStep);
+    // Фоны вне рангов в каталоге тоже лежат, поэтому сравниваем не весь
+    // список, а только те, которые ранг действительно выдаёт.
+    const steps = BACKDROPS.map((backdrop) => backdrop.freeFromStep).filter(
+      (step) => step !== null,
+    );
 
     expect(steps).toEqual([0, 3, 6, 9, 12, 15]);
     // Каждый порог — первая звезда своего ранга: фон меняется вместе с
@@ -12,11 +16,33 @@ describe('каталог фонов', () => {
     steps.forEach((step) => expect(RANKS[step!]?.star).toBe(1));
   });
 
-  it('идёт по возрастанию цены', () => {
-    const prices = BACKDROPS.map((backdrop) => backdrop.price);
+  it('ранговые фоны идут по возрастанию цены', () => {
+    const prices = BACKDROPS.filter((backdrop) => backdrop.freeFromStep !== null).map(
+      (backdrop) => backdrop.price,
+    );
 
     for (let i = 1; i < prices.length; i += 1) {
       expect(prices[i]).toBeGreaterThan(prices[i - 1]!);
+    }
+  });
+
+  it('фон вне рангов дороже рангового своего этапа — иначе он не сток', () => {
+    // Ранговый фон всё равно достанется даром, поэтому платят за него из
+    // нетерпения. За фон, которого не даёт никто, платят по-настоящему, и
+    // стоить он должен заметно дороже — иначе деньги из игры не уходят.
+    for (const backdrop of BACKDROPS) {
+      if (backdrop.freeFromStep !== null) {
+        continue;
+      }
+
+      const cheaperByRank = BACKDROPS.filter(
+        (other) => other.freeFromStep !== null && other.price < backdrop.price,
+      );
+
+      expect(
+        cheaperByRank.length,
+        `«${backdrop.title}» дешевле всех ранговых — покупать его незачем`,
+      ).toBeGreaterThan(0);
     }
   });
 
@@ -129,9 +155,23 @@ describe('витрина', () => {
   });
 
   it('не предлагает купить то, что уже есть', () => {
-    const views = describeBackdrops(17, 0n, [], null);
+    // На высшем ранге даром достались все ранговые фоны — но не те, которых
+    // ранг не даёт: они и на вершине покупаются за деньги.
+    const views = describeBackdrops(17, 0n, [], null).filter(
+      (view) => findBackdrop(view.id)!.freeFromStep !== null,
+    );
 
     expect(views.every((view) => view.owned && view.price === null)).toBe(true);
     expect(views.every((view) => !view.affordable)).toBe(true);
+  });
+
+  it('фон вне рангов даром не достаётся даже Дону', () => {
+    const views = describeBackdrops(17, 0n, [], null);
+    const pool = views.find((view) => view.id === 'pool')!;
+
+    expect(pool.owned).toBe(false);
+    expect(pool.byRank).toBe(false);
+    expect(pool.freeAt).toBeNull();
+    expect(pool.price).not.toBeNull();
   });
 });
