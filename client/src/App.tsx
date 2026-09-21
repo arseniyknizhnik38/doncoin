@@ -3,7 +3,6 @@ import { AdminPanel } from './admin/AdminPanel';
 import { useAds } from './admin/useAds';
 import { useCiphers } from './admin/useCiphers';
 import { useAdminStats } from './admin/useAdminStats';
-import { BoosterBar } from './boosters/BoosterBar';
 import { useBoosters } from './boosters/useBoosters';
 import { useBackdrops } from './backdrops/useBackdrops';
 import { useBusinesses } from './businesses/useBusinesses';
@@ -15,7 +14,6 @@ import { ClanScreen } from './clans/ClanScreen';
 import { DealScreen } from './deal/DealScreen';
 import { FamilyScreen } from './family/FamilyScreen';
 import { useFavors } from './favors/useFavors';
-import { RewardsBar } from './rewards/RewardsBar';
 import { useDaily } from './rewards/useDaily';
 import { useClans } from './clans/useClans';
 import { GameScreen } from './game/GameScreen';
@@ -41,8 +39,17 @@ import { useTelegram } from './telegram/useTelegram';
 
 type Tab = 'game' | 'shop' | 'clan' | 'top' | 'friends';
 
-const TABS: { id: Tab; label: string }[] = [
+/**
+ * Нижняя панель — единственный вход во всё, кроме тапа.
+ *
+ * «Задания» стоят здесь, а не кнопкой на главном экране: там они были одной
+ * из пяти плашек поверх персонажа. Экраном они не становятся — открываются
+ * поверх, потому что закрывать их надо возвратом к тапу, а не переходом
+ * куда-то ещё.
+ */
+const TABS: { id: Tab | 'tasks'; label: string }[] = [
   { id: 'game', label: 'Игра' },
+  { id: 'tasks', label: 'Задания' },
   { id: 'shop', label: 'Дело' },
   { id: 'clan', label: 'Клан' },
   { id: 'top', label: 'Топ' },
@@ -114,6 +121,22 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
   // Лента обновляется при открытии клана, но читается и на главном экране —
   // ключ общий, чтобы не тянуть её дважды.
   const feed = useFeed(sessionToken, refreshKeys.clan);
+  // Что ждёт игрока в «Заданиях»: награды, неоткрытый конверт, неразгаданный
+  // шифр, невыполненные подписки, бонус дня.
+  const waiting =
+    tasks.readyCount +
+    quests.readyCount +
+    (daily.status?.available ? 1 : 0) +
+    (envelope.envelope?.available ? 1 : 0) +
+    (favors.data?.favors.filter((favor) => !favor.completed).length ?? 0) +
+    (omerta.omerta && !omerta.omerta.solved && omerta.omerta.attemptsLeft > 0 ? 1 : 0);
+
+  const openTasks = useCallback(() => {
+    tasks.reload();
+    setQuestsKey((value) => value + 1);
+    setTasksOpen(true);
+  }, [tasks]);
+
   const [statsOpen, setStatsOpen] = useState(false);
   const stats = useAdminStats(sessionToken, statsOpen);
   const ads = useAds(sessionToken, statsOpen);
@@ -157,32 +180,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
       {ready && game.state ? (
         <>
           {tab === 'game' ? (
-            <GameScreen
-              displayName={displayName}
-              state={game.state}
-              error={game.error}
-              onTap={game.tap}
-              boosters={<BoosterBar api={boosters} />}
-              rewards={
-                <RewardsBar
-                  offline={auth.offline}
-                  comeback={auth.comeback}
-                  daily={daily}
-                  tasksReady={
-                    tasks.readyCount +
-                    quests.readyCount +
-                    (envelope.envelope?.available ? 1 : 0) +
-                    (favors.data?.favors.filter((favor) => !favor.completed).length ?? 0) +
-                    (omerta.omerta && !omerta.omerta.solved && omerta.omerta.attemptsLeft > 0 ? 1 : 0)
-                  }
-                  onOpenTasks={() => {
-                    tasks.reload();
-                    setQuestsKey((value) => value + 1);
-                    setTasksOpen(true);
-                  }}
-                />
-              }
-            />
+            <GameScreen state={game.state} error={game.error} onTap={game.tap} />
           ) : tab === 'shop' ? (
             <DealScreen
               upgrades={upgrades}
@@ -204,14 +202,19 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               <button
                 key={item.id}
                 type="button"
-                onClick={() => openTab(item.id)}
-                className={`flex-1 rounded-lg px-1.5 py-2.5 text-[11px] font-semibold tracking-wide transition-colors sm:text-sm ${
+                onClick={() => (item.id === 'tasks' ? openTasks() : openTab(item.id as Tab))}
+                className={`relative flex-1 rounded-lg px-1 py-2.5 text-[10px] font-semibold tracking-wide transition-colors sm:text-sm ${
                   tab === item.id
                     ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
                     : 'text-neutral-500'
                 }`}
               >
                 {t(item.label)}
+                {/* Метка вместо счётчика: число на кнопке в 10 пунктов не
+                    читается, а знать надо одно — есть ли там что забрать. */}
+                {item.id === 'tasks' && waiting > 0 && (
+                  <span className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-don-gold" />
+                )}
               </button>
             ))}
           </nav>
@@ -226,6 +229,10 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               envelope={envelope}
               feed={feed}
               favors={favors}
+              daily={daily}
+              boosters={boosters}
+              offline={auth.offline}
+              comeback={auth.comeback}
               onClose={() => setTasksOpen(false)}
             />
           )}

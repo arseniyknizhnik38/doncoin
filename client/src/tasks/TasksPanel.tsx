@@ -1,15 +1,20 @@
+import { BoosterBar } from '../boosters/BoosterBar';
+import type { BoostersApi } from '../boosters/useBoosters';
 import { CipherCard } from '../cipher/CipherCard';
 import type { CipherApi } from '../cipher/useCipher';
-import { FavorsScreen } from '../favors/FavorsScreen';
-import type { FavorsApi } from '../favors/useFavors';
 import { EnvelopeCard } from '../envelope/EnvelopeCard';
 import type { EnvelopeApi } from '../envelope/useEnvelope';
+import { FavorsScreen } from '../favors/FavorsScreen';
+import type { FavorsApi } from '../favors/useFavors';
 import { FeedTicker } from '../feed/FeedList';
 import type { FeedApi } from '../feed/useFeed';
 import { OmertaCard } from '../omerta/OmertaCard';
 import type { OmertaApi } from '../omerta/useOmerta';
 import { QuestList } from '../quests/QuestList';
 import type { QuestsApi } from '../quests/useQuests';
+import type { DailyApi } from '../rewards/useDaily';
+import type { OfflineEarnings } from '../rewards/types';
+import type { Comeback } from '../telegram/useAuth';
 import { ErrorState, SkeletonList } from '../ui/States';
 import type { TasksApi } from './useTasks';
 
@@ -21,13 +26,44 @@ interface TasksPanelProps {
   envelope: EnvelopeApi;
   feed: FeedApi;
   favors: FavorsApi;
+  daily: DailyApi;
+  boosters: BoostersApi;
+  /** Что накапало, пока игрока не было. */
+  offline: OfflineEarnings | null;
+  /** Куш за возвращение, если кента подозревали. */
+  comeback: Comeback | null;
   onClose: () => void;
 }
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
-/** Панель заданий поверх экрана — чтобы не заводить шестую вкладку. */
-export function TasksPanel({ tasks, quests, cipher, omerta, envelope, feed, favors, onClose }: TasksPanelProps) {
+const formatHours = (hours: number) =>
+  hours >= 1 ? `${Math.round(hours * 10) / 10} ч` : `${Math.max(1, Math.round(hours * 60))} мин`;
+
+/**
+ * Всё, что делается не тапом.
+ *
+ * Раньше половина этого лежала на главном экране плашками поверх персонажа:
+ * бонус дня, задания, бустеры, конверт, слухи. Каждая отнимала высоту у
+ * фигуры, ради которой экран и открывают, а вместе они превращали его в
+ * список кнопок с человеком где-то внизу. Здесь им и место.
+ */
+export function TasksPanel({
+  tasks,
+  quests,
+  cipher,
+  omerta,
+  envelope,
+  feed,
+  favors,
+  daily,
+  boosters,
+  offline,
+  comeback,
+  onClose,
+}: TasksPanelProps) {
+  const status = daily.status;
+
   return (
     <div className="fixed inset-0 z-20 flex flex-col bg-don-black/95 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 overflow-y-auto px-6 py-8">
@@ -45,17 +81,71 @@ export function TasksPanel({ tasks, quests, cipher, omerta, envelope, feed, favo
           </button>
         </header>
 
-        {/* Шифр и задания дня — сверху: одноразовые задания кончаются за
-            вечер, а эти две штуки и есть причина открыть игру завтра. */}
-        {/* Конверт и городские слухи переехали сюда с главного экрана: там
-            они были двумя полосами поверх персонажа, а здесь лежит всё
-            остальное, что делается раз в день. */}
+        {/* Сначала то, что уже начислено: человек открыл панель и сразу видит,
+            что его ждали. */}
+        {comeback && (
+          <p className="rounded-xl border border-don-gold/60 bg-don-ink/90 px-4 py-2 text-sm text-neutral-200">
+            🐟 {comeback.inviter ? `${comeback.inviter} за тебя поручился` : 'Ты вернулся'} ·{' '}
+            <span className="font-semibold text-don-gold-soft">
+              +{formatCoins(comeback.amount)}
+            </span>
+          </p>
+        )}
+
+        {offline && Number(offline.earned) > 0 && (
+          <p className="rounded-xl border border-don-gold/40 bg-don-ink/80 px-4 py-2 text-sm text-neutral-300">
+            Пока вас не было:{' '}
+            <span className="font-semibold text-don-gold-soft">
+              +{formatCoins(offline.earned)}
+            </span>{' '}
+            за {formatHours(offline.hours)}
+          </p>
+        )}
+
+        {daily.justClaimed ? (
+          <p className="rounded-xl border border-don-gold/40 bg-don-ink/80 px-4 py-2.5 text-sm text-don-gold-soft">
+            Бонус получен: +{formatCoins(daily.justClaimed)}
+          </p>
+        ) : (
+          status?.available && (
+            <button
+              type="button"
+              disabled={daily.claiming}
+              onClick={daily.claim}
+              className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+            >
+              {daily.claiming
+                ? 'Забираем…'
+                : `Забрать бонус дня ${status.nextStreak}${
+                    status.milestone ? ' ×3' : ''
+                  } · +${formatCoins(status.reward)}`}
+            </button>
+          )
+        )}
+
+        {status && status.daysToMilestone !== null && (
+          <p className="text-center text-[11px] tracking-wider text-neutral-500">
+            Через {status.daysToMilestone}{' '}
+            {status.daysToMilestone === 1 ? 'день' : 'дн.'} — тройной бонус
+          </p>
+        )}
+
+        {daily.error && (
+          <p className="text-center text-xs tracking-wider text-don-blood-light">
+            {daily.error}
+          </p>
+        )}
+
+        <BoosterBar api={boosters} />
+
         <EnvelopeCard api={envelope} />
         <FeedTicker api={feed} />
         <OmertaCard api={omerta} />
+
         {/* Подписки на каналы — сразу под Омертой: это заработок игры, и
             пропускать их из виду нельзя. Пустой блок не показываем. */}
         {favors.data && favors.data.favors.length > 0 && <FavorsScreen api={favors} />}
+
         <CipherCard api={cipher} />
         <QuestList api={quests} />
 
