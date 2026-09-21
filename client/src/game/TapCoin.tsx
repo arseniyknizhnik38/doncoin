@@ -113,8 +113,12 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
     >
       {sprite ? (
         <>
-          {/* Мягкое свечение под ногами, чтобы фигура не висела в пустоте */}
-          <span className="pointer-events-none absolute inset-x-6 bottom-2 h-6 rounded-[50%] bg-don-gold/20 blur-xl" />
+          {/* Тень под ногами, а не свечение. Свечение здесь и стояло, и от него
+              фигура выглядела подвешенной над фоном: свет из-под ног читается
+              как воздух между ними и землёй. Тень же цепляет фигуру к земле —
+              это единственное, что отличает «стоит» от «висит». */}
+          <span className="pointer-events-none absolute inset-x-10 bottom-[3%] h-5 rounded-[50%] bg-black/55 blur-[6px]" />
+          <span className="pointer-events-none absolute inset-x-4 bottom-[2%] h-7 rounded-[50%] bg-black/35 blur-xl" />
           <span className="don-frame relative block h-[min(16rem,36vh)] w-[min(16rem,36vh)]">
             <span
               className="don-strip block"

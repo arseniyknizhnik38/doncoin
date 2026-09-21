@@ -89,12 +89,17 @@ export function GameScreen({
       {rewards}
       {boosters}
 
-      <TapCoin
-        coinsPerTap={perTap}
-        disabled={empty}
-        rankId={state.rank.id}
-        onTap={onTap}
-      />
+      {/* mt-auto прижимает фигуру к низу: иначе она ездит по вертикали вслед
+          за плашками наград, которые то появляются, то нет, и ноги оказываются
+          то на земле, то в небе над кварталом. */}
+      <div className="mt-auto">
+        <TapCoin
+          coinsPerTap={perTap}
+          disabled={empty}
+          rankId={state.rank.id}
+          onTap={onTap}
+        />
+      </div>
 
       <footer className="flex w-full flex-col gap-2 px-2">
         <div className="flex items-center justify-between text-xs tracking-wider text-neutral-400">
