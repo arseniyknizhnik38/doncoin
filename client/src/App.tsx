@@ -201,7 +201,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               Раздельно они оставляли между собой щель, в которой у каждого
               ранга торчал свой кусок комнаты, — а панель заодно отдала
               персонажу высоту зазора и рамок карточки. */}
-          <header className="relative z-10 -mx-4 shrink-0 self-stretch border-b border-don-edge bg-don-black/95 sm:-mx-6">
+          <header className="relative z-10 -mx-4 shrink-0 self-stretch border-b border-don-edge bg-don-black sm:-mx-6">
             <div className="mx-auto flex h-13 w-full max-w-md items-center gap-3 px-3">
               <button
                 type="button"
