@@ -1,5 +1,3 @@
-import { Balance } from './Balance';
-import { RankProgress } from './RankProgress';
 import { TapCoin } from './TapCoin';
 import type { GameState } from './types';
 
@@ -44,14 +42,6 @@ export function GameScreen({
           обойма. Всё остальное — бонус дня, задания, бустеры, конверт — живёт
           в меню: каждая плашка здесь отнимала высоту у персонажа, ради
           которого экран и существует. */}
-      <header
-        className={`flex w-full shrink-0 flex-col items-center gap-2 px-3 py-2.5 ${PLATE}`}
-      >
-        <Balance value={state.balance} />
-
-        <RankProgress rank={state.rank} earned={state.totalEarned} />
-      </header>
-
       {/* Персонажу достаётся вся оставшаяся высота, сколько бы ни заняли
           плашки сверху, и он прижат к низу этого места — ноги всегда на
           одной линии. Раньше рост задавался долей экрана: вместе с плашками

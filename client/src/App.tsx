@@ -16,7 +16,9 @@ import { FamilyScreen } from './family/FamilyScreen';
 import { useFavors } from './favors/useFavors';
 import { useDaily } from './rewards/useDaily';
 import { useClans } from './clans/useClans';
+import { Balance } from './game/Balance';
 import { GameScreen } from './game/GameScreen';
+import { RankProgress } from './game/RankProgress';
 import { RankUp } from './game/RankUp';
 import { RankBackdrop } from './game/RankBackdrop';
 import { LeaderboardScreen } from './leaderboard/LeaderboardScreen';
@@ -181,7 +183,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
     : rawAuthError || 'Не удалось войти';
 
   return (
-    <main className="relative z-0 flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden px-4 pt-[calc(env(safe-area-inset-top)+3.25rem)] pb-[env(safe-area-inset-bottom)] text-center sm:px-6">
+    <main className="relative z-0 flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-center sm:px-6">
       {/* Обстановка ранга. Пока картинки для ранга нет — остаётся подложка
           ниже, и экран выглядит как раньше, а не сломанным. */}
       {game.state && (
@@ -195,7 +197,11 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               сплошная полоса прижимает все фоны к одной линии. Здесь же
               живут профиль и служебные кнопки: раньше они висели прямо над
               комнатой. */}
-          <header className="fixed inset-x-0 top-0 z-10 border-b border-don-edge bg-don-black/95 pt-[env(safe-area-inset-top)]">
+          {/* Один прибор вместо двух: планка и счёт слиты в одну панель.
+              Раздельно они оставляли между собой щель, в которой у каждого
+              ранга торчал свой кусок комнаты, — а панель заодно отдала
+              персонажу высоту зазора и рамок карточки. */}
+          <header className="relative z-10 -mx-4 shrink-0 self-stretch border-b border-don-edge bg-don-black/95 sm:-mx-6">
             <div className="mx-auto flex h-13 w-full max-w-md items-center gap-3 px-3">
               <button
                 type="button"
@@ -227,6 +233,16 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
                 </button>
               )}
             </div>
+
+            {tab === 'game' && (
+              <div className="mx-auto flex w-full max-w-md flex-col items-center gap-2 px-4 pb-3">
+                <Balance value={game.state.balance} />
+                <RankProgress
+                  rank={game.state.rank}
+                  earned={game.state.totalEarned}
+                />
+              </div>
+            )}
           </header>
 
           {tab === 'game' ? (
