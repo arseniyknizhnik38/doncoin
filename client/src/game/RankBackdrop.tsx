@@ -22,7 +22,7 @@ export function RankBackdrop({ file, visible }: RankBackdropProps) {
   }
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       <img
         src={file}
         alt=""

@@ -46,7 +46,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <p className="text-center text-xs tracking-wider text-neutral-500">
+      <p className="text-center text-xs tracking-wider text-neutral-400">
         +{formatCoins(data.rewards.inviter)} тебе за каждого друга,{' '}
         +{formatCoins(data.rewards.invitee)} ему на старте
       </p>
@@ -105,7 +105,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
 
       <div className="flex flex-col gap-2">
         {data.invited.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-500">
+          <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
             Пока никого. Позови первого — и семья начнёт расти.
           </p>
         ) : (

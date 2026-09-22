@@ -1,3 +1,5 @@
+import type React from 'react';
+
 /**
  * Общие состояния экранов: заглушка загрузки и ошибка с повтором.
  * Раньше каждый экран показывал голый текст «Загружаем…», а при сбое сети
@@ -36,6 +38,34 @@ export function ErrorState({ message, onRetry }: ErrorStateProps) {
           Повторить
         </button>
       )}
+    </div>
+  );
+}
+
+interface EmptyStateProps {
+  /** Короткая строка о том, что здесь будет. */
+  children: React.ReactNode;
+  /** Значок — только украшение, читалке он не нужен. */
+  icon?: string;
+}
+
+/**
+ * Пустой экран.
+ *
+ * Раньше каждый такой случай рисовал свою пунктирную плашку, прижатую к
+ * верху, а под ней оставалась половина экрана пустоты — выглядело как
+ * незагрузившийся список. Теперь это одна и та же спокойная карточка,
+ * стоящая по центру свободного места.
+ */
+export function EmptyState({ children, icon = '·' }: EmptyStateProps) {
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center">
+      <span aria-hidden className="text-2xl opacity-60">
+        {icon}
+      </span>
+      <p className="max-w-xs text-xs leading-relaxed tracking-wider text-neutral-400">
+        {children}
+      </p>
     </div>
   );
 }

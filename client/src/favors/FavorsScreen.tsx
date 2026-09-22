@@ -35,7 +35,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
       )}
 
       {data.favors.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-500">
+        <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
           На этой неделе поручений нет. Загляните позже.
         </p>
       ) : (

@@ -51,12 +51,14 @@ export function BackdropList({ api, state }: BackdropListProps) {
             }`}
           >
             {/* Превью самой картинки: покупать фон вслепую бессмысленно. */}
-            <div className="relative h-24 w-full overflow-hidden bg-black/60">
+            <div className="relative h-32 w-full overflow-hidden bg-black/60">
               <img
                 src={backdrop.file}
                 alt=""
                 aria-hidden
-                className="h-full w-full object-cover [image-rendering:pixelated] opacity-80"
+                // Кадрируем выше середины: внизу у всех фонов пустой пол, и на
+                // узкой полоске превью от комнаты не оставалось ничего.
+                className="h-full w-full object-cover object-[50%_35%] [image-rendering:pixelated]"
                 decoding="async"
                 // Картинки ещё может не быть — тогда остаётся тёмная плашка,
                 // и это выглядит спокойнее, чем значок битого файла.

@@ -62,7 +62,7 @@ export function AdminPanel({
 
   return (
     <div className="fixed inset-0 z-20 flex flex-col bg-don-black/95 backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 overflow-y-auto px-6 py-8">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-3 overflow-y-auto px-6 py-8 [&>*]:shrink-0">
         <header className="flex items-center justify-between">
           <h2 className="text-xl font-black tracking-[0.2em] text-don-gold uppercase">
             Сводка

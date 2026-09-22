@@ -160,7 +160,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
     : rawAuthError || 'Не удалось войти';
 
   return (
-    <main className="relative flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden bg-don-black px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-center sm:px-6">
+    <main className="relative z-0 flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-center sm:px-6">
       {/* Обстановка ранга. Пока картинки для ранга нет — остаётся подложка
           ниже, и экран выглядит как раньше, а не сломанным. */}
       {game.state && (

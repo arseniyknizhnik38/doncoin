@@ -16,7 +16,7 @@ export function SettingsPanel({
 
   return (
     <div className="fixed inset-0 z-20 flex flex-col bg-don-black/95 backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 overflow-y-auto px-6 py-8">
+      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 overflow-y-auto px-6 py-8 [&>*]:shrink-0">
         <header className="flex items-center justify-between">
           <h2 className="text-xl font-black tracking-[0.2em] text-don-gold uppercase">
             Настройки
@@ -53,12 +53,14 @@ export function SettingsPanel({
                 aria-checked={settings.notificationsEnabled}
                 disabled={saving}
                 onClick={() => api.setNotifications(!settings.notificationsEnabled)}
-                className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
+                // Сам переключатель узкий, но палец шире: область нажатия
+                // растянута до 44 точек прозрачными полями сверху и снизу.
+                className={`relative h-11 w-12 shrink-0 rounded-full bg-clip-content py-2 transition-colors ${
                   settings.notificationsEnabled ? 'bg-don-gold/80' : 'bg-neutral-700'
                 } disabled:opacity-50`}
               >
                 <span
-                  className={`absolute top-1 h-5 w-5 rounded-full bg-don-black transition-all ${
+                  className={`absolute top-3 h-5 w-5 rounded-full bg-don-black transition-all ${
                     settings.notificationsEnabled ? 'left-6' : 'left-1'
                   }`}
                 />

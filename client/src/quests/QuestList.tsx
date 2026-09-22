@@ -58,7 +58,7 @@ export function QuestList({ api }: QuestListProps) {
 
             <p className="mt-0.5 text-xs text-neutral-500">{quest.description}</p>
 
-            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-black/60">
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-don-blood to-don-gold transition-[width] duration-500"
                 style={{ width: `${percent}%` }}

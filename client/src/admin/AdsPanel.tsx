@@ -69,7 +69,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}
-          className="text-xs text-don-gold-soft"
+          className="inline-flex min-h-11 items-center px-2 text-xs text-don-gold-soft"
         >
           {open ? 'Свернуть' : '+ Кампания'}
         </button>

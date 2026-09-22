@@ -24,7 +24,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
 
   if (!data) {
     return (
-      <div className="flex w-full max-w-md flex-1 flex-col justify-center gap-3 py-6">
+      <div className="flex w-full max-w-md flex-1 flex-col justify-center gap-3 pt-12 pb-6">
         {loading ? (
           <SkeletonList rows={4} />
         ) : (
@@ -37,13 +37,14 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
   const my = data.myClan;
 
   return (
-    <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto py-4 sm:py-6">
+    <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto pt-12 pb-4 sm:pt-14 [&>*]:shrink-0">
       <header className="text-center">
         <h2 className="text-2xl font-black tracking-[0.2em] text-don-gold uppercase">
           Клан
         </h2>
+        {/* Не ошибка, а условие: бордовым это читалось как отказ. */}
         {!data.canJoin && !my && (
-          <p className="mt-2 text-xs tracking-wider text-don-blood-light">
+          <p className="mt-2 text-xs tracking-wider text-neutral-400">
             Открывается с ранга «{data.requiredRank.title}» —{' '}
             {formatCoins(data.requiredRank.minBalance)} ДонКоинов
           </p>
@@ -188,7 +189,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
 
           <div className="flex flex-col gap-2">
             {data.clans.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-500">
+              <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
                 Кланов пока нет. Первый основатель войдёт в историю.
               </p>
             ) : (
