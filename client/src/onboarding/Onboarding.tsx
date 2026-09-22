@@ -17,7 +17,8 @@ const BOBBY_BY_STEP: readonly { file: string; pingpong?: boolean }[] = [
   { file: '/bobby.webp' },
   { file: '/bobby-point.webp', pingpong: true },
   { file: '/bobby-point.webp', pingpong: true },
-  { file: '/bobby.webp' },
+  // Финал: кивает и раскрывает ладони — «всё, ты в деле».
+  { file: '/bobby-approve.webp' },
 ];
 
 /** Порядок кадров туда-обратно: 0..7, затем 6..1. */
