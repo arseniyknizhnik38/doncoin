@@ -36,7 +36,7 @@ export function RetirementCard({ api }: { api: RetirementApi }) {
             Вы прошли путь до конца. Можно отойти от дел и начать заново: баланс,
             улучшения и бизнесы обнулятся, но доход навсегда вырастет до{' '}
             <span className="text-don-gold-soft">+{state.nextBonus}%</span>. Respect,
-            перки, клан и друзья останутся при вас.
+            перки, семья и кенты останутся при вас.
           </p>
 
           {confirming ? (

@@ -55,9 +55,9 @@ const TABS: { id: Tab | 'tasks'; label: string }[] = [
   { id: 'game', label: 'Игра' },
   { id: 'tasks', label: 'Задания' },
   { id: 'shop', label: 'Дело' },
-  { id: 'clan', label: 'Клан' },
+  { id: 'clan', label: 'Семья' },
   { id: 'top', label: 'Топ' },
-  { id: 'friends', label: 'Семья' },
+  { id: 'friends', label: 'Кенты' },
 ];
 
 /**

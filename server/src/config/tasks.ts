@@ -110,7 +110,7 @@ export const TASKS: readonly TaskDefinition[] = [
   {
     id: 'join_clan',
     title: 'Своя банда',
-    description: 'Вступить в клан или основать свой',
+    description: 'Вступить в семью или основать свою',
     target: 1,
     progress: (user) => (user.clanId ? 1 : 0),
     rewardCoins: 300_000n,

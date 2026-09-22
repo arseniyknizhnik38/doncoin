@@ -114,7 +114,7 @@ export function AdminPanel({
                 hint={percent(stats.funnel.claimedDaily, stats.players.total)}
               />
               <Row
-                label="Вступили в клан"
+                label="Вступили в семью"
                 value={formatNumber(stats.funnel.joinedClan)}
                 hint={percent(stats.funnel.joinedClan, stats.players.total)}
               />
@@ -165,7 +165,7 @@ export function AdminPanel({
               <Row label="DONC на руках" value={formatNumber(stats.economy.inCirculation)} />
               <Row label="Заработано за всё время" value={formatNumber(stats.economy.totalEarned)} />
               <Row label="Богатейший игрок" value={formatNumber(stats.economy.richest)} />
-              <Row label="Кланов" value={formatNumber(stats.economy.clans)} />
+              <Row label="Семей" value={formatNumber(stats.economy.clans)} />
             </Section>
 
             {/* Реклама — источник дохода, поэтому стоит выше топа игроков. */}

@@ -160,7 +160,7 @@ clansRouter.post('/', async (req: Request, res: Response) => {
   assertCanJoinClans(user);
 
   if (user.clanId) {
-    throw new ClanError('ALREADY_IN_CLAN', 'Вы уже состоите в клане');
+    throw new ClanError('ALREADY_IN_CLAN', 'Вы уже состоите в семье');
   }
 
   const name = normalizeClanName((req.body as { name?: unknown }).name);
@@ -173,7 +173,7 @@ clansRouter.post('/', async (req: Request, res: Response) => {
   });
 
   if (taken) {
-    throw new ClanError('NAME_TAKEN', 'Клан с таким названием уже есть');
+    throw new ClanError('NAME_TAKEN', 'Семья с таким названием уже есть');
   }
 
   let clan;
@@ -189,7 +189,7 @@ clansRouter.post('/', async (req: Request, res: Response) => {
     await recordFeed({ kind: 'clan_created', actor: clan.name });
   } catch (error) {
     if ((error as { code?: string }).code === 'P2002') {
-      throw new ClanError('NAME_TAKEN', 'Клан с таким названием уже есть');
+      throw new ClanError('NAME_TAKEN', 'Семья с таким названием уже есть');
     }
 
     throw error;
@@ -209,7 +209,7 @@ clansRouter.post('/:id/join', async (req: Request, res: Response) => {
   assertCanJoinClans(user);
 
   if (user.clanId) {
-    throw new ClanError('ALREADY_IN_CLAN', 'Вы уже состоите в клане');
+    throw new ClanError('ALREADY_IN_CLAN', 'Вы уже состоите в семье');
   }
 
   const rawId = req.params.id;
@@ -217,7 +217,7 @@ clansRouter.post('/:id/join', async (req: Request, res: Response) => {
   const clan = clanId ? await prisma.clan.findUnique({ where: { id: clanId } }) : null;
 
   if (!clan) {
-    throw new ClanError('CLAN_NOT_FOUND', 'Клан не найден', 404);
+    throw new ClanError('CLAN_NOT_FOUND', 'Семья не найдена', 404);
   }
 
   await prisma.user.update({
@@ -236,7 +236,7 @@ clansRouter.post('/leave', async (_req: Request, res: Response) => {
   const user = await loadUser(res);
 
   if (!user.clanId) {
-    throw new ClanError('NOT_IN_CLAN', 'Вы не состоите в клане');
+    throw new ClanError('NOT_IN_CLAN', 'Вы не состоите в семье');
   }
 
   const clan = await prisma.clan.findUniqueOrThrow({
@@ -255,7 +255,7 @@ clansRouter.post('/leave', async (_req: Request, res: Response) => {
     if (clan._count.members > 1) {
       throw new ClanError(
         'OWNER_MUST_DISBAND',
-        'Владелец не может выйти, пока в клане есть другие участники',
+        'Владелец не может выйти, пока в семье есть другие люди',
       );
     }
 
@@ -282,7 +282,7 @@ clansRouter.post('/donate', async (req: Request, res: Response) => {
   const user = await loadUser(res);
 
   if (!user.clanId) {
-    throw new ClanError('NOT_IN_CLAN', 'Вы не состоите в клане');
+    throw new ClanError('NOT_IN_CLAN', 'Вы не состоите в семье');
   }
 
   const amount = parseDonation((req.body as { amount?: unknown }).amount, user.balance);
@@ -346,7 +346,7 @@ clansRouter.post('/tribute', async (req: Request, res: Response) => {
   const user = await loadUser(res);
 
   if (!user.clanId) {
-    throw new ClanError('NOT_IN_CLAN', 'Вы не состоите в клане');
+    throw new ClanError('NOT_IN_CLAN', 'Вы не состоите в семье');
   }
 
   const clan = await prisma.clan.findUniqueOrThrow({ where: { id: user.clanId } });

@@ -41,7 +41,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
         {(
           [
             ['players', 'Игроки'],
-            ['clans', 'Кланы'],
+            ['clans', 'Семьи'],
           ] as [Scope, string][]
         ).map(([id, label]) => (
           <button
@@ -89,7 +89,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
         )}
         {scope === 'clans' && data.clans.top.length === 0 && (
           <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
-            Кланов пока нет
+            Семей пока нет
           </p>
         )}
       </div>
@@ -109,13 +109,13 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
             <Row
               position={data.clans.me.position}
               title={data.clans.me.name}
-              subtitle="ваш клан"
+              subtitle="ваша семья"
               value={formatCoins(data.clans.me.treasury)}
               highlight
             />
           ) : (
             <p className="text-center text-xs tracking-wider text-neutral-400">
-              Вы пока не в клане
+              Вы пока не в семье
             </p>
           )}
         </div>

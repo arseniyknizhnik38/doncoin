@@ -38,7 +38,7 @@ export function assertCanJoinClans(user: User): void {
   if (!resolveRank(user.totalEarned).canJoinClan) {
     throw new ClanError(
       'RANK_TOO_LOW',
-      'Кланы открываются с ранга «Солдат»',
+      'Семьи открываются с ранга «Солдат»',
       403,
     );
   }
@@ -47,7 +47,7 @@ export function assertCanJoinClans(user: User): void {
 /** Приводит название к каноническому виду и проверяет его. */
 export function normalizeClanName(raw: unknown): string {
   if (typeof raw !== 'string') {
-    throw new ClanError('BAD_NAME', 'Ожидалось название клана', 400);
+    throw new ClanError('BAD_NAME', 'Ожидалось название семьи', 400);
   }
 
   const name = raw.trim().replace(/\s+/g, ' ');

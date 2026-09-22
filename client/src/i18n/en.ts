@@ -14,9 +14,9 @@ export const EN: Record<string, string> = {
   // ——— Вкладки
   'Игра': 'Play',
   'Дело': 'Business',
-  'Клан': 'Family',
+  'Семья': 'Family',
   'Топ': 'Top',
-  'Семья': 'Crew',
+  'Кенты': 'Crew',
 
   // ——— Объяснение новичку
   'Шаг 1': 'Step 1',
@@ -34,7 +34,7 @@ export const EN: Record<string, string> = {
   'Во вкладке «Дело» бери улучшения и бизнесы — они капают, пока тебя нет. Только касса переполняется за четыре часа. Я свою однажды на неделю забыл. Не будем об этом.':
     'Under Business, grab upgrades and businesses — they earn while you are away. But the till overflows in four hours. I once forgot mine for a week. We do not talk about it.',
   'Один в поле не воин': 'Nobody makes it alone',
-  'Зови друзей, вступай в клан, забирай бонус каждый день. Пропустишь день — серия сгорит. У меня так с диетой вышло. Всё, иди работай. И это — меня здесь не было.':
+  'Зови друзей, вступай в семью, забирай бонус каждый день. Пропустишь день — серия сгорит. У меня так с диетой вышло. Всё, иди работай. И это — меня здесь не было.':
     'Bring friends, join a family, grab the bonus every day. Miss a day and the streak burns. Same thing happened to my diet. Now get to work. And hey — I was never here.',
   'Респект': 'Respect',
   'Игрок': 'Player',

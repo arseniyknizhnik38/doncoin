@@ -76,7 +76,7 @@ export const RANKS: readonly RankDefinition[] = [
   // ——— Солдат: здесь открываются кланы и начинается социальная игра
   {
     id: 'soldier', code: 'SOLDIER', title: 'Солдат', star: 1,
-    minBalance: 2_400_000n, unlocks: 'Кланы и ночной клуб', canJoinClan: true,
+    minBalance: 2_400_000n, unlocks: 'Семьи и ночной клуб', canJoinClan: true,
   },
   {
     id: 'soldier', code: 'SOLDIER', title: 'Солдат', star: 2,

@@ -106,7 +106,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
       <div className="flex flex-col gap-2">
         {data.invited.length === 0 ? (
           <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
-            Пока никого. Позови первого — и семья начнёт расти.
+            Пока никого. Позови первого кента — дальше подтянутся сами.
           </p>
         ) : (
           data.invited.map((friend, index) => (

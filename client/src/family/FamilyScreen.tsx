@@ -6,7 +6,7 @@ interface FamilyScreenProps {
 }
 
 /**
- * Вкладка «Семья»: приглашённые друзья.
+ * Вкладка «Кенты»: приглашённые друзья.
  *
  * Подписки на каналы («поручения») раньше жили здесь второй вкладкой и
  * терялись из виду — теперь они в «Заданиях», сразу под Шифром Омерты.
@@ -16,7 +16,7 @@ export function FamilyScreen({ referrals }: FamilyScreenProps) {
     <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto pt-2 pb-4 [&>*]:shrink-0">
       <header className="text-center">
         <h2 className="font-pixel text-2xl leading-relaxed text-don-gold uppercase">
-          Семья
+          Кенты
         </h2>
       </header>
 

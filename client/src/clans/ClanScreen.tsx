@@ -40,7 +40,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
     <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto pt-2 pb-4 [&>*]:shrink-0">
       <header className="text-center">
         <h2 className="font-pixel text-2xl leading-relaxed text-don-gold uppercase">
-          Клан
+          Семья
         </h2>
         {/* Не ошибка, а условие: бордовым это читалось как отказ. */}
         {!data.canJoin && !my && (
@@ -134,7 +134,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
               onClick={clans.leave}
               className="mt-3 w-full rounded-lg border border-neutral-700 px-4 min-h-11 inline-flex items-center justify-center py-2 text-xs tracking-wider text-neutral-400 disabled:opacity-40"
             >
-              {my.isOwner ? 'Распустить клан' : 'Выйти из клана'}
+              {my.isOwner ? 'Распустить семью' : 'Выйти из семьи'}
             </button>
           </div>
 
@@ -162,14 +162,14 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
           {data.canJoin && (
             <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
               <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
-                Основать свой
+                Основать свою
               </p>
               <div className="mt-2 flex gap-2">
                 <input
                   value={name}
                   maxLength={24}
                   onChange={(event) => setName(event.target.value)}
-                  placeholder="Название клана"
+                  placeholder="Название семьи"
                   className="min-w-0 flex-1 rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm text-don-bone placeholder:text-neutral-400"
                 />
                 <button
@@ -190,7 +190,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
           <div className="flex flex-col gap-2">
             {data.clans.length === 0 ? (
               <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
-                Кланов пока нет. Первый основатель войдёт в историю.
+                Семей пока нет. Первый основатель войдёт в историю.
               </p>
             ) : (
               data.clans.map((clan) => (
