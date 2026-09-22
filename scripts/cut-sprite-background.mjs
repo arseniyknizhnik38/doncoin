@@ -21,8 +21,18 @@ const dir = process.argv[2];
 const outFile = process.argv[3];
 const REMOVE_SHADOW = process.argv.includes('--shadow');
 
-/** Насколько цвет может отличаться от фона, чтобы считаться фоном. */
-const TOLERANCE = 42;
+/**
+ * Насколько цвет может отличаться от фона, чтобы считаться фоном.
+ *
+ * Сорок два подходит, пока фон светлее одежды. У «Дона» фон тёмно-синий, а
+ * штаны почти чёрные с синевой — заливка прошла сквозь ткань и выела в
+ * штанинах дыры. Поэтому значение задаётся флагом: для тёмных исходников
+ * его нужно опускать.
+ */
+const TOLERANCE = Number(flag('--tolerance', 42));
+
+/** Снимать ли фон, запертый внутри фигуры. На тёмной одежде вредит. */
+const CLEAR_GAPS = !process.argv.includes('--no-gaps');
 
 /**
  * Тень — нейтральная по цвету, заметно темнее фона, в самом низу кадра.
@@ -179,7 +189,9 @@ for (const frame of frames) {
   };
 
   flood(fromEdges, nearBackgroundOrCleared, clear);
-  clearTrappedGaps(data, nearBackground, clear);
+  if (CLEAR_GAPS) {
+    clearTrappedGaps(data, nearBackground, clear);
+  }
 
 }
 
