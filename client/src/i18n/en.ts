@@ -36,6 +36,8 @@ export const EN: Record<string, string> = {
   'Один в поле не воин': 'Nobody makes it alone',
   'Зови друзей, вступай в клан, забирай бонус каждый день. Пропустишь день — серия сгорит. У меня так с диетой вышло. Всё, иди работай. И это — меня здесь не было.':
     'Bring friends, join a family, grab the bonus every day. Miss a day and the streak burns. Same thing happened to my diet. Now get to work. And hey — I was never here.',
+  'Респект': 'Respect',
+  'Игрок': 'Player',
   'Повышение': 'Promotion',
   'В дело': 'Back to business',
   'Дальше': 'Next',

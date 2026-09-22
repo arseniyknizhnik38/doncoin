@@ -181,23 +181,54 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
     : rawAuthError || 'Не удалось войти';
 
   return (
-    <main className="relative z-0 flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden px-4 pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] text-center sm:px-6">
+    <main className="relative z-0 flex h-[var(--tg-viewport-stable-height,100dvh)] flex-col items-center overflow-hidden px-4 pt-[calc(env(safe-area-inset-top)+3.25rem)] pb-[env(safe-area-inset-bottom)] text-center sm:px-6">
       {/* Обстановка ранга. Пока картинки для ранга нет — остаётся подложка
           ниже, и экран выглядит как раньше, а не сломанным. */}
       {game.state && (
         <RankBackdrop file={game.state.backdrop} visible={tab === 'game'} />
       )}
 
-      {/* Тонкая латунная линия по верхнему краю — единственное украшение,
-          которое осталось: свечения и размытые пятна убраны, у пиксельной
-          сцены таких переходов не бывает. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-don-gold/40"
-      />
-
       {ready && game.state ? (
         <>
+          {/* Несущая планка: от края до края экрана, поверх сцены. Комнаты
+              нарисованы разными камерами, и их верх у каждого ранга свой —
+              сплошная полоса прижимает все фоны к одной линии. Здесь же
+              живут профиль и служебные кнопки: раньше они висели прямо над
+              комнатой. */}
+          <header className="fixed inset-x-0 top-0 z-10 border-b border-don-edge bg-don-black/95 pt-[env(safe-area-inset-top)]">
+            <div className="mx-auto flex h-13 w-full max-w-md items-center gap-3 px-3">
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(true)}
+                aria-label="Настройки"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-don-edge text-base text-neutral-400 active:scale-95"
+              >
+                ⚙
+              </button>
+
+              <div className="min-w-0 flex-1 text-left">
+                <p className="truncate text-sm font-semibold text-don-bone">
+                  {displayName ?? t('Игрок')}
+                </p>
+                <p className="text-[11px] tracking-[0.2em] text-don-gold-soft uppercase">
+                  {t('Респект')}{' '}
+                  <span className="tabular-nums">{game.state.respect}</span>
+                </p>
+              </div>
+
+              {auth.isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setStatsOpen(true)}
+                  aria-label="Сводка"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-don-edge text-base text-neutral-400 active:scale-95"
+                >
+                  ▤
+                </button>
+              )}
+            </div>
+          </header>
+
           {tab === 'game' ? (
             <GameScreen state={game.state} error={game.error} onTap={game.tap} />
           ) : tab === 'shop' ? (
@@ -258,34 +289,12 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
             />
           )}
 
-          {!settingsOpen && !statsOpen && (
-            <button
-              type="button"
-              onClick={() => setSettingsOpen(true)}
-              aria-label="Настройки"
-              className="absolute top-2 left-4 flex h-11 w-11 items-center justify-center rounded-full border border-don-edge text-base text-neutral-400 active:scale-95"
-            >
-              ⚙
-            </button>
-          )}
-
           {settingsOpen && (
             <SettingsPanel
               api={settings}
               retirement={retirement}
               onClose={() => setSettingsOpen(false)}
             />
-          )}
-
-          {auth.isAdmin && !statsOpen && (
-            <button
-              type="button"
-              onClick={() => setStatsOpen(true)}
-              aria-label="Сводка"
-              className="absolute top-2 right-4 flex h-11 w-11 items-center justify-center rounded-full border border-don-edge text-base text-neutral-400 active:scale-95"
-            >
-              ▤
-            </button>
           )}
 
           {statsOpen && (

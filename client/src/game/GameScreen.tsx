@@ -44,10 +44,8 @@ export function GameScreen({
           обойма. Всё остальное — бонус дня, задания, бустеры, конверт — живёт
           в меню: каждая плашка здесь отнимала высоту у персонажа, ради
           которого экран и существует. */}
-      {/* Отступ сверху — под угловые кнопки: без него баланс оказывался
-          зажат между шестерёнкой и сводкой. */}
       <header
-        className={`mt-14 flex w-full shrink-0 flex-col items-center gap-2 px-3 py-2.5 ${PLATE}`}
+        className={`flex w-full shrink-0 flex-col items-center gap-2 px-3 py-2.5 ${PLATE}`}
       >
         <Balance value={state.balance} />
 
