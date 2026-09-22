@@ -13,6 +13,8 @@ interface TapCoinProps {
   disabled: boolean;
   /** Ранг решает, кого показывать: своего персонажа или монету. */
   rankId: string;
+  /** Поправка роста под комнату: её задаёт каталог фонов. */
+  scale: number;
   onTap: () => boolean;
 }
 
@@ -37,7 +39,7 @@ const MOTION_LINGER_MS = 600;
 const SPRITE_FRAMES = 8;
 const FRAME_MS = 90;
 
-export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) {
+export function TapCoin({ coinsPerTap, disabled, rankId, scale, onTap }: TapCoinProps) {
   const [floats, setFloats] = useState<FloatingNumber[]>([]);
   const [pressed, setPressed] = useState(false);
   const [moving, setMoving] = useState(false);
@@ -122,7 +124,10 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
               Потолок нужен из-за фонов: мебель на них нарисована под человека
               примерно такого роста, и на длинном телефоне фигура без предела
               становится выше стола, за которым должна сидеть. */}
-          <span className="don-frame relative block aspect-square h-full max-h-[54vh]">
+          <span
+            className="don-frame relative block aspect-square h-full"
+            style={{ maxHeight: `${54 * scale}vh` }}
+          >
             <span
               className="don-strip block"
               style={{

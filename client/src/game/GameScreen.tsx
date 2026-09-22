@@ -64,6 +64,7 @@ export function GameScreen({
           coinsPerTap={perTap}
           disabled={empty}
           rankId={state.rank.id}
+          scale={state.backdropScale}
           onTap={onTap}
         />
       </div>

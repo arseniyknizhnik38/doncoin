@@ -45,6 +45,8 @@ export interface GameState {
   rushMultiplier: number;
   /** Файл фона: выбранный игроком или положенный по рангу, иначе null. */
   backdrop: string | null;
+  /** Насколько увеличить фигуру, чтобы она совпала с этой комнатой. */
+  backdropScale: number;
   /** Ранг вычисляется из баланса, в базе не хранится. */
   rank: RankView;
 }
@@ -110,6 +112,7 @@ export function toGameState(user: {
         : null,
     rushMultiplier: RUSH_MULTIPLIER,
     backdrop: resolveBackdrop(user.totalEarned, user.equippedBackdrop ?? null),
+    backdropScale: resolveBackdropScale(user.totalEarned, user.equippedBackdrop ?? null),
     rank: resolveRank(user.totalEarned),
   };
 }
@@ -122,6 +125,10 @@ export function toGameState(user: {
  */
 function resolveBackdrop(totalEarned: bigint, equipped: string | null): string | null {
   return effectiveBackdrop(rankStep(totalEarned), equipped)?.file ?? null;
+}
+
+function resolveBackdropScale(totalEarned: bigint, equipped: string | null): number {
+  return effectiveBackdrop(rankStep(totalEarned), equipped)?.heroScale ?? 1;
 }
 
 export interface TapResult {
@@ -304,6 +311,7 @@ export async function applyTaps(
       rushUntil: rushActive ? rushEndsAt!.toISOString() : null,
       rushMultiplier: RUSH_MULTIPLIER,
       backdrop: resolveBackdrop(totalEarned, row.equippedBackdrop ?? null),
+      backdropScale: resolveBackdropScale(totalEarned, row.equippedBackdrop ?? null),
       rank: resolveRank(totalEarned),
     },
   };

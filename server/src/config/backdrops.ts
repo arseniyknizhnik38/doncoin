@@ -49,6 +49,17 @@ export interface BackdropDefinition {
   price: bigint;
   /** Файл в client/public. */
   file: string;
+  /**
+   * Насколько увеличить персонажа в этой комнате.
+   *
+   * Фоны рисует генератор, и камера у каждого своя: в лавке прилавок снят
+   * почти вплотную, а в особняке комната видна целиком. Один и тот же
+   * человек оказывался в лавке ребёнком, а в особняке — нормального роста.
+   *
+   * Поэтому рост подгоняется к комнате: не «персонаж такой-то величины», а
+   * «человек в этой комнате должен выглядеть так». Единица — как снято.
+   */
+  heroScale?: number;
 }
 
 export const BACKDROPS: readonly BackdropDefinition[] = [
@@ -62,6 +73,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'diner',
+    heroScale: 1.25,
     title: 'Лавка',
     description: 'Колбасы на витрине, разговоры у стойки',
     freeFromStep: 3,
@@ -70,6 +82,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'pool_hall',
+    heroScale: 1.15,
     title: 'Задняя комната',
     description: 'Карты, эспрессо и разговоры не для всех',
     freeFromStep: 6,
@@ -78,6 +91,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'restaurant',
+    heroScale: 1.08,
     title: 'Ресторан',
     description: 'Стены умеют молчать',
     freeFromStep: 9,
@@ -120,6 +134,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'yacht',
+    heroScale: 1.05,
     title: 'Яхта',
     description: 'Берег далеко, и разговоров никто не слышит',
     freeFromStep: null,

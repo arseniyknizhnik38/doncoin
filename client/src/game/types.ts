@@ -44,6 +44,8 @@ export interface GameState {
   rushMultiplier: number;
   /** Файл фона: выбранный или положенный по рангу, null — фона нет. */
   backdrop: string | null;
+  /** Во сколько раз увеличить фигуру под эту комнату. */
+  backdropScale: number;
   /** Ранг, вычисленный сервером из баланса. */
   rank: RankView;
 }
