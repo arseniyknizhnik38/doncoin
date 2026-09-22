@@ -11,9 +11,9 @@ import {
  * нижняя панель), чтобы вместо светлой темы клиента был наш тёмный фон.
  */
 export const TELEGRAM_COLORS = {
-  background: '#0A0A0A',
-  header: '#0A0A0A',
-  bottomBar: '#0A0A0A',
+  background: '#0B0806',
+  header: '#0B0806',
+  bottomBar: '#0B0806',
 } as const;
 
 let insideTelegram = false;

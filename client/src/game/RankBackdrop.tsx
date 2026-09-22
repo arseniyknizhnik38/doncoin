@@ -46,7 +46,7 @@ export function RankBackdrop({ file, visible }: RankBackdropProps) {
           картины, бильярд, — и на ровном свету она спорит с фигурой за
           внимание. Уведённые в тень края возвращают её на место: фон
           становится фоном. */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_58%,transparent_40%,rgba(10,7,7,0.32)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_58%,transparent_40%,rgba(11,8,6,0.32)_100%)]" />
     </div>
   );
 }
