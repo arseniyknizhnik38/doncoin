@@ -120,13 +120,13 @@ export function TapCoin({ coinsPerTap, disabled, rankId, scale, onTap }: TapCoin
               много: у персонажей своя тень уже нарисована, и поверх неё
               получалось тёмное пятно шире самой фигуры. */}
           <span className="pointer-events-none absolute inset-x-[34%] bottom-[3%] h-1.5 rounded-[50%] bg-black/40" />
-          {/* Размер задаёт место, оставшееся от плашек, но не больше 40% экрана.
+          {/* Размер задаёт место, оставшееся от плашек, но не больше своей доли экрана.
               Потолок нужен из-за фонов: мебель на них нарисована под человека
               примерно такого роста, и на длинном телефоне фигура без предела
               становится выше стола, за которым должна сидеть. */}
           <span
             className="don-frame relative block aspect-square h-full"
-            style={{ maxHeight: `${54 * scale}vh` }}
+            style={{ maxHeight: `${46 * scale}vh` }}
           >
             <span
               className="don-strip block"

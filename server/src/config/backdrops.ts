@@ -73,7 +73,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'diner',
-    heroScale: 1.25,
+    heroScale: 1.18,
     title: 'Лавка',
     description: 'Колбасы на витрине, разговоры у стойки',
     freeFromStep: 3,
@@ -82,7 +82,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'pool_hall',
-    heroScale: 1.15,
+    heroScale: 1.12,
     title: 'Задняя комната',
     description: 'Карты, эспрессо и разговоры не для всех',
     freeFromStep: 6,
@@ -91,7 +91,7 @@ export const BACKDROPS: readonly BackdropDefinition[] = [
   },
   {
     id: 'restaurant',
-    heroScale: 1.08,
+    heroScale: 1.05,
     title: 'Ресторан',
     description: 'Стены умеют молчать',
     freeFromStep: 9,
