@@ -59,7 +59,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3">
-          <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Приглашено</p>
+          <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">Приглашено</p>
           <p className="mt-1 text-2xl font-bold text-don-gold-soft tabular-nums">
             {data.invitedCount}
           </p>
@@ -70,7 +70,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
           )}
         </div>
         <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3">
-          <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Заработано</p>
+          <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">Заработано</p>
           <p className="mt-1 text-2xl font-bold text-don-gold-soft tabular-nums">
             {formatCoins(data.earned)}
           </p>
@@ -78,7 +78,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
       </div>
 
       <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4">
-        <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
+        <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
           Твоя ссылка
         </p>
         <p className="mt-2 truncate rounded-lg bg-black/50 px-3 py-2 text-left text-xs text-neutral-300">
@@ -121,7 +121,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
                     +{formatCoins(data.rewards.inviter)}
                   </span>
                 ) : (
-                  <span className="text-neutral-500">
+                  <span className="text-neutral-400">
                     {formatCoins(friend.taps)} / {formatCoins(data.qualifyTaps)} тапов
                   </span>
                 )}

@@ -72,7 +72,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
     return (
       <div className="rounded-lg border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
         {header}
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-neutral-400">
           {t('Попытки на сегодня кончились. Новый шифр — завтра.')}
         </p>
       </div>
@@ -83,7 +83,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
     <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
       {header}
 
-      <p className="mt-1 text-xs text-neutral-500">
+      <p className="mt-1 text-xs text-neutral-400">
         {t('Разложи предметы в правильном порядке. Кто знает — тот молчит. Почти.')}
       </p>
 
@@ -124,7 +124,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
         })}
       </div>
 
-      <div className="mt-2 flex items-center justify-between text-[11px] tracking-wider text-neutral-500">
+      <div className="mt-2 flex items-center justify-between text-[11px] tracking-wider text-neutral-400">
         <span>{t('Попыток осталось: {n}', { n: omerta.attemptsLeft })}</span>
         {omerta.lastHits !== null && (
           <span className="text-don-gold-soft">

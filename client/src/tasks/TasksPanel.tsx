@@ -124,7 +124,7 @@ export function TasksPanel({
         )}
 
         {status && status.daysToMilestone !== null && (
-          <p className="text-center text-[11px] tracking-wider text-neutral-500">
+          <p className="text-center text-[11px] tracking-wider text-neutral-400">
             Через {status.daysToMilestone}{' '}
             {status.daysToMilestone === 1 ? 'день' : 'дн.'} — тройной бонус
           </p>
@@ -188,7 +188,7 @@ export function TasksPanel({
                   </span>
                 </div>
 
-                <p className="mt-1 text-xs text-neutral-500">{task.description}</p>
+                <p className="mt-1 text-xs text-neutral-400">{task.description}</p>
 
                 {task.target > 1 && !task.claimed && (
                   <div className="mt-2 flex items-center gap-2">
@@ -198,7 +198,7 @@ export function TasksPanel({
                         style={{ width: `${percent}%` }}
                       />
                     </div>
-                    <span className="shrink-0 text-[10px] text-neutral-500 tabular-nums">
+                    <span className="shrink-0 text-[10px] text-neutral-400 tabular-nums">
                       {formatCoins(task.progress)} / {formatCoins(task.target)}
                     </span>
                   </div>

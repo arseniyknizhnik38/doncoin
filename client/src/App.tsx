@@ -204,7 +204,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
                 className={`relative min-h-11 flex-1 rounded-lg px-1 py-2.5 text-[10px] font-semibold tracking-wide transition-colors sm:text-sm ${
                   tab === item.id
                     ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft'
-                    : 'text-neutral-500'
+                    : 'text-neutral-400'
                 }`}
               >
                 {t(item.label)}

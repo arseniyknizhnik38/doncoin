@@ -39,16 +39,16 @@ export function BusinessList({ api, state }: BusinessListProps) {
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
-        <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
+        <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
           Доход с бизнесов
         </p>
         <p className="text-xl font-bold text-don-gold tabular-nums">
-          {formatCoins(income?.perHour ?? 0)} <span className="text-sm text-neutral-500">в час</span>
+          {formatCoins(income?.perHour ?? 0)} <span className="text-sm text-neutral-400">в час</span>
         </p>
         {Number(income?.pending ?? 0) > 0 && (
           <p
             className={`mt-1 text-xs ${
-              income?.full ? 'text-don-blood-light' : 'text-neutral-500'
+              income?.full ? 'text-don-blood-light' : 'text-neutral-400'
             }`}
           >
             {income?.full
@@ -86,16 +86,16 @@ export function BusinessList({ api, state }: BusinessListProps) {
                   <h3 className="truncate text-base font-semibold text-neutral-100">
                     {business.name}
                   </h3>
-                  <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-500 uppercase">
+                  <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
                     {business.owned ? `ур. ${business.level}` : business.category}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-neutral-500">{business.description}</p>
+                <p className="mt-0.5 text-xs text-neutral-400">{business.description}</p>
               </div>
             </div>
 
             <p className="mt-3 text-sm">
-              <span className="text-neutral-500">
+              <span className="text-neutral-400">
                 {business.owned
                   ? `${formatCoins(business.incomePerHour)} в час`
                   : 'Не куплен'}

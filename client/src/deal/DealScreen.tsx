@@ -64,7 +64,7 @@ export function DealScreen({
             className={`min-h-11 flex-1 rounded-lg px-2 py-2 text-xs font-semibold transition-colors sm:text-sm ${
               mode === id
                 ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft'
-                : 'text-neutral-500'
+                : 'text-neutral-400'
             }`}
           >
             {label}

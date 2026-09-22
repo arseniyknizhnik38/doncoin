@@ -53,7 +53,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
                 <h3 className="truncate text-base font-semibold text-neutral-100">
                   {favor.channelName}
                 </h3>
-                <p className="mt-0.5 text-xs text-neutral-500">{favor.title}</p>
+                <p className="mt-0.5 text-xs text-neutral-400">{favor.title}</p>
               </div>
               {favor.completed && (
                 <span className="shrink-0 text-[10px] tracking-[0.2em] text-emerald-400/80 uppercase">
@@ -64,9 +64,9 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
 
             <p className="mt-2 text-sm text-don-gold-soft">
               +{formatCoins(favor.rewardDonc)}
-              <span className="text-neutral-500"> DONC</span>
+              <span className="text-neutral-400"> DONC</span>
               {favor.familyXpReward > 0 && (
-                <span className="text-neutral-500">
+                <span className="text-neutral-400">
                   {' '}
                   · +{favor.familyXpReward} опыта семье
                 </span>

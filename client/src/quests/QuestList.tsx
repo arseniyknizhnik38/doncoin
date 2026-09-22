@@ -31,7 +31,7 @@ export function QuestList({ api }: QuestListProps) {
         <h3 className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
           Задания дня
         </h3>
-        <span className="text-[10px] tracking-wider text-neutral-500">
+        <span className="text-[10px] tracking-wider text-neutral-400">
           обновятся через {formatReset(state.resetInSeconds)}
         </span>
       </div>
@@ -51,12 +51,12 @@ export function QuestList({ api }: QuestListProps) {
               <span className="shrink-0 text-xs text-don-gold-soft tabular-nums">
                 +{formatCoins(quest.rewardCoins)}
                 {quest.rewardRespect > 0 && (
-                  <span className="text-neutral-500"> · ★{quest.rewardRespect}</span>
+                  <span className="text-neutral-400"> · ★{quest.rewardRespect}</span>
                 )}
               </span>
             </div>
 
-            <p className="mt-0.5 text-xs text-neutral-500">{quest.description}</p>
+            <p className="mt-0.5 text-xs text-neutral-400">{quest.description}</p>
 
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
               <div
@@ -66,7 +66,7 @@ export function QuestList({ api }: QuestListProps) {
             </div>
 
             <div className="mt-2 flex items-center justify-between gap-2">
-              <span className="text-[11px] text-neutral-500 tabular-nums">
+              <span className="text-[11px] text-neutral-400 tabular-nums">
                 {formatCoins(quest.progress)} / {formatCoins(quest.target)}
               </span>
 
@@ -101,7 +101,7 @@ export function QuestList({ api }: QuestListProps) {
             ? 'border-neutral-800 text-neutral-400'
             : state.chest.ready
               ? 'border-don-gold bg-don-gold/10 text-don-gold active:scale-95'
-              : 'border-don-blood/40 text-neutral-500'
+              : 'border-don-blood/40 text-neutral-400'
         }`}
       >
         {state.chest.claimed

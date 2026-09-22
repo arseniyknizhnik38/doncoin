@@ -104,13 +104,13 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
             <span className="text-sm font-semibold tracking-[0.2em] text-don-gold-soft">
               {cipher.code}
             </span>
-            <span className="text-[11px] tracking-wider text-neutral-500">
+            <span className="text-[11px] tracking-wider text-neutral-400">
               {dayLabel(cipher.day)} · разгадали {cipher.solves}
             </span>
           </div>
 
           {cipher.hint && (
-            <p className="mt-0.5 text-xs text-neutral-500">{cipher.hint}</p>
+            <p className="mt-0.5 text-xs text-neutral-400">{cipher.hint}</p>
           )}
         </div>
       ))}

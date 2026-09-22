@@ -61,7 +61,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
       </div>
 
       {rank.next ? (
-        <p className="text-[11px] tracking-wider text-neutral-500">
+        <p className="text-[11px] tracking-wider text-neutral-400">
           Ещё {formatCoins(Number(rank.next.minBalance) - current)} до{' '}
           <span className="text-don-gold-soft">
             {rank.next.title} {'★'.repeat(rank.next.star)}

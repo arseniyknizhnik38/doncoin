@@ -41,7 +41,7 @@ export function EnvelopeCard({ api }: { api: EnvelopeApi }) {
 
   if (!envelope.available) {
     return (
-      <p className="truncate rounded-lg border border-don-blood/40 bg-don-ink/60 px-3 py-1 text-center text-[11px] tracking-wider text-neutral-500">
+      <p className="truncate rounded-lg border border-don-blood/40 bg-don-ink/60 px-3 py-1 text-center text-[11px] tracking-wider text-neutral-400">
         {envelope.opened
           ? `${envelope.opened.title}: +${formatCoins(envelope.opened.amount)}. Следующий завтра`
           : 'Сегодняшний конверт уже у вас'}

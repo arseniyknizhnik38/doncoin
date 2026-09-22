@@ -27,7 +27,7 @@ export function BackdropList({ api, state }: BackdropListProps) {
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <p className="text-center text-xs tracking-wider text-neutral-500">
+      <p className="text-center text-xs tracking-wider text-neutral-400">
         Фон своего ранга достаётся даром. Остальные — за монеты, и монеты
         уходят насовсем.
       </p>
@@ -80,7 +80,7 @@ export function BackdropList({ api, state }: BackdropListProps) {
                 )}
               </div>
 
-              <p className="mt-0.5 text-xs text-neutral-500">{backdrop.description}</p>
+              <p className="mt-0.5 text-xs text-neutral-400">{backdrop.description}</p>
 
               {!backdrop.owned && (
                 <p className="mt-1 text-[11px] text-neutral-400">

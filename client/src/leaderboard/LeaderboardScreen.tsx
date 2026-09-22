@@ -51,7 +51,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
             className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
               scope === id
                 ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft'
-                : 'text-neutral-500'
+                : 'text-neutral-400'
             }`}
           >
             {label}
@@ -141,12 +141,12 @@ function Row({ position, title, subtitle, value, highlight }: RowProps) {
           : 'border-don-blood/30 bg-don-ink/60'
       }`}
     >
-      <span className="w-7 shrink-0 text-center text-sm text-neutral-500 tabular-nums">
+      <span className="w-7 shrink-0 text-center text-sm text-neutral-400 tabular-nums">
         {positionLabel(position)}
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-neutral-200">{title}</p>
-        <p className="truncate text-[10px] tracking-wider text-neutral-500 uppercase">
+        <p className="truncate text-[10px] tracking-wider text-neutral-400 uppercase">
           {subtitle}
         </p>
       </div>

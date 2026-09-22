@@ -43,7 +43,7 @@ export function OmertaPanel({ token }: { token: string | null }) {
   const line = (entry: Combination) => (
     <>
       <p className="text-2xl tracking-[0.3em]">{entry.combination.map((item) => item.emoji).join('')}</p>
-      <p className="text-[11px] text-neutral-500">
+      <p className="text-[11px] text-neutral-400">
         {entry.combination.map((item) => item.title).join(' → ')}
       </p>
     </>
@@ -58,17 +58,17 @@ export function OmertaPanel({ token }: { token: string | null }) {
         {error ? (
           <p className="text-xs text-don-blood-light">{error}</p>
         ) : !data ? (
-          <p className="text-xs text-neutral-500">…</p>
+          <p className="text-xs text-neutral-400">…</p>
         ) : (
           <div className="flex flex-col gap-3">
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
+              <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
                 Сегодня · разгадали {data.today.solved}
               </p>
               {line(data.today)}
             </div>
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Завтра</p>
+              <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">Завтра</p>
               {line(data.tomorrow)}
             </div>
           </div>

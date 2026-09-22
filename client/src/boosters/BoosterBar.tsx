@@ -42,7 +42,7 @@ export function BoosterBar({ api }: BoosterBarProps) {
           >
             <span aria-hidden>{ICONS[booster.id] ?? '✨'}</span>
             <span className="truncate">{booster.title}</span>
-            <span className="tabular-nums text-neutral-500">
+            <span className="tabular-nums text-neutral-400">
               {active ? `${booster.activeSeconds} с` : `${booster.left}/${booster.perDay}`}
             </span>
           </button>

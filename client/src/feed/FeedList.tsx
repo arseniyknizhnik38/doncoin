@@ -81,7 +81,7 @@ export function FeedTicker({ api }: { api: FeedApi }) {
   }
 
   return (
-    <p className="w-full truncate text-center text-[11px] tracking-wider text-neutral-500">
+    <p className="w-full truncate text-center text-[11px] tracking-wider text-neutral-400">
       {latest.text}
     </p>
   );

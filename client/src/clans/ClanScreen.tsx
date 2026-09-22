@@ -64,12 +64,12 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
           <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="truncate text-lg font-bold text-don-gold-soft">{my.name}</h3>
-              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-500 uppercase">
+              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
                 {my.memberCount} в семье
               </span>
             </div>
 
-            <p className="mt-3 text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
+            <p className="mt-3 text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
               Касса
             </p>
             <p className="text-2xl font-bold text-don-gold tabular-nums">
@@ -78,7 +78,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
 
             {/* Ставку проговариваем всем, а не только главе: доля, которую
                 снимают молча, читается как кража, даже когда она мала. */}
-            <p className="mt-1 text-[11px] tracking-wider text-neutral-500">
+            <p className="mt-1 text-[11px] tracking-wider text-neutral-400">
               Наверх отстёгивается {my.tributePercent}% с дохода бизнесов
               {my.isOwner && (
                 <>
@@ -102,7 +102,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
               пассивному доходу
             </p>
             {my.familyXp > 0 && (
-              <p className="mt-1 text-[11px] text-neutral-500">
+              <p className="mt-1 text-[11px] text-neutral-400">
                 Опыт за поручения: {formatCoins(my.familyXp)} — он тоже идёт в силу семьи
               </p>
             )}
@@ -146,7 +146,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm text-neutral-200">{memberName(member)}</p>
-                  <p className="text-[10px] tracking-wider text-neutral-500 uppercase">
+                  <p className="text-[10px] tracking-wider text-neutral-400 uppercase">
                     {member.rank}
                   </p>
                 </div>
@@ -161,7 +161,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
         <>
           {data.canJoin && (
             <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
-              <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
+              <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
                 Основать свой
               </p>
               <div className="mt-2 flex gap-2">
@@ -200,7 +200,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm text-neutral-200">{clan.name}</p>
-                    <p className="text-[10px] tracking-wider text-neutral-500">
+                    <p className="text-[10px] tracking-wider text-neutral-400">
                       {clan.memberCount} в семье · касса {formatCoins(clan.treasury)}
                     </p>
                   </div>

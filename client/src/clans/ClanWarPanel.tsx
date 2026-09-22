@@ -51,8 +51,8 @@ export function ClanWarPanel({ war }: ClanWarPanelProps) {
   if (!current && !last) {
     return (
       <div className="rounded-lg border border-dashed border-don-blood/40 px-4 py-5 text-center">
-        <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Война</p>
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">Война</p>
+        <p className="mt-2 text-xs text-neutral-400">
           Пара на эту неделю ещё не составлена. Соперник появится в понедельник.
         </p>
       </div>
@@ -82,7 +82,7 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
         <p className="text-[10px] tracking-[0.25em] text-don-blood-light uppercase">
           Война семей
         </p>
-        <p className="text-[10px] tracking-wider text-neutral-500">
+        <p className="text-[10px] tracking-wider text-neutral-400">
           осталось {timeLeft(war.endsAt)}
         </p>
       </div>
@@ -123,7 +123,7 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
           {formatCoins(war.myEarned)}
         </span>
       </p>
-      <p className="mt-1 text-[11px] text-neutral-500">
+      <p className="mt-1 text-[11px] text-neutral-400">
         В счёт идёт всё, что семья заработала за неделю: тапы, бизнесы, бонусы.
       </p>
 
@@ -156,7 +156,7 @@ function LastResult({ result }: { result: NonNullable<WarState['last']> }) {
 
   return (
     <div className="rounded-lg border border-don-blood/30 bg-don-ink/60 px-4 py-3 text-left">
-      <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
+      <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
         Прошлая война
       </p>
       <p className={`mt-1 text-sm font-semibold ${outcome.tone}`}>
@@ -166,7 +166,7 @@ function LastResult({ result }: { result: NonNullable<WarState['last']> }) {
         {formatCoins(result.myScore)} : {formatCoins(result.rivalScore)}
       </p>
       {result.potPaid !== '0' && (
-        <p className="mt-1 text-[11px] text-neutral-500">
+        <p className="mt-1 text-[11px] text-neutral-400">
           {result.outcome === 'win' ? 'Взяли с проигравших' : 'Ушло из кассы'}:{' '}
           <span className="text-don-gold-soft">{formatCoins(result.potPaid)}</span>
         </p>

@@ -15,16 +15,16 @@ export function PerkList({ api }: { api: PerksApi }) {
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
-        <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
+        <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
           Свободный Respect
         </p>
         <p className="text-xl font-bold text-don-gold tabular-nums">
           ★ {respect?.available ?? 0}
-          <span className="ml-2 text-xs font-normal text-neutral-500">
+          <span className="ml-2 text-xs font-normal text-neutral-400">
             из {respect?.total ?? 0} заработанных
           </span>
         </p>
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-neutral-400">
           Respect копится за тапы и не сгорает — тратится только «свободный» остаток.
         </p>
       </div>
@@ -44,15 +44,15 @@ export function PerkList({ api }: { api: PerksApi }) {
           >
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="text-base font-semibold text-neutral-100">{perk.title}</h3>
-              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-500 uppercase">
+              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
                 ур. {perk.level} / {perk.maxLevel}
               </span>
             </div>
 
-            <p className="mt-1 text-xs text-neutral-500">{perk.description}</p>
+            <p className="mt-1 text-xs text-neutral-400">{perk.description}</p>
 
             <p className="mt-3 text-sm">
-              <span className="text-neutral-500">+{perk.bonus}%</span>
+              <span className="text-neutral-400">+{perk.bonus}%</span>
               {perk.nextBonus !== null && (
                 <>
                   <span className="mx-2 text-don-blood-light">→</span>

@@ -45,10 +45,10 @@ export function CipherCard({ api }: CipherCardProps) {
   if (cipher.attemptsLeft <= 0) {
     return (
       <div className="rounded-lg border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
-        <p className="text-[11px] tracking-[0.25em] text-neutral-500 uppercase">
+        <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
           Шифр дня
         </p>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-neutral-400">
           Попытки на сегодня кончились. Новый шифр — завтра.
         </p>
       </div>
@@ -66,7 +66,7 @@ export function CipherCard({ api }: CipherCardProps) {
         </span>
       </div>
 
-      <p className="mt-1 text-xs text-neutral-500">
+      <p className="mt-1 text-xs text-neutral-400">
         {cipher.hint ?? 'Код спрятан в нашем канале'}
       </p>
 

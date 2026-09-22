@@ -11,6 +11,34 @@ interface GameScreenProps {
 const formatBalance = (balance: string) =>
   Number(balance).toLocaleString('ru-RU');
 
+/**
+ * Кегль счёта по его длине.
+ *
+ * На узком экране под число остаётся около 320 точек вместе с подписью DONC.
+ * В Oswald знак занимает примерно половину кегля, отсюда и ступени: семь
+ * знаков живут крупно, двенадцать — уже нет.
+ */
+function balanceSize(text: string) {
+  if (text.length <= 10) {
+    return 'text-[3rem]';
+  }
+
+  if (text.length <= 13) {
+    return 'text-[2.4rem]';
+  }
+
+  return text.length <= 16 ? 'text-[1.95rem]' : 'text-[1.6rem]';
+}
+
+/*
+ * Плашка под показания.
+ *
+ * Сплошная заливка с чёткой рамкой, а не растяжка в полэкрана: у сцены
+ * нарисованы края, и мягкий переход поверх неё читается как брак картинки.
+ * Панель же видно как панель — она занимает столько, сколько занимает текст.
+ */
+const PLATE = 'rounded-lg border border-don-gold/15 bg-don-black/90';
+
 export function GameScreen({
   state,
   error,
@@ -39,14 +67,20 @@ export function GameScreen({
           которого экран и существует. */}
       {/* Отступ сверху — под угловые кнопки: без него баланс оказывался
           зажат между шестерёнкой и сводкой. */}
-      <header className="mt-14 flex w-full shrink-0 flex-col items-center gap-1 px-2">
-        <div className="flex items-baseline gap-2">
+      <header
+        className={`mt-14 flex w-full shrink-0 flex-col items-center gap-1 px-3 py-2 ${PLATE}`}
+      >
+        <div className="flex w-full items-baseline justify-center gap-2">
           {/* Деньги — главное число экрана, поэтому крупнее названия ранга.
               Было наоборот: ранг кричал, счёт шептал. */}
-          <span className="font-display text-[3rem] leading-none font-bold text-don-gold tabular-nums">
+          <span
+            className={`font-display leading-none font-bold text-don-gold tabular-nums ${balanceSize(
+              formatBalance(state.balance),
+            )}`}
+          >
             {formatBalance(state.balance)}
           </span>
-          <span className="text-xs tracking-[0.2em] text-neutral-500 uppercase">
+          <span className="text-xs tracking-[0.2em] text-neutral-400 uppercase">
             DONC
           </span>
         </div>
@@ -69,7 +103,7 @@ export function GameScreen({
         />
       </div>
 
-      <footer className="flex w-full shrink-0 flex-col gap-1.5 px-2">
+      <footer className={`flex w-full shrink-0 flex-col gap-1.5 px-3 py-2 ${PLATE}`}>
         <div className="flex items-center justify-between text-xs tracking-wider text-neutral-400">
           <span>
             Обойма{' '}
@@ -77,7 +111,7 @@ export function GameScreen({
               {tapsLeft} / {tapsMax}
             </span>
           </span>
-          <span className={rushActive ? 'font-semibold text-don-gold' : 'text-neutral-500'}>
+          <span className={rushActive ? 'font-semibold text-don-gold' : 'text-neutral-400'}>
             +{perTap} за тап{rushActive ? ` ×${state.rushMultiplier}` : ''}
           </span>
         </div>

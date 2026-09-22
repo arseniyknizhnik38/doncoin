@@ -32,7 +32,7 @@ export function SettingsPanel({
 
         {!settings ? (
           loading ? (
-            <p className="text-center text-sm tracking-wider text-neutral-500">Загружаем…</p>
+            <p className="text-center text-sm tracking-wider text-neutral-400">Загружаем…</p>
           ) : (
             <ErrorState message={error ?? 'Не удалось загрузить'} />
           )
@@ -41,7 +41,7 @@ export function SettingsPanel({
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-neutral-100">Напоминания от бота</p>
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="mt-1 text-xs text-neutral-400">
                   Сообщение, когда энергия восстановилась, бизнесы накопили доход или
                   серия вот-вот прервётся. Не чаще раза в сутки и не по ночам.
                 </p>

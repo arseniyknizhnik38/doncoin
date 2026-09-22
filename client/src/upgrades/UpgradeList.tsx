@@ -40,15 +40,15 @@ export function UpgradeList({ api, state }: UpgradeListProps) {
           >
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="text-base font-semibold text-neutral-100">{upgrade.title}</h3>
-              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-500 uppercase">
+              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
                 ур. {upgrade.level} / {upgrade.maxLevel}
               </span>
             </div>
 
-            <p className="mt-1 text-xs text-neutral-500">{upgrade.description}</p>
+            <p className="mt-1 text-xs text-neutral-400">{upgrade.description}</p>
 
             <p className="mt-3 text-sm text-neutral-300">
-              <span className="text-neutral-500">{upgrade.current}</span>
+              <span className="text-neutral-400">{upgrade.current}</span>
               {upgrade.next && (
                 <>
                   <span className="mx-2 text-don-blood-light">→</span>

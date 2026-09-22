@@ -46,3 +46,6 @@ Thumbs.db
 
 # Prisma generated client (создаётся командой npm run db:generate)
 server/src/generated/
+
+# Локальные настройки Claude Code: у каждого свои.
+.claude/

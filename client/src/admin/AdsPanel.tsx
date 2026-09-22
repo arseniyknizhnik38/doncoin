@@ -34,7 +34,7 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[10px] tracking-[0.2em] text-neutral-500 uppercase">
+      <span className="text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
         {label}
       </span>
       {children}
@@ -216,7 +216,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
             </span>
             <span
               className={`shrink-0 text-[10px] tracking-[0.2em] uppercase ${
-                STATUS_COLORS[ad.status] ?? 'text-neutral-500'
+                STATUS_COLORS[ad.status] ?? 'text-neutral-400'
               }`}
             >
               {ad.statusTitle}
@@ -254,7 +254,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
             <p
               className={`mt-2 text-xs ${
                 api.diagnoses[ad.id] === 'checking'
-                  ? 'text-neutral-500'
+                  ? 'text-neutral-400'
                   : (api.diagnoses[ad.id] as { ok: boolean }).ok
                     ? 'text-emerald-400'
                     : 'text-don-blood-light'
