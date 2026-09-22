@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { hapticFeedback } from '@telegram-apps/sdk-react';
+import { DEFAULT_LIGHT, ROOM_LIGHT } from './roomLight';
 
 interface FloatingNumber {
   id: number;
@@ -24,6 +25,8 @@ interface TapCoinProps {
   rankId: string;
   /** Поправка роста под комнату: её задаёт каталог фонов. */
   scale: number;
+  /** Файл фона — по нему фигура получает свет своей комнаты. */
+  backdrop: string | null;
   onTap: () => boolean;
 }
 
@@ -48,7 +51,7 @@ const MOTION_LINGER_MS = 600;
 const SPRITE_FRAMES = 8;
 const FRAME_MS = 90;
 
-export function TapCoin({ coinsPerTap, disabled, rankId, scale, onTap }: TapCoinProps) {
+export function TapCoin({ coinsPerTap, disabled, rankId, scale, backdrop, onTap }: TapCoinProps) {
   const [floats, setFloats] = useState<FloatingNumber[]>([]);
   const [sparks, setSparks] = useState<Spark[]>([]);
   const [pressed, setPressed] = useState(false);
@@ -136,9 +139,9 @@ export function TapCoin({ coinsPerTap, disabled, rankId, scale, onTap }: TapCoin
     >
       {sprite ? (
         <>
-          {/* Одна узкая тень ровно под обувью. Трёх ступеней было слишком
-              много: у персонажей своя тень уже нарисована, и поверх неё
-              получалось тёмное пятно шире самой фигуры. */}
+          {/* Тень в две жёсткие ступени: плотная под обувью и шире — слабая.
+              Ступенями, а не размытием — как весь свет в этой сцене. */}
+          <span className="pointer-events-none absolute inset-x-[27%] bottom-[2.5%] h-2 rounded-[50%] bg-black/20" />
           <span className="pointer-events-none absolute inset-x-[34%] bottom-[3%] h-1.5 rounded-[50%] bg-black/40" />
           {/* Размер задаёт место, оставшееся от плашек, но не больше своей доли экрана.
               Потолок нужен из-за фонов: мебель на них нарисована под человека
@@ -154,6 +157,9 @@ export function TapCoin({ coinsPerTap, disabled, rankId, scale, onTap }: TapCoin
                 backgroundImage: `url(${sprite})`,
                 // Сдвиг в процентах от ширины самой ленты: 1 кадр = 12.5%.
                 transform: `translateX(-${(frame * 100) / SPRITE_FRAMES}%)`,
+                // Свет своей комнаты: посчитан по картинке фона. Фон без
+                // записи в карте получает прежний общий фильтр.
+                filter: (backdrop && ROOM_LIGHT[backdrop]) || DEFAULT_LIGHT,
               }}
             />
           </span>

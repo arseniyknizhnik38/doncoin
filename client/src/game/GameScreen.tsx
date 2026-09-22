@@ -53,6 +53,7 @@ export function GameScreen({
           disabled={empty}
           rankId={state.rank.id}
           scale={state.backdropScale}
+          backdrop={state.backdrop}
           onTap={onTap}
         />
       </div>
