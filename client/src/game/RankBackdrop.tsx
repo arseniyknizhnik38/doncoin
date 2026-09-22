@@ -32,16 +32,21 @@ export function RankBackdrop({ file, visible }: RankBackdropProps) {
         decoding="async"
       />
 
-      {/* Затемнение сверху и снизу. Поверх фона лежат баланс, полоска обоймы
-          и вкладки — без этого они читаются через раз, и насколько плохо,
-          зависит от того, что нарисовал художник. */}
-      <div className="absolute inset-0 bg-gradient-to-b from-don-black/85 via-don-black/35 to-don-black/90" />
+      {/* Затемнение сверху и снизу — ровно настолько, чтобы читались баланс,
+          обойма и вкладки. Раньше его было столько, что комната пропадала:
+          игрок платит за фон и должен его видеть, а не угадывать. */}
+      {/* Затемнение не на весь экран, а двумя полосами — там, где лежит текст.
+          Сплошное гасило комнату целиком: игрок платит за фон и должен его
+          видеть. Полосы держат читаемость баланса и обоймы, а середина, где
+          стоит человек, остаётся светлой. */}
+      <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-don-black/90 via-don-black/45 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-don-black/90 via-don-black/40 to-transparent" />
 
       {/* Круглое затемнение к краям. Комната нарисована подробно — полки,
           картины, бильярд, — и на ровном свету она спорит с фигурой за
           внимание. Уведённые в тень края возвращают её на место: фон
           становится фоном. */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_42%_at_50%_58%,transparent_30%,rgba(10,7,7,0.55)_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_58%,transparent_40%,rgba(10,7,7,0.32)_100%)]" />
     </div>
   );
 }
