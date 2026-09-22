@@ -114,18 +114,15 @@ export function TapCoin({ coinsPerTap, disabled, rankId, onTap }: TapCoinProps) 
     >
       {sprite ? (
         <>
-          {/* Тень под ногами, а не свечение: свет из-под ног читается как
-              воздух между фигурой и землёй, и человек повисает над сценой.
-              Ступенями, без размытия — по той же причине, что и контур:
-              плавный градиент на фоне из крупных блоков выдаёт наложение. */}
-          <span className="pointer-events-none absolute inset-x-[22%] bottom-[2.5%] h-3 rounded-[50%] bg-black/55" />
-          <span className="pointer-events-none absolute inset-x-[15%] bottom-[1.5%] h-4 rounded-[50%] bg-black/35" />
-          <span className="pointer-events-none absolute inset-x-[9%] bottom-[0.5%] h-5 rounded-[50%] bg-black/20" />
+          {/* Одна узкая тень ровно под обувью. Трёх ступеней было слишком
+              много: у персонажей своя тень уже нарисована, и поверх неё
+              получалось тёмное пятно шире самой фигуры. */}
+          <span className="pointer-events-none absolute inset-x-[34%] bottom-[3%] h-1.5 rounded-[50%] bg-black/40" />
           {/* Размер задаёт место, оставшееся от плашек, но не больше 40% экрана.
               Потолок нужен из-за фонов: мебель на них нарисована под человека
               примерно такого роста, и на длинном телефоне фигура без предела
               становится выше стола, за которым должна сидеть. */}
-          <span className="don-frame relative block aspect-square h-full max-h-[40vh]">
+          <span className="don-frame relative block aspect-square h-full max-h-[54vh]">
             <span
               className="don-strip block"
               style={{

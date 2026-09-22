@@ -39,7 +39,7 @@ export function GameScreen({
           которого экран и существует. */}
       {/* Отступ сверху — под угловые кнопки: без него баланс оказывался
           зажат между шестерёнкой и сводкой. */}
-      <header className="mt-11 flex w-full shrink-0 flex-col items-center gap-1.5 px-2">
+      <header className="mt-14 flex w-full shrink-0 flex-col items-center gap-1 px-2">
         <div className="flex items-baseline gap-2">
           {/* Деньги — главное число экрана, поэтому крупнее названия ранга.
               Было наоборот: ранг кричал, счёт шептал. */}
