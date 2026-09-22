@@ -39,7 +39,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
   return (
     <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto pt-12 pb-4 sm:pt-14 [&>*]:shrink-0">
       <header className="text-center">
-        <h2 className="text-2xl font-black tracking-[0.2em] text-don-gold uppercase">
+        <h2 className="font-display text-3xl font-semibold tracking-[0.2em] text-don-gold uppercase">
           Клан
         </h2>
         {/* Не ошибка, а условие: бордовым это читалось как отказ. */}

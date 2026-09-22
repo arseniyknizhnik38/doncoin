@@ -43,7 +43,7 @@ export function GameScreen({
         <div className="flex items-baseline gap-2">
           {/* Деньги — главное число экрана, поэтому крупнее названия ранга.
               Было наоборот: ранг кричал, счёт шептал. */}
-          <span className="text-[2.75rem] leading-none font-black text-don-gold tabular-nums drop-shadow-[0_0_24px_rgba(232,180,72,0.3)]">
+          <span className="font-display text-[3rem] leading-none font-bold text-don-gold tabular-nums drop-shadow-[0_0_24px_rgba(232,180,72,0.3)]">
             {formatBalance(state.balance)}
           </span>
           <span className="text-xs tracking-[0.2em] text-neutral-500 uppercase">

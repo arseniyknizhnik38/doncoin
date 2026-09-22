@@ -25,7 +25,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
 
   return (
     <div className="flex w-full flex-col items-center gap-1">
-      <p className="text-base font-black tracking-[0.18em] text-don-gold-soft uppercase">
+      <p className="font-display text-xl font-semibold tracking-[0.18em] text-don-gold-soft uppercase">
         {rank.title}
       </p>
 

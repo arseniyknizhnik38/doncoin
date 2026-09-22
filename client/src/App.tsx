@@ -281,7 +281,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
         <div className="relative flex flex-1 flex-col items-center justify-center">
           {/* В прежнем кегле название занимало 372px при 343 доступных и
               упиралось в края. На узких экранах сбавляем кегль и разрядку. */}
-          <h1 className="text-5xl font-black tracking-[0.16em] text-don-gold drop-shadow-[0_0_28px_rgba(232,180,72,0.28)] sm:text-8xl sm:tracking-[0.2em]">
+          <h1 className="font-display text-5xl font-bold tracking-[0.16em] text-don-gold drop-shadow-[0_0_28px_rgba(232,180,72,0.28)] sm:text-8xl sm:tracking-[0.2em]">
             DONCOIN
           </h1>
           <p className="mt-6 text-sm font-medium tracking-[0.35em] text-neutral-400 uppercase sm:text-lg">
