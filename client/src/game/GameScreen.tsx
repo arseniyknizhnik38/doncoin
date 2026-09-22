@@ -85,7 +85,7 @@ export function GameScreen({
           </span>
         </div>
 
-        <div className="h-2.5 w-full overflow-hidden rounded-full border border-don-edge bg-black/40">
+        <div className="h-3 w-full overflow-hidden rounded-full border border-don-edge bg-black/40">
           <div
             className="h-full rounded-full bg-don-gold transition-[width] duration-300"
             style={{ width: `${energyPercent}%` }}

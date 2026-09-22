@@ -59,7 +59,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
         }
       >
         <div
-          className="h-full bg-don-gold transition-[width] duration-500"
+          className="h-full bg-don-gold transition-[width] duration-300"
           style={{ width: `${percent}%` }}
         />
       </div>

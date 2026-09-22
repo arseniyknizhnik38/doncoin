@@ -111,7 +111,7 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
 
       <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-black/40">
         <div
-          className="bg-don-gold transition-[width] duration-500"
+          className="bg-don-gold transition-[width] duration-300"
           style={{ width: `${share}%` }}
         />
         <div className="flex-1 bg-don-blood/70" />
