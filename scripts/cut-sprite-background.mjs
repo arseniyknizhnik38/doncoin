@@ -241,6 +241,21 @@ for (const frame of frames) {
 function clearHalo(data, br, bg, bb, clear) {
   const limit = HALO;
 
+  /*
+   * Хромакей отличается от обычного фона.
+   *
+   * Зелёный экран смешивается с рисунком по краям, и получаются точки вроде
+   * (120, 200, 60): до чистого зелёного им далеко — обычная проверка на
+   * близость к фону их не берёт, — но зелёного в них всё равно больше, чем
+   * любого другого канала, и на тёмной сцене они светятся ядовитым контуром.
+   *
+   * Поэтому на зелёном фоне краевую точку судим не по расстоянию, а по
+   * перекосу каналов. К рисунку это не относится: в игре нет ничего, где
+   * зелёного было бы столько же.
+   */
+  const backgroundIsGreen = bg - Math.max(br, bb) > 40;
+  const greenish = (r, g, b) => backgroundIsGreen && g - Math.max(r, b) > 20;
+
   for (let pass = 0; pass < 2; pass += 1) {
     const doomed = [];
 
@@ -269,7 +284,11 @@ function clearHalo(data, br, bg, bb, clear) {
           Math.abs(data[i] - br) + Math.abs(data[i + 1] - bg) + Math.abs(data[i + 2] - bb);
         const light = (data[i] + data[i + 1] + data[i + 2]) / 3;
 
-        if (distance <= limit || (LIGHT_EDGE > 0 && light >= LIGHT_EDGE)) {
+        if (
+          distance <= limit ||
+          (LIGHT_EDGE > 0 && light >= LIGHT_EDGE) ||
+          greenish(data[i], data[i + 1], data[i + 2])
+        ) {
           doomed.push([x, y]);
         }
       }

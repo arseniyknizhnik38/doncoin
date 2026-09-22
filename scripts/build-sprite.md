@@ -374,3 +374,17 @@ npx ffmpeg -y -i strip.png -c:v libwebp -lossless 1 client/public/don-associate.
 
 В промпт для генератора достаточно добавить:
 `flat solid chroma key green background, no shadows on the background`.
+
+Зелёный фон скрипт распознаёт сам и режет по перекосу каналов, а не по
+близости к цвету: краевые точки вроде (120, 200, 60) до чистого зелёного
+далеки, но зелёного в них больше, чем любого другого канала, и на тёмной
+сцене они светятся ядовитым контуром. В игре нет ничего настолько зелёного,
+поэтому правило безопасно.
+
+Готовый «Приближённый» с зелёного исходника собран без единого флага:
+
+```bash
+npx ffmpeg -y -start_number 29 -i all/f%03d.png -frames:v 8   -vf "scale=184:184:flags=neighbor,pad=192:199:3:15:color=0xAAF909,crop=192:192:0:0"   frames/f%02d.png
+
+node scripts/cut-sprite-background.mjs frames strip.png --shadow
+```
