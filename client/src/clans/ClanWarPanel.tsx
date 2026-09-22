@@ -50,7 +50,7 @@ export function ClanWarPanel({ war }: ClanWarPanelProps) {
 
   if (!current && !last) {
     return (
-      <div className="rounded-xl border border-dashed border-don-blood/40 px-4 py-5 text-center">
+      <div className="rounded-lg border border-dashed border-don-blood/40 px-4 py-5 text-center">
         <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Война</p>
         <p className="mt-2 text-xs text-neutral-500">
           Пара на эту неделю ещё не составлена. Соперник появится в понедельник.
@@ -77,7 +77,7 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
   const leading = mine > theirs;
 
   return (
-    <div className="rounded-xl border border-don-blood/60 bg-don-ink/80 p-4 text-left">
+    <div className="rounded-lg border border-don-blood/60 bg-don-ink/80 p-4 text-left">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-[10px] tracking-[0.25em] text-don-blood-light uppercase">
           Война семей
@@ -111,7 +111,7 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
 
       <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-black/60">
         <div
-          className="bg-gradient-to-r from-don-gold-soft to-don-gold transition-[width] duration-500"
+          className="bg-don-gold transition-[width] duration-500"
           style={{ width: `${share}%` }}
         />
         <div className="flex-1 bg-don-blood/70" />
@@ -155,7 +155,7 @@ function LastResult({ result }: { result: NonNullable<WarState['last']> }) {
   const outcome = OUTCOME[result.outcome];
 
   return (
-    <div className="rounded-xl border border-don-blood/30 bg-don-ink/60 px-4 py-3 text-left">
+    <div className="rounded-lg border border-don-blood/30 bg-don-ink/60 px-4 py-3 text-left">
       <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
         Прошлая война
       </p>

@@ -42,7 +42,7 @@ export function QuestList({ api }: QuestListProps) {
         return (
           <div
             key={quest.id}
-            className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-3 text-left"
+            className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-3 text-left"
           >
             <div className="flex items-baseline justify-between gap-2">
               <h4 className="truncate text-sm font-semibold text-neutral-100">
@@ -60,7 +60,7 @@ export function QuestList({ api }: QuestListProps) {
 
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-don-blood to-don-gold transition-[width] duration-500"
+                className="h-full rounded-full bg-don-gold transition-[width] duration-500"
                 style={{ width: `${percent}%` }}
               />
             </div>
@@ -79,7 +79,7 @@ export function QuestList({ api }: QuestListProps) {
                   onClick={() => api.claim(quest.id)}
                   className={`min-h-11 inline-flex items-center justify-center rounded-lg px-4 py-1 text-xs font-semibold ${
                     quest.done
-                      ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft active:scale-95'
+                      ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft active:scale-95'
                       : 'border border-neutral-700 text-neutral-400'
                   }`}
                 >
@@ -96,7 +96,7 @@ export function QuestList({ api }: QuestListProps) {
         type="button"
         disabled={!state.chest.ready || api.claiming !== null}
         onClick={api.claimChest}
-        className={`rounded-xl border px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold ${
+        className={`rounded-lg border px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold ${
           state.chest.claimed
             ? 'border-neutral-800 text-neutral-400'
             : state.chest.ready

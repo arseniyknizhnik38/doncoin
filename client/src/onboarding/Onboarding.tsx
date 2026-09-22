@@ -78,7 +78,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
           <button
             type="button"
             onClick={() => (last ? onDone() : setIndex(index + 1))}
-            className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-3.5 text-base font-semibold tracking-wide text-don-gold-soft active:scale-95"
+            className="w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-3.5 text-base font-semibold tracking-wide text-don-gold-soft active:scale-95"
           >
             {last ? t('За работу') : t('Дальше')}
           </button>

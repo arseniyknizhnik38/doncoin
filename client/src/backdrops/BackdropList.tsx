@@ -44,7 +44,7 @@ export function BackdropList({ api, state }: BackdropListProps) {
         return (
           <div
             key={backdrop.id}
-            className={`overflow-hidden rounded-xl border text-left ${
+            className={`overflow-hidden rounded-lg border text-left ${
               backdrop.equipped
                 ? 'border-don-gold/70 bg-don-ink'
                 : 'border-don-blood/50 bg-don-ink/80'
@@ -106,7 +106,7 @@ export function BackdropList({ api, state }: BackdropListProps) {
                   onClick={() => api.buy(backdrop.id)}
                   className={`mt-3 min-h-11 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                     affordable
-                      ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft active:scale-95'
+                      ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft active:scale-95'
                       : 'border border-neutral-700 text-neutral-400'
                   }`}
                 >

@@ -167,14 +167,12 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
         <RankBackdrop file={game.state.backdrop} visible={tab === 'game'} />
       )}
 
-      {/* Бордовое свечение и золотая линия — «премиальная мафиозная» подложка */}
+      {/* Тонкая латунная линия по верхнему краю — единственное украшение,
+          которое осталось: свечения и размытые пятна убраны, у пиксельной
+          сцены таких переходов не бывает. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute top-[-25%] left-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 rounded-full bg-don-blood/30 blur-[110px]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-don-gold/50 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-don-gold/40"
       />
 
       {ready && game.state ? (
@@ -197,7 +195,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
             <FamilyScreen referrals={referrals} />
           )}
 
-          <nav className="relative mb-3 flex w-full max-w-md shrink-0 gap-1 rounded-xl border border-don-blood/40 bg-don-ink/80 p-1.5">
+          <nav className="relative mb-3 flex w-full max-w-md shrink-0 gap-1 rounded-lg border border-don-blood/40 bg-don-ink/80 p-1.5">
             {TABS.map((item) => (
               <button
                 key={item.id}
@@ -205,7 +203,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
                 onClick={() => (item.id === 'tasks' ? openTasks() : openTab(item.id as Tab))}
                 className={`relative min-h-11 flex-1 rounded-lg px-1 py-2.5 text-[10px] font-semibold tracking-wide transition-colors sm:text-sm ${
                   tab === item.id
-                    ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
+                    ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft'
                     : 'text-neutral-500'
                 }`}
               >
@@ -281,7 +279,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
         <div className="relative flex flex-1 flex-col items-center justify-center">
           {/* В прежнем кегле название занимало 372px при 343 доступных и
               упиралось в края. На узких экранах сбавляем кегль и разрядку. */}
-          <h1 className="font-display text-5xl font-bold tracking-[0.16em] text-don-gold drop-shadow-[0_0_28px_rgba(232,180,72,0.28)] sm:text-8xl sm:tracking-[0.2em]">
+          <h1 className="font-display text-5xl font-bold tracking-[0.16em] text-don-gold sm:text-8xl sm:tracking-[0.2em]">
             DONCOIN
           </h1>
           <p className="mt-6 text-sm font-medium tracking-[0.35em] text-neutral-400 uppercase sm:text-lg">
@@ -296,7 +294,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               />
             </div>
           ) : (
-            <div className="mt-12 min-w-[16rem] rounded-xl border border-don-blood/60 bg-don-ink/80 px-6 py-4 backdrop-blur-sm">
+            <div className="mt-12 min-w-[16rem] rounded-lg border border-don-blood/60 bg-don-ink/80 px-6 py-4 backdrop-blur-sm">
               {!isTelegram ? (
                 <p className="text-sm tracking-wider text-neutral-400">
                   Тестовый режим (не в Telegram)

@@ -37,7 +37,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
         <h2 className="font-display text-3xl font-semibold tracking-[0.2em] text-don-gold uppercase">Топ</h2>
       </header>
 
-      <div className="flex gap-2 rounded-xl border border-don-blood/40 bg-don-ink/70 p-1.5">
+      <div className="flex gap-2 rounded-lg border border-don-blood/40 bg-don-ink/70 p-1.5">
         {(
           [
             ['players', 'Игроки'],
@@ -50,7 +50,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
             onClick={() => setScope(id)}
             className={`min-h-11 flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
               scope === id
-                ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft'
+                ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft'
                 : 'text-neutral-500'
             }`}
           >
@@ -83,12 +83,12 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
             ))}
 
         {scope === 'players' && data.players.top.length === 0 && (
-          <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+          <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
             Пока пусто
           </p>
         )}
         {scope === 'clans' && data.clans.top.length === 0 && (
-          <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+          <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
             Кланов пока нет
           </p>
         )}

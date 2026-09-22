@@ -96,18 +96,26 @@ body {
   --font-display: "Oswald", "Rubik", ui-sans-serif, system-ui, sans-serif;
 
   /* Почти чёрный, но с коричневым подтоном — как неосвещённое дерево. */
-  --color-don-black: #0b0806;
+  --color-don-black: #0c0a09;
   /* Поверхности карточек: тёмный орех. */
-  --color-don-ink: #191310;
+  --color-don-ink: #1a1512;
   /* Бордо, а не алый: цвет вина и бархатных штор. */
-  --color-don-blood: #6d2026;
-    --color-don-blood-deep: #3b1013;
+  --color-don-blood: #7a1f23;
+    --color-don-blood-deep: #4a1216;
   /* Тревожный текст: терракота вместо розового — розовый читался как
      детская ошибка, а не как предупреждение. */
-  --color-don-blood-light: #cf6a56;
+  --color-don-blood-light: #c25a3a;
   /* Латунь, потемневшая от времени, вместо канареечного жёлтого. */
-  --color-don-gold: #c9a227;
-    --color-don-gold-soft: #e8cf95;
+  --color-don-gold: #c8a032;
+    --color-don-gold-soft: #e3c77e;
+
+  /* Обводка — сплошная краска, а не полупрозрачная: на пиксельной сцене
+     прозрачные рамки дают грязный край. */
+  --color-don-edge: #3a2c25;
+  /* Текст — кость, а не белый: чистый белый на тёплом тёмном выглядит
+     как подсветка экрана, а не как краска. */
+  --color-don-bone: #ede3d4;
+
 }
 
 html,

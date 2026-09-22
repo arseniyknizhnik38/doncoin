@@ -35,14 +35,14 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
       )}
 
       {data.favors.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+        <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
           На этой неделе поручений нет. Загляните позже.
         </p>
       ) : (
         data.favors.map((favor) => (
           <div
             key={favor.id}
-            className={`rounded-xl border p-4 text-left ${
+            className={`rounded-lg border p-4 text-left ${
               favor.completed
                 ? 'border-emerald-500/40 bg-don-ink/50'
                 : 'border-don-blood/50 bg-don-ink/80'
@@ -102,7 +102,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
                   type="button"
                   disabled={checking !== null}
                   onClick={() => api.check(favor.id)}
-                  className="min-h-11 flex-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+                  className="min-h-11 flex-1 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
                 >
                   {checking === favor.id ? 'Проверяем…' : 'Проверить'}
                 </button>

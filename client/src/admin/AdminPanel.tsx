@@ -38,7 +38,7 @@ function Row({ label, value, hint }: { label: string; value: string; hint?: stri
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-don-blood/40 bg-don-ink/70 px-4 py-3">
+    <div className="rounded-lg border border-don-blood/40 bg-don-ink/70 px-4 py-3">
       <p className="mb-1 text-[10px] tracking-[0.25em] text-neutral-500 uppercase">{title}</p>
       {children}
     </div>

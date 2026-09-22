@@ -52,7 +52,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
 
   if (omerta.solved) {
     return (
-      <div className="rounded-xl border border-don-gold/50 bg-don-ink/80 px-4 py-3 text-left">
+      <div className="rounded-lg border border-don-gold/50 bg-don-ink/80 px-4 py-3 text-left">
         {header}
         <p className="mt-2 text-center text-3xl tracking-[0.3em]">
           {(omerta.answer ?? []).map((id) => byId.get(id)?.emoji).join('')}
@@ -70,7 +70,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
 
   if (omerta.attemptsLeft <= 0) {
     return (
-      <div className="rounded-xl border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
+      <div className="rounded-lg border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
         {header}
         <p className="mt-1 text-sm text-neutral-500">
           {t('Попытки на сегодня кончились. Новый шифр — завтра.')}
@@ -80,7 +80,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
   }
 
   return (
-    <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
+    <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
       {header}
 
       <p className="mt-1 text-xs text-neutral-500">
@@ -143,7 +143,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
           api.guess(cells as string[]);
           setSlots([]);
         }}
-        className="mt-3 min-h-11 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+        className="mt-3 min-h-11 w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
       >
         {api.sending ? '…' : t('Проверить')}
       </button>

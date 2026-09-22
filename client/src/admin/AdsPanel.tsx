@@ -77,7 +77,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
 
       {open && (
         <form
-          className="flex flex-col gap-2 rounded-xl border border-don-blood/40 bg-don-ink/70 p-3"
+          className="flex flex-col gap-2 rounded-lg border border-don-blood/40 bg-don-ink/70 p-3"
           onSubmit={async (event) => {
             event.preventDefault();
 
@@ -194,7 +194,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
           <button
             type="submit"
             disabled={api.saving}
-            className="mt-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+            className="mt-1 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
           >
             {api.saving ? 'Сохраняем…' : 'Запустить'}
           </button>
@@ -208,7 +208,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
       {(api.ads ?? []).map((ad) => (
         <div
           key={ad.id}
-          className="rounded-xl border border-don-blood/40 bg-don-ink/70 px-4 py-3"
+          className="rounded-lg border border-don-blood/40 bg-don-ink/70 px-4 py-3"
         >
           <div className="flex items-baseline justify-between gap-2">
             <span className="truncate text-sm font-semibold text-neutral-100">

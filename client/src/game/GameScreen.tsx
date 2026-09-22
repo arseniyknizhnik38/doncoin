@@ -43,7 +43,7 @@ export function GameScreen({
         <div className="flex items-baseline gap-2">
           {/* Деньги — главное число экрана, поэтому крупнее названия ранга.
               Было наоборот: ранг кричал, счёт шептал. */}
-          <span className="font-display text-[3rem] leading-none font-bold text-don-gold tabular-nums drop-shadow-[0_0_24px_rgba(232,180,72,0.3)]">
+          <span className="font-display text-[3rem] leading-none font-bold text-don-gold tabular-nums">
             {formatBalance(state.balance)}
           </span>
           <span className="text-xs tracking-[0.2em] text-neutral-500 uppercase">
@@ -84,7 +84,7 @@ export function GameScreen({
 
         <div className="h-2.5 w-full overflow-hidden rounded-full border border-don-blood/50 bg-black/60">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-don-blood via-don-gold to-don-gold-soft transition-[width] duration-300"
+            className="h-full rounded-full bg-don-gold transition-[width] duration-300"
             style={{ width: `${energyPercent}%` }}
           />
         </div>

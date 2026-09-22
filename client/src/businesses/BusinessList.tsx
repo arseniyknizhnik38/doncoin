@@ -38,7 +38,7 @@ export function BusinessList({ api, state }: BusinessListProps) {
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
+      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
         <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
           Доход с бизнесов
         </p>
@@ -72,7 +72,7 @@ export function BusinessList({ api, state }: BusinessListProps) {
         return (
           <div
             key={business.id}
-            className={`rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left ${
+            className={`rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left ${
               business.locked ? 'opacity-50' : ''
             }`}
           >
@@ -112,7 +112,7 @@ export function BusinessList({ api, state }: BusinessListProps) {
               onClick={() => api.buy(business.id)}
               className={`mt-3 min-h-11 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                 affordable
-                  ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft active:scale-95'
+                  ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft active:scale-95'
                   : 'border border-neutral-700 text-neutral-400'
               }`}
             >

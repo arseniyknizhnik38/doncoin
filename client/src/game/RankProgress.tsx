@@ -55,7 +55,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
           вовсе, и прогресс был виден только по подписи. */}
       <div className="h-1.5 w-full overflow-hidden rounded-full border border-don-blood/50 bg-white/10">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-don-blood via-don-gold to-don-gold-soft transition-[width] duration-500"
+          className="h-full rounded-full bg-don-gold transition-[width] duration-500"
           style={{ width: `${percent}%` }}
         />
       </div>

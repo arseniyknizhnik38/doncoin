@@ -42,7 +42,7 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
         Шифр дня
       </h3>
 
-      <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-3">
+      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-3">
         <div className="flex gap-2">
           <select
             value={day}
@@ -80,7 +80,7 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
           type="button"
           onClick={submit}
           disabled={api.saving || code.trim().length < 3}
-          className="mt-2 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+          className="mt-2 w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
         >
           {api.saving ? 'Сохраняем…' : 'Задать шифр'}
         </button>
@@ -98,7 +98,7 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
       {(api.ciphers ?? []).map((cipher) => (
         <div
           key={cipher.dayNumber}
-          className="rounded-xl border border-don-blood/40 bg-don-ink/60 px-3 py-2 text-left"
+          className="rounded-lg border border-don-blood/40 bg-don-ink/60 px-3 py-2 text-left"
         >
           <div className="flex items-baseline justify-between gap-2">
             <span className="text-sm font-semibold tracking-[0.2em] text-don-gold-soft">

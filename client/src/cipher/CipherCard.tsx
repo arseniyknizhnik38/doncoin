@@ -25,7 +25,7 @@ export function CipherCard({ api }: CipherCardProps) {
 
   if (cipher.solved) {
     return (
-      <div className="rounded-xl border border-don-gold/40 bg-don-ink/80 px-4 py-3 text-left">
+      <div className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-3 text-left">
         <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
           Шифр дня
         </p>
@@ -44,7 +44,7 @@ export function CipherCard({ api }: CipherCardProps) {
   // всё равно откажет, читается как поломка, а не как правило.
   if (cipher.attemptsLeft <= 0) {
     return (
-      <div className="rounded-xl border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
+      <div className="rounded-lg border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
         <p className="text-[11px] tracking-[0.25em] text-neutral-500 uppercase">
           Шифр дня
         </p>
@@ -56,7 +56,7 @@ export function CipherCard({ api }: CipherCardProps) {
   }
 
   return (
-    <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
+    <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
           Шифр дня
@@ -95,7 +95,7 @@ export function CipherCard({ api }: CipherCardProps) {
         <button
           type="submit"
           disabled={api.sending || !code.trim()}
-          className="shrink-0 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+          className="shrink-0 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
         >
           {api.sending ? '…' : 'Ввести'}
         </button>

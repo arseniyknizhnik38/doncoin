@@ -84,7 +84,7 @@ export function TasksPanel({
         {/* Сначала то, что уже начислено: человек открыл панель и сразу видит,
             что его ждали. */}
         {comeback && (
-          <p className="rounded-xl border border-don-gold/60 bg-don-ink/90 px-4 py-2 text-sm text-neutral-200">
+          <p className="rounded-lg border border-don-gold/60 bg-don-ink/90 px-4 py-2 text-sm text-neutral-200">
             🐟 {comeback.inviter ? `${comeback.inviter} за тебя поручился` : 'Ты вернулся'} ·{' '}
             <span className="font-semibold text-don-gold-soft">
               +{formatCoins(comeback.amount)}
@@ -93,7 +93,7 @@ export function TasksPanel({
         )}
 
         {offline && Number(offline.earned) > 0 && (
-          <p className="rounded-xl border border-don-gold/40 bg-don-ink/80 px-4 py-2 text-sm text-neutral-300">
+          <p className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-2 text-sm text-neutral-300">
             Пока вас не было:{' '}
             <span className="font-semibold text-don-gold-soft">
               +{formatCoins(offline.earned)}
@@ -103,7 +103,7 @@ export function TasksPanel({
         )}
 
         {daily.justClaimed ? (
-          <p className="rounded-xl border border-don-gold/40 bg-don-ink/80 px-4 py-2.5 text-sm text-don-gold-soft">
+          <p className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-2.5 text-sm text-don-gold-soft">
             Бонус получен: +{formatCoins(daily.justClaimed)}
           </p>
         ) : (
@@ -112,7 +112,7 @@ export function TasksPanel({
               type="button"
               disabled={daily.claiming}
               onClick={daily.claim}
-              className="w-full rounded-xl bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+              className="w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
             >
               {daily.claiming
                 ? 'Забираем…'
@@ -172,7 +172,7 @@ export function TasksPanel({
             return (
               <div
                 key={task.id}
-                className={`rounded-xl border p-4 text-left ${
+                className={`rounded-lg border p-4 text-left ${
                   task.claimed
                     ? 'border-neutral-800 bg-don-ink/40 opacity-60'
                     : task.done
@@ -194,7 +194,7 @@ export function TasksPanel({
                   <div className="mt-2 flex items-center gap-2">
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-don-blood to-don-gold"
+                        className="h-full rounded-full bg-don-gold"
                         style={{ width: `${percent}%` }}
                       />
                     </div>
@@ -211,7 +211,7 @@ export function TasksPanel({
                     type="button"
                     disabled={tasks.claiming !== null}
                     onClick={() => tasks.claim(task.id)}
-                    className="mt-3 min-h-11 w-full rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+                    className="mt-3 min-h-11 w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
                   >
                     {tasks.claiming === task.id ? 'Забираем…' : 'Забрать награду'}
                   </button>

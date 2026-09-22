@@ -32,7 +32,7 @@ export function BoosterBar({ api }: BoosterBarProps) {
             disabled={spent || api.using !== null || active}
             onClick={() => api.use(booster.id)}
             title={booster.description}
-            className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-colors ${
+            className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${
               active
                 ? 'border-don-gold bg-don-gold/15 text-don-gold'
                 : spent

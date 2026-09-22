@@ -61,7 +61,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
         <>
           {data.war && <ClanWarPanel war={data.war} />}
 
-          <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left">
+          <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="truncate text-lg font-bold text-don-gold-soft">{my.name}</h3>
               <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-500 uppercase">
@@ -122,7 +122,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                   clans.donate(Number(amount));
                   setAmount('');
                 }}
-                className="min-h-11 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
+                className="min-h-11 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
               >
                 Внести
               </button>
@@ -160,7 +160,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
       ) : (
         <>
           {data.canJoin && (
-            <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left">
+            <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
               <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
                 Основать свой
               </p>
@@ -179,7 +179,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                     clans.create(name);
                     setName('');
                   }}
-                  className="min-h-11 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
+                  className="min-h-11 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
                 >
                   Создать
                 </button>
@@ -189,7 +189,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
 
           <div className="flex flex-col gap-2">
             {data.clans.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+              <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
                 Кланов пока нет. Первый основатель войдёт в историю.
               </p>
             ) : (

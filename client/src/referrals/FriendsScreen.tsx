@@ -58,7 +58,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
       </p>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3">
+        <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3">
           <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Приглашено</p>
           <p className="mt-1 text-2xl font-bold text-don-gold-soft tabular-nums">
             {data.invitedCount}
@@ -69,7 +69,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
             </p>
           )}
         </div>
-        <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 px-4 py-3">
+        <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3">
           <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">Заработано</p>
           <p className="mt-1 text-2xl font-bold text-don-gold-soft tabular-nums">
             {formatCoins(data.earned)}
@@ -77,7 +77,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
         </div>
       </div>
 
-      <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-4">
+      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4">
         <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
           Твоя ссылка
         </p>
@@ -89,7 +89,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
           <button
             type="button"
             onClick={handleShare}
-            className="flex-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft active:scale-95"
+            className="flex-1 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2.5 text-sm font-semibold text-don-gold-soft active:scale-95"
           >
             Позвать в Telegram
           </button>
@@ -105,7 +105,7 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
 
       <div className="flex flex-col gap-2">
         {data.invited.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+          <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
             Пока никого. Позови первого — и семья начнёт расти.
           </p>
         ) : (

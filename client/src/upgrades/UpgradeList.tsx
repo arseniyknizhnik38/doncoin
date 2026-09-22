@@ -36,7 +36,7 @@ export function UpgradeList({ api, state }: UpgradeListProps) {
         return (
           <div
             key={upgrade.id}
-            className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left"
+            className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left"
           >
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="text-base font-semibold text-neutral-100">{upgrade.title}</h3>
@@ -65,7 +65,7 @@ export function UpgradeList({ api, state }: UpgradeListProps) {
                 isMax
                   ? 'border border-don-gold/30 text-don-gold/60'
                   : affordable
-                    ? 'bg-gradient-to-r from-don-blood to-don-blood-deep text-don-gold-soft active:scale-95'
+                    ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft active:scale-95'
                     : 'border border-neutral-700 text-neutral-400'
               }`}
             >

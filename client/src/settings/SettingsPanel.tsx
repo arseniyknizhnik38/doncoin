@@ -37,7 +37,7 @@ export function SettingsPanel({
             <ErrorState message={error ?? 'Не удалось загрузить'} />
           )
         ) : (
-          <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left">
+          <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-neutral-100">Напоминания от бота</p>

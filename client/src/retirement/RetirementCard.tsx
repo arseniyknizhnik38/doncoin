@@ -19,7 +19,7 @@ export function RetirementCard({ api }: { api: RetirementApi }) {
   }
 
   return (
-    <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-4 text-left">
+    <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
       <p className="text-[10px] tracking-[0.25em] text-neutral-500 uppercase">
         Уход на покой
       </p>
@@ -55,7 +55,7 @@ export function RetirementCard({ api }: { api: RetirementApi }) {
                   api.retire();
                   setConfirming(false);
                 }}
-                className="flex-1 rounded-lg bg-gradient-to-r from-don-blood to-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
+                className="flex-1 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
               >
                 {api.retiring ? 'Уходим…' : 'Точно ухожу'}
               </button>

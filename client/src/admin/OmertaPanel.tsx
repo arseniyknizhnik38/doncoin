@@ -54,7 +54,7 @@ export function OmertaPanel({ token }: { token: string | null }) {
       <h3 className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
         Шифр Омерты
       </h3>
-      <div className="rounded-xl border border-don-blood/50 bg-don-ink/80 p-3 text-left">
+      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-3 text-left">
         {error ? (
           <p className="text-xs text-don-blood-light">{error}</p>
         ) : !data ? (
