@@ -119,10 +119,10 @@ export function Onboarding({ onDone }: OnboardingProps) {
 
         <div className="flex flex-col gap-4">
           <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
-            <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
+            <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
               {t('Толстый Бобби')}
             </p>
-            <h2 className="mt-1 font-display text-2xl font-semibold tracking-[0.08em] text-don-gold uppercase">
+            <h2 className="mt-2 font-pixel text-base leading-relaxed text-don-gold uppercase">
               {t(step.title)}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-don-bone">{t(step.body)}</p>

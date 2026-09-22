@@ -53,7 +53,7 @@ export function RankUp({ rank, onClose }: RankUpProps) {
 
         <div className="flex w-full flex-col items-center gap-4">
           <div className="flex flex-col items-center gap-1">
-            <h2 className="animate-pop-in font-display text-4xl font-semibold tracking-[0.12em] text-don-gold uppercase">
+            <h2 className="animate-pop-in font-pixel text-2xl leading-relaxed text-don-gold uppercase">
               {rank.title}
             </h2>
             <p className="text-sm tracking-[0.25em]" aria-hidden>

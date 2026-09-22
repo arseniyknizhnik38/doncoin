@@ -25,7 +25,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
     <div className="flex w-full flex-col items-center gap-2">
       {/* Ранг и звёзды — одно сообщение, поэтому и строка одна. Раздельными
           строками шапка разрасталась на пустом месте. */}
-      <p className="flex items-baseline gap-2.5 font-display text-xl font-semibold tracking-[0.2em] text-don-gold-soft uppercase">
+      <p className="flex items-baseline gap-2.5 font-pixel text-base leading-relaxed text-don-gold-soft uppercase">
         {rank.title}
         <span
           className="text-sm tracking-[0.25em]"
