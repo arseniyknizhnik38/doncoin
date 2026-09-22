@@ -1,3 +1,4 @@
+import { Balance } from './Balance';
 import { RankProgress } from './RankProgress';
 import { TapCoin } from './TapCoin';
 import type { GameState } from './types';
@@ -10,25 +11,6 @@ interface GameScreenProps {
 
 const formatBalance = (balance: string) =>
   Number(balance).toLocaleString('ru-RU');
-
-/**
- * Кегль счёта по его длине.
- *
- * На узком экране под число остаётся около 320 точек вместе с подписью DONC.
- * В Oswald знак занимает примерно половину кегля, отсюда и ступени: семь
- * знаков живут крупно, двенадцать — уже нет.
- */
-function balanceSize(text: string) {
-  if (text.length <= 10) {
-    return 'text-[3rem]';
-  }
-
-  if (text.length <= 13) {
-    return 'text-[2.4rem]';
-  }
-
-  return text.length <= 16 ? 'text-[1.95rem]' : 'text-[1.6rem]';
-}
 
 /*
  * Плашка под показания.
@@ -68,22 +50,9 @@ export function GameScreen({
       {/* Отступ сверху — под угловые кнопки: без него баланс оказывался
           зажат между шестерёнкой и сводкой. */}
       <header
-        className={`mt-14 flex w-full shrink-0 flex-col items-center gap-1 px-3 py-2 ${PLATE}`}
+        className={`mt-14 flex w-full shrink-0 flex-col items-center gap-2 px-3 py-2.5 ${PLATE}`}
       >
-        <div className="flex w-full items-baseline justify-center gap-2">
-          {/* Деньги — главное число экрана, поэтому крупнее названия ранга.
-              Было наоборот: ранг кричал, счёт шептал. */}
-          <span
-            className={`font-display leading-none font-bold text-don-gold tabular-nums ${balanceSize(
-              formatBalance(state.balance),
-            )}`}
-          >
-            {formatBalance(state.balance)}
-          </span>
-          <span className="text-xs tracking-[0.2em] text-neutral-400 uppercase">
-            DONC
-          </span>
-        </div>
+        <Balance value={formatBalance(state.balance)} />
 
         <RankProgress rank={state.rank} earned={state.totalEarned} />
       </header>

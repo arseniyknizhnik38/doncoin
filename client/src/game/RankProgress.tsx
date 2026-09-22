@@ -6,8 +6,6 @@ interface RankProgressProps {
   earned: string;
 }
 
-const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
-
 /** Ранг игрока и прогресс до следующего. */
 export function RankProgress({ rank, earned }: RankProgressProps) {
   const target = rank.next ? Number(rank.next.minBalance) : null;
@@ -24,25 +22,24 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
     target === null ? 100 : Math.min(100, Math.round((current / target) * 100));
 
   return (
-    <div className="flex w-full flex-col items-center gap-1">
-      <p className="font-display text-xl font-semibold tracking-[0.18em] text-don-gold-soft uppercase">
+    <div className="flex w-full flex-col items-center gap-2">
+      {/* Ранг и звёзды — одно сообщение, поэтому и строка одна. Раздельными
+          строками шапка разрасталась на пустом месте. */}
+      <p className="flex items-baseline gap-2.5 font-display text-xl font-semibold tracking-[0.18em] text-don-gold-soft uppercase">
         {rank.title}
-      </p>
-
-      {/* Звёзды внутри ранга: повышение видно каждые пару дней, а персонажа
-          художник рисует по-прежнему одного на ранг. */}
-      <p
-        className="-mt-1 text-xs tracking-[0.3em]"
-        aria-label={`Звезда ${rank.star} из ${rank.stars}`}
-      >
-        {Array.from({ length: rank.stars }, (_, index) => (
-          <span
-            key={index}
-            className={index < rank.star ? 'text-don-gold' : 'text-neutral-700'}
-          >
-            ★
-          </span>
-        ))}
+        <span
+          className="text-sm tracking-[0.25em]"
+          aria-label={`Звезда ${rank.star} из ${rank.stars}`}
+        >
+          {Array.from({ length: rank.stars }, (_, index) => (
+            <span
+              key={index}
+              className={index < rank.star ? 'text-don-gold' : 'text-neutral-700'}
+            >
+              ★
+            </span>
+          ))}
+        </span>
       </p>
 
       {rank.unlocks && (
@@ -51,27 +48,27 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
         </p>
       )}
 
-      {/* Трек светлее фона: чёрная полоса на чёрном экране не читалась
-          вовсе, и прогресс был виден только по подписи. */}
-      <div className="h-1.5 w-full overflow-hidden rounded-full border border-don-blood/50 bg-white/10">
+      {/* Полоска толстая и подписи под собой не держит: раньше под ней шла
+          строка «ещё столько-то до такого-то ранга», а сама полоска была
+          тоньше этой строки — объяснение весило больше предмета.
+
+          Сколько осталось, видно по заполнению; до какой ступени — по
+          незажжённым звёздам рядом с названием. */}
+      <div
+        className="h-3 w-full overflow-hidden rounded-full border border-don-blood/50 bg-black/50"
+        role="progressbar"
+        aria-valuenow={percent}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={
+          rank.next ? `До ранга ${rank.next.title}` : 'Высший ранг достигнут'
+        }
+      >
         <div
-          className="h-full rounded-full bg-don-gold transition-[width] duration-500"
+          className="h-full bg-don-gold transition-[width] duration-500"
           style={{ width: `${percent}%` }}
         />
       </div>
-
-      {rank.next ? (
-        <p className="text-[11px] tracking-wider text-neutral-400">
-          Ещё {formatCoins(Number(rank.next.minBalance) - current)} до{' '}
-          <span className="text-don-gold-soft">
-            {rank.next.title} {'★'.repeat(rank.next.star)}
-          </span>
-        </p>
-      ) : (
-        <p className="text-[11px] tracking-wider text-don-gold-soft">
-          Высший ранг — вершина семьи
-        </p>
-      )}
     </div>
   );
 }
