@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 /** Самый крупный кегль счёта. Меньше он становится, только если не влезает. */
 const BASE = 48;
@@ -6,18 +6,20 @@ const BASE = 48;
 /** Ниже этого не опускаемся: нечитаемый счёт хуже обрезанного. */
 const FLOOR = 14;
 
+/** За сколько счёт докатывается до нового значения. */
+const ROLL_MS = 350;
+
 /**
- * Счёт во всю доступную ширину.
+ * Счёт во всю доступную ширину — и он катится, а не прыгает.
  *
- * Кегль здесь не выбирается заранее, а вымеряется. Раньше он выбирался по
- * длине записи — лесенкой «до десяти знаков крупно, дальше мельче», — и это
- * промахивалось: длина в знаках не равна ширине на экране. Ширина зависит
- * ещё и от того, какой шрифт успел загрузиться, насколько узок аппарат и
- * какой системный масштаб текста выставлен в телефоне. На каком-нибудь
- * сочетании число вылезало за плашку, и у дона от счёта оставалась середина.
+ * Кегль не выбирается заранее, а вымеряется: ширина зависит от аппарата,
+ * загрузившегося шрифта и системного масштаба текста, и любая заранее
+ * выбранная лесенка на каком-нибудь сочетании обрезала число. Ширина строки
+ * растёт с кеглем линейно, поэтому хватает одного замера при самом крупном.
  *
- * Ширина строки растёт вместе с кеглем линейно, поэтому хватает одного
- * замера: меряем при самом крупном и делим на то, что не поместилось.
+ * Качение — та же причина, по которой в автоматах крутятся барабаны: деньги,
+ * которые досчитываются на глазах, ощущаются как деньги. Скачок цифр — как
+ * опечатка.
  */
 export function Balance({ value }: { value: string }) {
   const row = useRef<HTMLDivElement>(null);
@@ -25,7 +27,55 @@ export function Balance({ value }: { value: string }) {
   const unit = useRef<HTMLSpanElement>(null);
   const [size, setSize] = useState(BASE);
 
-  const fit = useCallback(() => {
+  // ——— Качение к пришедшему значению.
+  const target = Number(value);
+  const [shown, setShown] = useState(target);
+  const shownRef = useRef(target);
+  const raf = useRef(0);
+
+  useEffect(() => {
+    const from = shownRef.current;
+    const delta = target - from;
+
+    if (delta === 0) {
+      return;
+    }
+
+    const started = performance.now();
+
+    const step = (now: number) => {
+      const part = Math.min(1, (now - started) / ROLL_MS);
+      // Быстрый разгон и мягкий доезд: последние цифры видно глазами.
+      const eased = 1 - (1 - part) ** 2;
+      const current = Math.round(from + delta * eased);
+      shownRef.current = current;
+      setShown(current);
+
+      if (part < 1) {
+        raf.current = requestAnimationFrame(step);
+      }
+    };
+
+    cancelAnimationFrame(raf.current);
+    raf.current = requestAnimationFrame(step);
+
+    // Страховка: в свёрнутом окне кадры анимации не тикают, и без неё счёт
+    // застыл бы на старом числе до следующего события. Таймер тикает всегда.
+    const snap = window.setTimeout(() => {
+      shownRef.current = target;
+      setShown(target);
+    }, ROLL_MS + 100);
+
+    return () => {
+      cancelAnimationFrame(raf.current);
+      window.clearTimeout(snap);
+    };
+  }, [target]);
+
+  const text = shown.toLocaleString('ru-RU');
+
+  // ——— Подгонка кегля под ширину.
+  const fit = () => {
     const outer = row.current;
     const inner = number.current;
     const label = unit.current;
@@ -49,11 +99,10 @@ export function Balance({ value }: { value: string }) {
 
     // Ставим сразу, а не только через состояние. Когда новый кегль совпал с
     // прежним, React перерисовывать не станет — и на элементе остался бы
-    // пробный BASE, которым мы только что мерили. Ровно так счёт и вылезал
-    // за плашку после того, как догрузится шрифт.
+    // пробный BASE, которым мы только что мерили.
     inner.style.fontSize = `${next}px`;
     setSize(next);
-  }, []);
+  };
 
   // После каждой перерисовки: число меняется на каждом тапе, и подгонка
   // должна успеть до того, как кадр покажут.
@@ -83,7 +132,8 @@ export function Balance({ value }: { value: string }) {
       window.removeEventListener('orientationchange', fit);
       observer?.disconnect();
     };
-  }, [fit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div ref={row} className="flex w-full items-baseline justify-center gap-2">
@@ -92,7 +142,7 @@ export function Balance({ value }: { value: string }) {
         style={{ fontSize: `${size}px` }}
         className="font-display leading-none font-bold whitespace-nowrap text-don-gold tabular-nums"
       >
-        {value}
+        {text}
       </span>
       <span
         ref={unit}

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AdminPanel } from './admin/AdminPanel';
 import { useAds } from './admin/useAds';
 import { useCiphers } from './admin/useCiphers';
@@ -17,6 +17,7 @@ import { useFavors } from './favors/useFavors';
 import { useDaily } from './rewards/useDaily';
 import { useClans } from './clans/useClans';
 import { GameScreen } from './game/GameScreen';
+import { RankUp } from './game/RankUp';
 import { RankBackdrop } from './game/RankBackdrop';
 import { LeaderboardScreen } from './leaderboard/LeaderboardScreen';
 import { useLeaderboard } from './leaderboard/useLeaderboard';
@@ -31,6 +32,7 @@ import { SettingsPanel } from './settings/SettingsPanel';
 import { useSettings } from './settings/useSettings';
 import { TasksPanel } from './tasks/TasksPanel';
 import { LangProvider, useT } from './i18n';
+import type { RankView } from './game/types';
 import { ErrorState } from './ui/States';
 import { useTasks } from './tasks/useTasks';
 import { useAuth } from './telegram/useAuth';
@@ -137,6 +139,25 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
     setTasksOpen(true);
   }, [tasks]);
 
+  // Повышение ловится по номеру ступени: он растёт только вверх, а вниз
+  // уходит лишь при уходе на покой — покой праздновать не надо.
+  const [rankUp, setRankUp] = useState<RankView | null>(null);
+  const lastStep = useRef<number | null>(null);
+  const rankStep = game.state?.rank.step;
+
+  useEffect(() => {
+    if (rankStep === undefined) {
+      return;
+    }
+
+    if (lastStep.current !== null && rankStep > lastStep.current) {
+      setRankUp(game.state!.rank);
+    }
+
+    lastStep.current = rankStep;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rankStep]);
+
   const [statsOpen, setStatsOpen] = useState(false);
   const stats = useAdminStats(sessionToken, statsOpen);
   const ads = useAds(sessionToken, statsOpen);
@@ -217,6 +238,8 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
             ))}
           </nav>
           {onboarding.visible && <Onboarding onDone={onboarding.dismiss} />}
+
+          {rankUp && <RankUp rank={rankUp} onClose={() => setRankUp(null)} />}
 
           {tasksOpen && (
             <TasksPanel

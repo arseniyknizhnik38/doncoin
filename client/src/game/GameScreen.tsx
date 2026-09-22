@@ -9,9 +9,6 @@ interface GameScreenProps {
   onTap: () => boolean;
 }
 
-const formatBalance = (balance: string) =>
-  Number(balance).toLocaleString('ru-RU');
-
 /*
  * Плашка под показания.
  *
@@ -52,7 +49,7 @@ export function GameScreen({
       <header
         className={`mt-14 flex w-full shrink-0 flex-col items-center gap-2 px-3 py-2.5 ${PLATE}`}
       >
-        <Balance value={formatBalance(state.balance)} />
+        <Balance value={state.balance} />
 
         <RankProgress rank={state.rank} earned={state.totalEarned} />
       </header>

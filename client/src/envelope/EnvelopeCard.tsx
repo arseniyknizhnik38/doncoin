@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { hapticFeedback } from '@telegram-apps/sdk-react';
+import { PixelIcon } from '../ui/PixelIcon';
 import type { EnvelopeApi } from './useEnvelope';
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
@@ -12,17 +15,44 @@ const formatCoins = (value: string | number) => Number(value).toLocaleString('ru
 export function EnvelopeCard({ api }: { api: EnvelopeApi }) {
   const envelope = api.envelope;
 
+  // Вскрытие в два такта: конверт трясётся, потом сумма влетает. Написать
+  // куш сразу — значит выбросить единственный момент неизвестности в игре.
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    if (!api.justOpened) {
+      setRevealed(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setRevealed(true);
+      hapticFeedback.notificationOccurred.ifAvailable('success');
+    }, 700);
+
+    return () => window.clearTimeout(timer);
+  }, [api.justOpened]);
+
   if (!envelope) {
     return null;
   }
 
-  // Только что открыли — показываем результат крупно, пока не закроют.
+  if (api.justOpened && !revealed) {
+    return (
+      <div className="flex min-h-11 w-full items-center justify-center rounded-lg border border-don-gold/40 bg-don-ink py-1.5">
+        <span className="animate-env-shake inline-flex">
+          <PixelIcon id="envelope" className="h-6 w-6" />
+        </span>
+      </div>
+    );
+  }
+
   if (api.justOpened) {
     return (
       <button
         type="button"
         onClick={api.dismiss}
-        className="w-full truncate rounded-lg border border-don-gold/40 bg-don-ink px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-center text-sm font-semibold text-don-gold-soft active:scale-95"
+        className="animate-pop-in w-full truncate rounded-lg border border-don-gold/40 bg-don-ink px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-center text-sm font-semibold text-don-gold-soft active:scale-95"
       >
         {api.justOpened.title}: +{formatCoins(api.justOpened.amount)}
       </button>

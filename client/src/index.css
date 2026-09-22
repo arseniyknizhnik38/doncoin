@@ -154,8 +154,47 @@ body {
   }
 }
 
+/* Отдача тапа и события: движение ступенями, не плавностью. Плавный
+   разгон у пиксельной сцены читается как чужой материал — тот же довод,
+   по которому из интерфейса убраны градиенты. */
+@keyframes coin-pop {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 0px), var(--dy, -60px));
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(1.6);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes env-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-8deg);
+  }
+  75% {
+    transform: rotate(8deg);
+  }
+}
+
 @theme {
   --animate-float-up: float-up 0.8s ease-out forwards;
+  --animate-coin-pop: coin-pop 0.45s steps(4) forwards;
+  --animate-pop-in: pop-in 0.22s steps(3);
+  --animate-env-shake: env-shake 0.4s steps(2) infinite;
 }
 
 /*

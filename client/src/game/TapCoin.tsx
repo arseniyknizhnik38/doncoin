@@ -8,6 +8,15 @@ interface FloatingNumber {
   y: number;
 }
 
+/** Крошка золота, отлетающая от места тапа. */
+interface Spark {
+  id: number;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+}
+
 interface TapCoinProps {
   coinsPerTap: number;
   disabled: boolean;
@@ -23,7 +32,7 @@ interface TapCoinProps {
  * Ранга нет в списке — показываем монету, поэтому новый спрайт добавляется
  * одной строкой.
  */
-const RANK_SPRITES: Record<string, string> = {
+export const RANK_SPRITES: Record<string, string> = {
   outsider: '/don-outsider.webp',
   associate: '/don-associate.webp',
   soldier: '/don-soldier.webp',
@@ -41,6 +50,7 @@ const FRAME_MS = 90;
 
 export function TapCoin({ coinsPerTap, disabled, rankId, scale, onTap }: TapCoinProps) {
   const [floats, setFloats] = useState<FloatingNumber[]>([]);
+  const [sparks, setSparks] = useState<Spark[]>([]);
   const [pressed, setPressed] = useState(false);
   const [moving, setMoving] = useState(false);
   const [frame, setFrame] = useState(0);
@@ -75,15 +85,25 @@ export function TapCoin({ coinsPerTap, disabled, rankId, scale, onTap }: TapCoin
       const rect = event.currentTarget.getBoundingClientRect();
       const id = nextId.current++;
 
-      setFloats((prev) => [
-        ...prev,
-        {
-          id,
-          value: coinsPerTap,
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top,
-        },
-      ]);
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      setFloats((prev) => [...prev, { id, value: coinsPerTap, x, y }]);
+
+      // Три крошки золота в случайные стороны: монеты ощущаются монетами,
+      // когда что-то звенит и разлетается, а не только меняется цифра.
+      const burst = Array.from({ length: 3 }, (_, i) => ({
+        id: id * 8 + i,
+        x,
+        y,
+        dx: Math.round((Math.random() - 0.5) * 88),
+        dy: -46 - Math.round(Math.random() * 44),
+      }));
+      setSparks((prev) => [...prev, ...burst]);
+      window.setTimeout(
+        () => setSparks((prev) => prev.filter((s) => !burst.some((b) => b.id === s.id))),
+        500,
+      );
 
       setPressed(true);
       window.setTimeout(() => setPressed(false), 90);
@@ -154,11 +174,25 @@ export function TapCoin({ coinsPerTap, disabled, rankId, scale, onTap }: TapCoin
       {floats.map((item) => (
         <span
           key={item.id}
-          className="pointer-events-none absolute z-10 -translate-x-1/2 animate-float-up text-2xl font-bold text-don-gold-soft drop-shadow"
+          className="pointer-events-none absolute z-10 -translate-x-1/2 animate-float-up font-display text-3xl font-bold text-don-gold [text-shadow:1px_1px_0_#16100b,-1px_1px_0_#16100b,1px_-1px_0_#16100b,-1px_-1px_0_#16100b]"
           style={{ left: item.x, top: item.y }}
         >
           +{item.value}
         </span>
+      ))}
+
+      {sparks.map((spark) => (
+        <span
+          key={spark.id}
+          aria-hidden
+          className="animate-coin-pop pointer-events-none absolute z-10 h-1.5 w-1.5 bg-don-gold"
+          style={{
+            left: spark.x,
+            top: spark.y,
+            '--dx': `${spark.dx}px`,
+            '--dy': `${spark.dy}px`,
+          } as React.CSSProperties}
+        />
       ))}
     </button>
   );
