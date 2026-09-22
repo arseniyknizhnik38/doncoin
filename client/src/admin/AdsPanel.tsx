@@ -34,17 +34,17 @@ function Field({
 }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
+      <span className="text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
         {label}
       </span>
       {children}
-      {hint && <span className="text-[10px] text-neutral-400">{hint}</span>}
+      {hint && <span className="text-[11px] text-neutral-400">{hint}</span>}
     </label>
   );
 }
 
 const inputClass =
-  'rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-400';
+  'rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm text-don-bone placeholder:text-neutral-400';
 
 /**
  * Управление рекламными кампаниями.
@@ -77,7 +77,7 @@ export function AdsPanel({ api }: { api: AdsApi }) {
 
       {open && (
         <form
-          className="flex flex-col gap-2 rounded-lg border border-don-blood/40 bg-don-ink/70 p-3"
+          className="flex flex-col gap-2 rounded-lg border border-don-edge bg-don-ink/80 p-3"
           onSubmit={async (event) => {
             event.preventDefault();
 
@@ -208,14 +208,14 @@ export function AdsPanel({ api }: { api: AdsApi }) {
       {(api.ads ?? []).map((ad) => (
         <div
           key={ad.id}
-          className="rounded-lg border border-don-blood/40 bg-don-ink/70 px-4 py-3"
+          className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3"
         >
           <div className="flex items-baseline justify-between gap-2">
-            <span className="truncate text-sm font-semibold text-neutral-100">
+            <span className="truncate text-sm font-semibold text-don-bone">
               {ad.channelName}
             </span>
             <span
-              className={`shrink-0 text-[10px] tracking-[0.2em] uppercase ${
+              className={`shrink-0 text-[11px] tracking-[0.2em] uppercase ${
                 STATUS_COLORS[ad.status] ?? 'text-neutral-400'
               }`}
             >

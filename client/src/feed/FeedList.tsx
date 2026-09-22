@@ -35,7 +35,7 @@ export function FeedList({ api }: { api: FeedApi }) {
 
   if (!events || events.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-5 text-center text-xs tracking-wider text-neutral-400">
+      <p className="rounded-lg border border-don-edge/60 px-4 py-5 text-center text-xs tracking-wider text-neutral-400">
         {api.loading ? 'Слушаем улицу…' : 'Пока тихо. Первая новость — за вами.'}
       </p>
     );
@@ -52,12 +52,12 @@ export function FeedList({ api }: { api: FeedApi }) {
           key={event.id}
           className={`rounded-lg border px-3 py-2 text-left ${
             event.aboutClan
-              ? 'border-don-blood/40 bg-don-ink/70'
-              : 'border-don-gold/30 bg-don-ink/50'
+              ? 'border-don-edge bg-don-ink/80'
+              : 'border-don-gold/40 bg-don-ink/80'
           }`}
         >
-          <p className="text-xs text-neutral-200">{event.text}</p>
-          <p className="mt-0.5 text-[10px] tracking-wider text-neutral-400">
+          <p className="text-xs text-don-bone">{event.text}</p>
+          <p className="mt-0.5 text-[11px] tracking-wider text-neutral-400">
             {when(event.createdAt)}
           </p>
         </div>

@@ -14,8 +14,8 @@ export function PerkList({ api }: { api: PerksApi }) {
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
-        <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
+      <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
+        <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
           Свободный Respect
         </p>
         <p className="text-xl font-bold text-don-gold tabular-nums">
@@ -40,11 +40,11 @@ export function PerkList({ api }: { api: PerksApi }) {
         return (
           <div
             key={perk.id}
-            className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left"
+            className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left"
           >
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="text-base font-semibold text-neutral-100">{perk.title}</h3>
-              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
+              <h3 className="text-base font-semibold text-don-bone">{perk.title}</h3>
+              <span className="shrink-0 text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
                 ур. {perk.level} / {perk.maxLevel}
               </span>
             </div>
@@ -67,7 +67,7 @@ export function PerkList({ api }: { api: PerksApi }) {
               onClick={() => api.buy(perk.id)}
               className={`mt-3 min-h-11 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                 isMax
-                  ? 'border border-don-gold/30 text-don-gold/60'
+                  ? 'border border-don-gold/40 text-don-gold/60'
                   : affordable
                     ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft active:scale-95'
                     : 'border border-neutral-700 text-neutral-400'

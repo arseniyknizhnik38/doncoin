@@ -25,7 +25,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
     <div className="flex w-full flex-col items-center gap-2">
       {/* Ранг и звёзды — одно сообщение, поэтому и строка одна. Раздельными
           строками шапка разрасталась на пустом месте. */}
-      <p className="flex items-baseline gap-2.5 font-display text-xl font-semibold tracking-[0.18em] text-don-gold-soft uppercase">
+      <p className="flex items-baseline gap-2.5 font-display text-xl font-semibold tracking-[0.2em] text-don-gold-soft uppercase">
         {rank.title}
         <span
           className="text-sm tracking-[0.25em]"
@@ -42,12 +42,6 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
         </span>
       </p>
 
-      {rank.unlocks && (
-        <p className="text-[10px] tracking-wider text-don-blood-light">
-          {rank.unlocks}
-        </p>
-      )}
-
       {/* Полоска толстая и подписи под собой не держит: раньше под ней шла
           строка «ещё столько-то до такого-то ранга», а сама полоска была
           тоньше этой строки — объяснение весило больше предмета.
@@ -55,7 +49,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
           Сколько осталось, видно по заполнению; до какой ступени — по
           незажжённым звёздам рядом с названием. */}
       <div
-        className="h-3 w-full overflow-hidden rounded-full border border-don-blood/50 bg-black/50"
+        className="h-3 w-full overflow-hidden rounded-full border border-don-edge bg-black/40"
         role="progressbar"
         aria-valuenow={percent}
         aria-valuemin={0}

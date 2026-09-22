@@ -37,7 +37,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
         <h2 className="font-display text-3xl font-semibold tracking-[0.2em] text-don-gold uppercase">Топ</h2>
       </header>
 
-      <div className="flex gap-2 rounded-lg border border-don-blood/40 bg-don-ink/70 p-1.5">
+      <div className="flex gap-2 rounded-lg border border-don-edge bg-don-ink/80 p-1.5">
         {(
           [
             ['players', 'Игроки'],
@@ -83,12 +83,12 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
             ))}
 
         {scope === 'players' && data.players.top.length === 0 && (
-          <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+          <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
             Пока пусто
           </p>
         )}
         {scope === 'clans' && data.clans.top.length === 0 && (
-          <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+          <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
             Кланов пока нет
           </p>
         )}
@@ -96,7 +96,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
 
       {/* Своя строка отдельно — если не попал в показанный топ. */}
       {!inTop && (
-        <div className="border-t border-don-blood/30 pt-3">
+        <div className="border-t border-don-edge pt-3">
           {scope === 'players' ? (
             <Row
               position={data.players.me.position}
@@ -137,16 +137,16 @@ function Row({ position, title, subtitle, value, highlight }: RowProps) {
     <div
       className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 text-left ${
         highlight
-          ? 'border-don-gold/50 bg-don-ink'
-          : 'border-don-blood/30 bg-don-ink/60'
+          ? 'border-don-gold/70 bg-don-ink'
+          : 'border-don-edge bg-don-ink/80'
       }`}
     >
       <span className="w-7 shrink-0 text-center text-sm text-neutral-400 tabular-nums">
         {positionLabel(position)}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm text-neutral-200">{title}</p>
-        <p className="truncate text-[10px] tracking-wider text-neutral-400 uppercase">
+        <p className="truncate text-sm text-don-bone">{title}</p>
+        <p className="truncate text-[11px] tracking-wider text-neutral-400 uppercase">
           {subtitle}
         </p>
       </div>

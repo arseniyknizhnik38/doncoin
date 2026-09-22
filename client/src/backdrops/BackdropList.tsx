@@ -47,11 +47,11 @@ export function BackdropList({ api, state }: BackdropListProps) {
             className={`overflow-hidden rounded-lg border text-left ${
               backdrop.equipped
                 ? 'border-don-gold/70 bg-don-ink'
-                : 'border-don-blood/50 bg-don-ink/80'
+                : 'border-don-edge bg-don-ink/80'
             }`}
           >
             {/* Превью самой картинки: покупать фон вслепую бессмысленно. */}
-            <div className="relative h-32 w-full overflow-hidden bg-black/60">
+            <div className="relative h-32 w-full overflow-hidden bg-black/40">
               <img
                 src={backdrop.file}
                 alt=""
@@ -70,11 +70,11 @@ export function BackdropList({ api, state }: BackdropListProps) {
 
             <div className="p-4">
               <div className="flex items-baseline justify-between gap-2">
-                <h3 className="truncate text-base font-semibold text-neutral-100">
+                <h3 className="truncate text-base font-semibold text-don-bone">
                   {backdrop.title}
                 </h3>
                 {backdrop.equipped && (
-                  <span className="shrink-0 text-[10px] tracking-[0.2em] text-don-gold uppercase">
+                  <span className="shrink-0 text-[11px] tracking-[0.2em] text-don-gold uppercase">
                     выбран
                   </span>
                 )}

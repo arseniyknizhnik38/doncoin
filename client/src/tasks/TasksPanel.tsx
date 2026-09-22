@@ -75,7 +75,7 @@ export function TasksPanel({
             type="button"
             onClick={onClose}
             aria-label="Закрыть"
-            className="rounded-lg border border-don-blood/50 px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
+            className="rounded-lg border border-don-edge px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
           >
             Закрыть
           </button>
@@ -84,7 +84,7 @@ export function TasksPanel({
         {/* Сначала то, что уже начислено: человек открыл панель и сразу видит,
             что его ждали. */}
         {comeback && (
-          <p className="rounded-lg border border-don-gold/60 bg-don-ink/90 px-4 py-2 text-sm text-neutral-200">
+          <p className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-2 text-sm text-don-bone">
             🐟 {comeback.inviter ? `${comeback.inviter} за тебя поручился` : 'Ты вернулся'} ·{' '}
             <span className="font-semibold text-don-gold-soft">
               +{formatCoins(comeback.amount)}
@@ -93,7 +93,7 @@ export function TasksPanel({
         )}
 
         {offline && Number(offline.earned) > 0 && (
-          <p className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-2 text-sm text-neutral-300">
+          <p className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-2 text-sm text-don-bone">
             Пока вас не было:{' '}
             <span className="font-semibold text-don-gold-soft">
               +{formatCoins(offline.earned)}
@@ -174,14 +174,14 @@ export function TasksPanel({
                 key={task.id}
                 className={`rounded-lg border p-4 text-left ${
                   task.claimed
-                    ? 'border-neutral-800 bg-don-ink/40 opacity-60'
+                    ? 'border-neutral-800 bg-don-ink/80 opacity-60'
                     : task.done
-                      ? 'border-don-gold/50 bg-don-ink'
-                      : 'border-don-blood/40 bg-don-ink/70'
+                      ? 'border-don-gold/70 bg-don-ink'
+                      : 'border-don-edge bg-don-ink/80'
                 }`}
               >
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-neutral-100">{task.title}</h3>
+                  <h3 className="text-sm font-semibold text-don-bone">{task.title}</h3>
                   <span className="shrink-0 text-xs text-don-gold-soft">
                     +{formatCoins(task.rewardCoins)}
                     {task.rewardRespect > 0 && ` · ★${task.rewardRespect}`}
@@ -198,7 +198,7 @@ export function TasksPanel({
                         style={{ width: `${percent}%` }}
                       />
                     </div>
-                    <span className="shrink-0 text-[10px] text-neutral-400 tabular-nums">
+                    <span className="shrink-0 text-[11px] text-neutral-400 tabular-nums">
                       {formatCoins(task.progress)} / {formatCoins(task.target)}
                     </span>
                   </div>

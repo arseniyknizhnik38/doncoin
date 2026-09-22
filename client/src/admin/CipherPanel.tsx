@@ -42,13 +42,13 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
         Шифр дня
       </h3>
 
-      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-3">
+      <div className="rounded-lg border border-don-edge bg-don-ink/80 p-3">
         <div className="flex gap-2">
           <select
             value={day}
             onChange={(event) => setDay(Number(event.target.value))}
             aria-label="На какой день"
-            className="rounded-lg border border-don-blood/50 bg-black/40 px-2 py-2 text-sm text-neutral-100"
+            className="rounded-lg border border-don-edge bg-black/40 px-2 py-2 text-sm text-don-bone"
           >
             {[0, 1, 2, 3, 4, 5, 6, 7].map((value) => (
               <option key={value} value={value}>
@@ -63,7 +63,7 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
             maxLength={32}
             placeholder="КОД"
             aria-label="Код шифра"
-            className="min-w-0 flex-1 rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-neutral-100 uppercase placeholder:tracking-normal placeholder:text-neutral-400"
+            className="min-w-0 flex-1 rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-don-bone uppercase placeholder:tracking-normal placeholder:text-neutral-400"
           />
         </div>
 
@@ -73,7 +73,7 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
           maxLength={120}
           placeholder="Подсказка: где искать"
           aria-label="Подсказка"
-          className="mt-2 w-full rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-400"
+          className="mt-2 w-full rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm text-don-bone placeholder:text-neutral-400"
         />
 
         <button
@@ -98,7 +98,7 @@ export function CipherPanel({ api }: { api: CiphersApi }) {
       {(api.ciphers ?? []).map((cipher) => (
         <div
           key={cipher.dayNumber}
-          className="rounded-lg border border-don-blood/40 bg-don-ink/60 px-3 py-2 text-left"
+          className="rounded-lg border border-don-edge bg-don-ink/80 px-3 py-2 text-left"
         >
           <div className="flex items-baseline justify-between gap-2">
             <span className="text-sm font-semibold tracking-[0.2em] text-don-gold-soft">

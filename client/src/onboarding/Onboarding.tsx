@@ -49,18 +49,18 @@ export function Onboarding({ onDone }: OnboardingProps) {
   const last = index === STEPS.length - 1;
 
   return (
-    <div className="fixed inset-0 z-30 flex flex-col bg-don-black/97 backdrop-blur-sm">
+    <div className="fixed inset-0 z-30 flex flex-col bg-don-black/95 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-between px-8 py-12">
         <div className="flex flex-col gap-4">
-          <p className="text-[10px] tracking-[0.35em] text-don-blood-light uppercase">
+          <p className="text-[11px] tracking-[0.25em] text-don-blood-light uppercase">
             {t(step.badge)}
           </p>
 
-          <h2 className="text-4xl font-black tracking-[0.08em] text-don-gold uppercase">
+          <h2 className="font-display text-4xl font-semibold tracking-[0.08em] text-don-gold uppercase">
             {t(step.title)}
           </h2>
 
-          <p className="text-base leading-relaxed text-neutral-300">{t(step.body)}</p>
+          <p className="text-base leading-relaxed text-don-bone">{t(step.body)}</p>
         </div>
 
         <div className="flex flex-col gap-4">
@@ -78,7 +78,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
           <button
             type="button"
             onClick={() => (last ? onDone() : setIndex(index + 1))}
-            className="w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-3.5 text-base font-semibold tracking-wide text-don-gold-soft active:scale-95"
+            className="w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-3.5 text-base font-semibold tracking-wider text-don-gold-soft active:scale-95"
           >
             {last ? t('За работу') : t('Дальше')}
           </button>

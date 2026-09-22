@@ -13,7 +13,7 @@ export function SkeletonList({ rows = 3 }: { rows?: number }) {
       {Array.from({ length: rows }, (_, index) => (
         <div
           key={index}
-          className="h-16 animate-pulse rounded-lg border border-don-blood/20 bg-don-ink/50"
+          className="h-16 animate-pulse rounded-lg border border-don-edge/60 bg-don-ink/80"
         />
       ))}
     </div>
@@ -27,7 +27,7 @@ interface ErrorStateProps {
 
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-lg border border-don-blood/50 bg-don-ink/70 px-4 py-6">
+    <div className="flex flex-col items-center gap-3 rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-6">
       <p className="text-center text-sm text-don-blood-light">{message}</p>
       {onRetry && (
         <button

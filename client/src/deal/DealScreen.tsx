@@ -48,7 +48,7 @@ export function DealScreen({
         </p>
       </header>
 
-      <div className="flex gap-2 rounded-lg border border-don-blood/40 bg-don-ink/70 p-1.5">
+      <div className="flex gap-2 rounded-lg border border-don-edge bg-don-ink/80 p-1.5">
         {(
           [
             ['upgrades', 'Прокачка'],

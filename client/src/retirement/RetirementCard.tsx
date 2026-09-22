@@ -19,8 +19,8 @@ export function RetirementCard({ api }: { api: RetirementApi }) {
   }
 
   return (
-    <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
-      <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
+    <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
+      <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
         Уход на покой
       </p>
 
@@ -73,7 +73,7 @@ export function RetirementCard({ api }: { api: RetirementApi }) {
       ) : (
         <p className="mt-2 text-xs leading-relaxed text-neutral-400">
           Откроется на последней ступени. Осталось заработать{' '}
-          <span className="text-neutral-300">{formatCoins(state.remaining)}</span> DONC.
+          <span className="text-don-bone">{formatCoins(state.remaining)}</span> DONC.
           Тогда можно будет начать заново — и каждый круг будет короче
           предыдущего.
         </p>

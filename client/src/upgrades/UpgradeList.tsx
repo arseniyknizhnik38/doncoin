@@ -36,18 +36,18 @@ export function UpgradeList({ api, state }: UpgradeListProps) {
         return (
           <div
             key={upgrade.id}
-            className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left"
+            className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left"
           >
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="text-base font-semibold text-neutral-100">{upgrade.title}</h3>
-              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
+              <h3 className="text-base font-semibold text-don-bone">{upgrade.title}</h3>
+              <span className="shrink-0 text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
                 ур. {upgrade.level} / {upgrade.maxLevel}
               </span>
             </div>
 
             <p className="mt-1 text-xs text-neutral-400">{upgrade.description}</p>
 
-            <p className="mt-3 text-sm text-neutral-300">
+            <p className="mt-3 text-sm text-neutral-400">
               <span className="text-neutral-400">{upgrade.current}</span>
               {upgrade.next && (
                 <>
@@ -63,7 +63,7 @@ export function UpgradeList({ api, state }: UpgradeListProps) {
               onClick={() => api.buy(upgrade.id)}
               className={`mt-3 min-h-11 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                 isMax
-                  ? 'border border-don-gold/30 text-don-gold/60'
+                  ? 'border border-don-gold/40 text-don-gold/60'
                   : affordable
                     ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft active:scale-95'
                     : 'border border-neutral-700 text-neutral-400'

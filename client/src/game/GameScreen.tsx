@@ -19,7 +19,7 @@ const formatBalance = (balance: string) =>
  * нарисованы края, и мягкий переход поверх неё читается как брак картинки.
  * Панель же видно как панель — она занимает столько, сколько занимает текст.
  */
-const PLATE = 'rounded-lg border border-don-gold/15 bg-don-black/90';
+const PLATE = 'rounded-lg border border-don-edge bg-don-black/90';
 
 export function GameScreen({
   state,
@@ -85,7 +85,7 @@ export function GameScreen({
           </span>
         </div>
 
-        <div className="h-2.5 w-full overflow-hidden rounded-full border border-don-blood/50 bg-black/60">
+        <div className="h-2.5 w-full overflow-hidden rounded-full border border-don-edge bg-black/40">
           <div
             className="h-full rounded-full bg-don-gold transition-[width] duration-300"
             style={{ width: `${energyPercent}%` }}

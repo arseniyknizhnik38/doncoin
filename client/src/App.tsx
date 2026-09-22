@@ -195,13 +195,13 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
             <FamilyScreen referrals={referrals} />
           )}
 
-          <nav className="relative mb-3 flex w-full max-w-md shrink-0 gap-1 rounded-lg border border-don-blood/40 bg-don-ink/80 p-1.5">
+          <nav className="relative mb-3 flex w-full max-w-md shrink-0 gap-1 rounded-lg border border-don-edge bg-don-ink/80 p-1.5">
             {TABS.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => (item.id === 'tasks' ? openTasks() : openTab(item.id as Tab))}
-                className={`relative min-h-11 flex-1 rounded-lg px-1 py-2.5 text-[10px] font-semibold tracking-wide transition-colors sm:text-sm ${
+                className={`relative min-h-11 flex-1 rounded-lg px-1 py-2.5 text-[11px] font-semibold tracking-wider transition-colors sm:text-sm ${
                   tab === item.id
                     ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft'
                     : 'text-neutral-400'
@@ -240,7 +240,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               type="button"
               onClick={() => setSettingsOpen(true)}
               aria-label="Настройки"
-              className="absolute top-2 left-4 flex h-11 w-11 items-center justify-center rounded-full border border-don-blood/40 text-base text-neutral-400 active:scale-95"
+              className="absolute top-2 left-4 flex h-11 w-11 items-center justify-center rounded-full border border-don-edge text-base text-neutral-400 active:scale-95"
             >
               ⚙
             </button>
@@ -259,7 +259,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               type="button"
               onClick={() => setStatsOpen(true)}
               aria-label="Сводка"
-              className="absolute top-2 right-4 flex h-11 w-11 items-center justify-center rounded-full border border-don-blood/40 text-base text-neutral-400 active:scale-95"
+              className="absolute top-2 right-4 flex h-11 w-11 items-center justify-center rounded-full border border-don-edge text-base text-neutral-400 active:scale-95"
             >
               ▤
             </button>
@@ -294,7 +294,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               />
             </div>
           ) : (
-            <div className="mt-12 min-w-[16rem] rounded-lg border border-don-blood/60 bg-don-ink/80 px-6 py-4 backdrop-blur-sm">
+            <div className="mt-12 min-w-[16rem] rounded-lg border border-don-edge bg-don-ink/80 px-6 py-4 backdrop-blur-sm">
               {!isTelegram ? (
                 <p className="text-sm tracking-wider text-neutral-400">
                   Тестовый режим (не в Telegram)

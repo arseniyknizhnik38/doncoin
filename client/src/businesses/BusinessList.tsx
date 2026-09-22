@@ -38,8 +38,8 @@ export function BusinessList({ api, state }: BusinessListProps) {
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
-        <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
+      <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
+        <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
           Доход с бизнесов
         </p>
         <p className="text-xl font-bold text-don-gold tabular-nums">
@@ -72,7 +72,7 @@ export function BusinessList({ api, state }: BusinessListProps) {
         return (
           <div
             key={business.id}
-            className={`rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left ${
+            className={`rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left ${
               business.locked ? 'opacity-50' : ''
             }`}
           >
@@ -83,10 +83,10 @@ export function BusinessList({ api, state }: BusinessListProps) {
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <h3 className="truncate text-base font-semibold text-neutral-100">
+                  <h3 className="truncate text-base font-semibold text-don-bone">
                     {business.name}
                   </h3>
-                  <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
+                  <span className="shrink-0 text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
                     {business.owned ? `ур. ${business.level}` : business.category}
                   </span>
                 </div>

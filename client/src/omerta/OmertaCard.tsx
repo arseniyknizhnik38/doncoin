@@ -40,7 +40,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
   const header = (
     <div className="flex items-baseline justify-between gap-2">
       <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
-        🤫 {t('Шифр Омерты')}
+        {t('Шифр Омерты')}
       </p>
       {!omerta.solved && (
         <span className="text-xs text-don-gold-soft tabular-nums">
@@ -52,12 +52,12 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
 
   if (omerta.solved) {
     return (
-      <div className="rounded-lg border border-don-gold/50 bg-don-ink/80 px-4 py-3 text-left">
+      <div className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-3 text-left">
         {header}
         <p className="mt-2 text-center text-3xl tracking-[0.3em]">
           {(omerta.answer ?? []).map((id) => byId.get(id)?.emoji).join('')}
         </p>
-        <p className="mt-2 text-sm text-neutral-300">
+        <p className="mt-2 text-sm text-neutral-400">
           {t('Разгадан')}
           {api.justSolved && (
             <span className="text-don-gold-soft"> · +{formatCoins(api.justSolved)}</span>
@@ -70,7 +70,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
 
   if (omerta.attemptsLeft <= 0) {
     return (
-      <div className="rounded-lg border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
+      <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
         {header}
         <p className="mt-1 text-sm text-neutral-400">
           {t('Попытки на сегодня кончились. Новый шифр — завтра.')}
@@ -80,7 +80,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
   }
 
   return (
-    <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
+    <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
       {header}
 
       <p className="mt-1 text-xs text-neutral-400">
@@ -95,7 +95,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
             onClick={() => id && place(id)}
             aria-label={id ? byId.get(id)?.title : t('Пустая ячейка')}
             className={`flex aspect-square items-center justify-center rounded-lg border text-3xl ${
-              id ? 'border-don-gold/60 bg-black/50' : 'border-dashed border-don-blood/50 bg-black/20'
+              id ? 'border-don-gold/70 bg-black/40' : 'border-dashed border-don-edge bg-black/40'
             }`}
           >
             {id ? byId.get(id)?.emoji : <span className="text-sm text-neutral-400">{index + 1}</span>}
@@ -115,7 +115,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
               title={item.title}
               aria-label={item.title}
               className={`flex aspect-square items-center justify-center rounded-lg border text-2xl transition-opacity ${
-                used ? 'border-don-gold/40 opacity-30' : 'border-don-blood/40 bg-black/30'
+                used ? 'border-don-gold/40 opacity-30' : 'border-don-edge bg-black/40'
               }`}
             >
               {item.emoji}

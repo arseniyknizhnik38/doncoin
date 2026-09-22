@@ -26,7 +26,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
 
   return (
     <div className="flex w-full flex-col gap-3">
-      <p className="text-center text-lg font-semibold tracking-wide text-don-gold-soft">
+      <p className="text-center text-lg font-semibold tracking-wider text-don-gold-soft">
         The Family needs a favor
       </p>
 
@@ -35,7 +35,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
       )}
 
       {data.favors.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+        <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
           На этой неделе поручений нет. Загляните позже.
         </p>
       ) : (
@@ -44,19 +44,19 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
             key={favor.id}
             className={`rounded-lg border p-4 text-left ${
               favor.completed
-                ? 'border-emerald-500/40 bg-don-ink/50'
-                : 'border-don-blood/50 bg-don-ink/80'
+                ? 'border-emerald-500/40 bg-don-ink/80'
+                : 'border-don-edge bg-don-ink/80'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <h3 className="truncate text-base font-semibold text-neutral-100">
+                <h3 className="truncate text-base font-semibold text-don-bone">
                   {favor.channelName}
                 </h3>
                 <p className="mt-0.5 text-xs text-neutral-400">{favor.title}</p>
               </div>
               {favor.completed && (
-                <span className="shrink-0 text-[10px] tracking-[0.2em] text-emerald-400/80 uppercase">
+                <span className="shrink-0 text-[11px] tracking-[0.2em] text-emerald-400/80 uppercase">
                   ✓ Сделано
                 </span>
               )}

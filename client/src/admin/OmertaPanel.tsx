@@ -54,7 +54,7 @@ export function OmertaPanel({ token }: { token: string | null }) {
       <h3 className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
         Шифр Омерты
       </h3>
-      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-3 text-left">
+      <div className="rounded-lg border border-don-edge bg-don-ink/80 p-3 text-left">
         {error ? (
           <p className="text-xs text-don-blood-light">{error}</p>
         ) : !data ? (
@@ -62,13 +62,13 @@ export function OmertaPanel({ token }: { token: string | null }) {
         ) : (
           <div className="flex flex-col gap-3">
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
+              <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
                 Сегодня · разгадали {data.today.solved}
               </p>
               {line(data.today)}
             </div>
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">Завтра</p>
+              <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">Завтра</p>
               {line(data.tomorrow)}
             </div>
           </div>

@@ -50,8 +50,8 @@ export function ClanWarPanel({ war }: ClanWarPanelProps) {
 
   if (!current && !last) {
     return (
-      <div className="rounded-lg border border-dashed border-don-blood/40 px-4 py-5 text-center">
-        <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">Война</p>
+      <div className="rounded-lg border border-don-edge/60 px-4 py-5 text-center">
+        <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">Война</p>
         <p className="mt-2 text-xs text-neutral-400">
           Пара на эту неделю ещё не составлена. Соперник появится в понедельник.
         </p>
@@ -77,12 +77,12 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
   const leading = mine > theirs;
 
   return (
-    <div className="rounded-lg border border-don-blood/60 bg-don-ink/80 p-4 text-left">
+    <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[10px] tracking-[0.25em] text-don-blood-light uppercase">
+        <p className="text-[11px] tracking-[0.25em] text-don-blood-light uppercase">
           Война семей
         </p>
-        <p className="text-[10px] tracking-wider text-neutral-400">
+        <p className="text-[11px] tracking-wider text-neutral-400">
           осталось {timeLeft(war.endsAt)}
         </p>
       </div>
@@ -96,20 +96,20 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
             {formatCoins(war.me.score)}
           </p>
         </div>
-        <span className="shrink-0 pb-1 text-[10px] tracking-[0.2em] text-neutral-400">
+        <span className="shrink-0 pb-1 text-[11px] tracking-[0.2em] text-neutral-400">
           VS
         </span>
         <div className="min-w-0 text-right">
-          <p className="truncate text-sm font-semibold text-neutral-300">
+          <p className="truncate text-sm font-semibold text-don-bone">
             {war.rival.name}
           </p>
-          <p className="text-xl font-bold text-neutral-200 tabular-nums">
+          <p className="text-xl font-bold text-don-bone tabular-nums">
             {formatCoins(war.rival.score)}
           </p>
         </div>
       </div>
 
-      <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-black/60">
+      <div className="mt-3 flex h-2 overflow-hidden rounded-full bg-black/40">
         <div
           className="bg-don-gold transition-[width] duration-500"
           style={{ width: `${share}%` }}
@@ -137,7 +137,7 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
               <span className="truncate text-neutral-400">
                 {fighterName(fighter)}
                 {fighter.left && (
-                  <span className="ml-1 text-[10px] text-neutral-400">вышел</span>
+                  <span className="ml-1 text-[11px] text-neutral-400">вышел</span>
                 )}
               </span>
               <span className="shrink-0 text-don-gold-soft tabular-nums">
@@ -155,8 +155,8 @@ function LastResult({ result }: { result: NonNullable<WarState['last']> }) {
   const outcome = OUTCOME[result.outcome];
 
   return (
-    <div className="rounded-lg border border-don-blood/30 bg-don-ink/60 px-4 py-3 text-left">
-      <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
+    <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
+      <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
         Прошлая война
       </p>
       <p className={`mt-1 text-sm font-semibold ${outcome.tone}`}>

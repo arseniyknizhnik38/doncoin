@@ -24,7 +24,7 @@ export function SettingsPanel({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-don-blood/50 px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
+            className="rounded-lg border border-don-edge px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
           >
             Закрыть
           </button>
@@ -37,10 +37,10 @@ export function SettingsPanel({
             <ErrorState message={error ?? 'Не удалось загрузить'} />
           )
         ) : (
-          <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
+          <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-neutral-100">Напоминания от бота</p>
+                <p className="text-sm font-semibold text-don-bone">Напоминания от бота</p>
                 <p className="mt-1 text-xs text-neutral-400">
                   Сообщение, когда энергия восстановилась, бизнесы накопили доход или
                   серия вот-вот прервётся. Не чаще раза в сутки и не по ночам.

@@ -31,7 +31,7 @@ export function QuestList({ api }: QuestListProps) {
         <h3 className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
           Задания дня
         </h3>
-        <span className="text-[10px] tracking-wider text-neutral-400">
+        <span className="text-[11px] tracking-wider text-neutral-400">
           обновятся через {formatReset(state.resetInSeconds)}
         </span>
       </div>
@@ -42,10 +42,10 @@ export function QuestList({ api }: QuestListProps) {
         return (
           <div
             key={quest.id}
-            className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-3 text-left"
+            className="rounded-lg border border-don-edge bg-don-ink/80 p-3 text-left"
           >
             <div className="flex items-baseline justify-between gap-2">
-              <h4 className="truncate text-sm font-semibold text-neutral-100">
+              <h4 className="truncate text-sm font-semibold text-don-bone">
                 {quest.title}
               </h4>
               <span className="shrink-0 text-xs text-don-gold-soft tabular-nums">
@@ -101,7 +101,7 @@ export function QuestList({ api }: QuestListProps) {
             ? 'border-neutral-800 text-neutral-400'
             : state.chest.ready
               ? 'border-don-gold bg-don-gold/10 text-don-gold active:scale-95'
-              : 'border-don-blood/40 text-neutral-400'
+              : 'border-don-edge text-neutral-400'
         }`}
       >
         {state.chest.claimed

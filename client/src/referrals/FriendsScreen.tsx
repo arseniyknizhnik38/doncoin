@@ -58,30 +58,30 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
       </p>
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3">
-          <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">Приглашено</p>
-          <p className="mt-1 text-2xl font-bold text-don-gold-soft tabular-nums">
+        <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3">
+          <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">Приглашено</p>
+          <p className="mt-1 font-display text-3xl font-semibold text-don-gold-soft tabular-nums">
             {data.invitedCount}
           </p>
           {data.invitedCount > data.confirmedCount && (
-            <p className="text-[10px] tracking-wider text-neutral-400">
+            <p className="text-[11px] tracking-wider text-neutral-400">
               засчитано {data.confirmedCount}
             </p>
           )}
         </div>
-        <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3">
-          <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">Заработано</p>
-          <p className="mt-1 text-2xl font-bold text-don-gold-soft tabular-nums">
+        <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3">
+          <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">Заработано</p>
+          <p className="mt-1 font-display text-3xl font-semibold text-don-gold-soft tabular-nums">
             {formatCoins(data.earned)}
           </p>
         </div>
       </div>
 
-      <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4">
-        <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
+      <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4">
+        <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
           Твоя ссылка
         </p>
-        <p className="mt-2 truncate rounded-lg bg-black/50 px-3 py-2 text-left text-xs text-neutral-300">
+        <p className="mt-2 truncate rounded-lg bg-black/40 px-3 py-2 text-left text-xs text-neutral-400">
           {link}
         </p>
 
@@ -105,16 +105,16 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
 
       <div className="flex flex-col gap-2">
         {data.invited.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+          <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
             Пока никого. Позови первого — и семья начнёт расти.
           </p>
         ) : (
           data.invited.map((friend, index) => (
             <div
               key={`${friend.username ?? friend.firstName ?? 'friend'}-${index}`}
-              className="flex items-center justify-between rounded-lg border border-don-blood/30 bg-don-ink/60 px-4 py-2.5"
+              className="flex items-center justify-between rounded-lg border border-don-edge bg-don-ink/80 px-4 py-2.5"
             >
-              <span className="truncate text-sm text-neutral-200">{friendName(friend)}</span>
+              <span className="truncate text-sm text-don-bone">{friendName(friend)}</span>
               <span className="shrink-0 text-xs tabular-nums">
                 {friend.confirmed ? (
                   <span className="text-don-gold-soft">

@@ -30,7 +30,7 @@ function Row({ label, value, hint }: { label: string; value: string; hint?: stri
       <span className="text-xs text-neutral-400">{label}</span>
       <span className="shrink-0 text-sm text-don-gold-soft tabular-nums">
         {value}
-        {hint && <span className="ml-1 text-[10px] text-neutral-400">{hint}</span>}
+        {hint && <span className="ml-1 text-[11px] text-neutral-400">{hint}</span>}
       </span>
     </div>
   );
@@ -38,8 +38,8 @@ function Row({ label, value, hint }: { label: string; value: string; hint?: stri
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-don-blood/40 bg-don-ink/70 px-4 py-3">
-      <p className="mb-1 text-[10px] tracking-[0.25em] text-neutral-400 uppercase">{title}</p>
+    <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3">
+      <p className="mb-1 text-[11px] tracking-[0.25em] text-neutral-400 uppercase">{title}</p>
       {children}
     </div>
   );
@@ -70,7 +70,7 @@ export function AdminPanel({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-don-blood/50 px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
+            className="rounded-lg border border-don-edge px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
           >
             Закрыть
           </button>

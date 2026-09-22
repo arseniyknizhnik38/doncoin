@@ -37,7 +37,7 @@ export function BoosterBar({ api }: BoosterBarProps) {
                 ? 'border-don-gold bg-don-gold/15 text-don-gold'
                 : spent
                   ? 'border-neutral-800 text-neutral-400'
-                  : 'border-don-blood/50 bg-don-ink/80 text-don-gold-soft active:scale-95'
+                  : 'border-don-edge bg-don-ink/80 text-don-gold-soft active:scale-95'
             }`}
           >
             <span aria-hidden>{ICONS[booster.id] ?? '✨'}</span>

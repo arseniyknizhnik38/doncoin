@@ -61,15 +61,15 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
         <>
           {data.war && <ClanWarPanel war={data.war} />}
 
-          <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
+          <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="truncate text-lg font-bold text-don-gold-soft">{my.name}</h3>
-              <span className="shrink-0 text-[10px] tracking-[0.2em] text-neutral-400 uppercase">
+              <span className="shrink-0 text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
                 {my.memberCount} в семье
               </span>
             </div>
 
-            <p className="mt-3 text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
+            <p className="mt-3 text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
               Касса
             </p>
             <p className="text-2xl font-bold text-don-gold tabular-nums">
@@ -113,7 +113,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                 value={amount}
                 onChange={(event) => setAmount(event.target.value.replace(/\D/g, ''))}
                 placeholder="Сумма взноса"
-                className="min-w-0 flex-1 rounded-lg border border-don-blood/40 bg-black/50 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-400"
+                className="min-w-0 flex-1 rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm text-don-bone placeholder:text-neutral-400"
               />
               <button
                 type="button"
@@ -142,11 +142,11 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
             {my.members.map((member, index) => (
               <div
                 key={`${member.username ?? member.firstName ?? 'member'}-${index}`}
-                className="flex items-center justify-between gap-3 rounded-lg border border-don-blood/30 bg-don-ink/60 px-4 py-2.5 text-left"
+                className="flex items-center justify-between gap-3 rounded-lg border border-don-edge bg-don-ink/80 px-4 py-2.5 text-left"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-neutral-200">{memberName(member)}</p>
-                  <p className="text-[10px] tracking-wider text-neutral-400 uppercase">
+                  <p className="truncate text-sm text-don-bone">{memberName(member)}</p>
+                  <p className="text-[11px] tracking-wider text-neutral-400 uppercase">
                     {member.rank}
                   </p>
                 </div>
@@ -160,8 +160,8 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
       ) : (
         <>
           {data.canJoin && (
-            <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 p-4 text-left">
-              <p className="text-[10px] tracking-[0.25em] text-neutral-400 uppercase">
+            <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
+              <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
                 Основать свой
               </p>
               <div className="mt-2 flex gap-2">
@@ -170,7 +170,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                   maxLength={24}
                   onChange={(event) => setName(event.target.value)}
                   placeholder="Название клана"
-                  className="min-w-0 flex-1 rounded-lg border border-don-blood/40 bg-black/50 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-400"
+                  className="min-w-0 flex-1 rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm text-don-bone placeholder:text-neutral-400"
                 />
                 <button
                   type="button"
@@ -189,18 +189,18 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
 
           <div className="flex flex-col gap-2">
             {data.clans.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-don-blood/40 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+              <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
                 Кланов пока нет. Первый основатель войдёт в историю.
               </p>
             ) : (
               data.clans.map((clan) => (
                 <div
                   key={clan.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-don-blood/30 bg-don-ink/60 px-4 py-2.5 text-left"
+                  className="flex items-center justify-between gap-3 rounded-lg border border-don-edge bg-don-ink/80 px-4 py-2.5 text-left"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm text-neutral-200">{clan.name}</p>
-                    <p className="text-[10px] tracking-wider text-neutral-400">
+                    <p className="truncate text-sm text-don-bone">{clan.name}</p>
+                    <p className="text-[11px] tracking-wider text-neutral-400">
                       {clan.memberCount} в семье · касса {formatCoins(clan.treasury)}
                     </p>
                   </div>

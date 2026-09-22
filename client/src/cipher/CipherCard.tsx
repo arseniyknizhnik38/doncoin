@@ -29,7 +29,7 @@ export function CipherCard({ api }: CipherCardProps) {
         <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
           Шифр дня
         </p>
-        <p className="mt-1 text-sm text-neutral-300">
+        <p className="mt-1 text-sm text-neutral-400">
           Разгадан
           {api.justSolved && (
             <span className="text-don-gold-soft"> · +{formatCoins(api.justSolved)}</span>
@@ -44,7 +44,7 @@ export function CipherCard({ api }: CipherCardProps) {
   // всё равно откажет, читается как поломка, а не как правило.
   if (cipher.attemptsLeft <= 0) {
     return (
-      <div className="rounded-lg border border-don-blood/40 bg-don-ink/60 px-4 py-3 text-left">
+      <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
         <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
           Шифр дня
         </p>
@@ -56,7 +56,7 @@ export function CipherCard({ api }: CipherCardProps) {
   }
 
   return (
-    <div className="rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-3 text-left">
+    <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
           Шифр дня
@@ -90,7 +90,7 @@ export function CipherCard({ api }: CipherCardProps) {
           maxLength={32}
           placeholder="Код"
           aria-label="Код шифра"
-          className="min-w-0 flex-1 rounded-lg border border-don-blood/50 bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-neutral-100 uppercase placeholder:tracking-normal placeholder:text-neutral-400"
+          className="min-w-0 flex-1 rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-don-bone uppercase placeholder:tracking-normal placeholder:text-neutral-400"
         />
         <button
           type="submit"
