@@ -34,6 +34,31 @@ const TOLERANCE = Number(flag('--tolerance', 42));
 /** Снимать ли фон, запертый внутри фигуры. На тёмной одежде вредит. */
 const CLEAR_GAPS = !process.argv.includes('--no-gaps');
 
+/** Снимать ли светлую кайму по контуру. */
+const DEFRINGE = !process.argv.includes('--no-defringe');
+
+/**
+ * Насколько далеко от фона может быть кайма.
+ *
+ * Это не тот же допуск, что у заливки: кайма — смесь фона с рисунком, и от
+ * чистого фона она отстоит заметно дальше. У «Приближённого» белые крапины
+ * по волосам оказались серыми в районе 220 при фоне 250 — втрое дальше
+ * обычного допуска.
+ */
+const HALO = Number(flag('--halo', 0)) || TOLERANCE * 1.8;
+
+/**
+ * Яркость, выше которой краевая точка считается каймой, а не рисунком.
+ *
+ * На белом фоне край фигуры выходит смесью рисунка с фоном: волосы у края
+ * светлеют до серого, и в игре по контуру идёт светящийся пунктир, будто
+ * фигуру обвели карандашом. По цвету такую точку от рисунка не отличить —
+ * отличается она тем, что лежит на самой границе и светлее всего, что рядом.
+ *
+ * Ноль — правило выключено; для светлых исходников ставится флагом.
+ */
+const LIGHT_EDGE = Number(flag('--light-edge', 0));
+
 /**
  * Тень — нейтральная по цвету, заметно темнее фона, в самом низу кадра.
  *
@@ -193,6 +218,129 @@ for (const frame of frames) {
     clearTrappedGaps(data, nearBackground, clear);
   }
 
+  if (DEFRINGE) {
+    clearHalo(data, br, bg, bb, clear);
+    clearSpecks(data, br, bg, bb, clear);
+  }
+
+}
+
+
+/**
+ * Снимает кайму от сглаживания.
+ *
+ * Генератор рисует фигуру со сглаженными краями: между волосами и фоном
+ * лежит полоска промежуточного цвета. Заливка её не берёт — до фона ей
+ * далеко, — и на тёмной сцене она светится белыми крапинами по контуру,
+ * будто персонажа вырезали ножницами по бумаге.
+ *
+ * Убираем только те пиксели, которые уже касаются пустоты и ближе к фону,
+ * чем к фигуре: внутренние светлые места — зубы, майка, блик на цепи —
+ * границы не касаются и остаются целыми.
+ */
+function clearHalo(data, br, bg, bb, clear) {
+  const limit = HALO;
+
+  for (let pass = 0; pass < 2; pass += 1) {
+    const doomed = [];
+
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const i = (y * width + x) * 4;
+
+        if (data[i + 3] < 128) {
+          continue;
+        }
+
+        const touchesVoid = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]].some(
+          ([nx, ny]) =>
+            nx < 0 ||
+            ny < 0 ||
+            nx >= width ||
+            ny >= height ||
+            data[(ny * width + nx) * 4 + 3] < 128,
+        );
+
+        if (!touchesVoid) {
+          continue;
+        }
+
+        const distance =
+          Math.abs(data[i] - br) + Math.abs(data[i + 1] - bg) + Math.abs(data[i + 2] - bb);
+        const light = (data[i] + data[i + 1] + data[i + 2]) / 3;
+
+        if (distance <= limit || (LIGHT_EDGE > 0 && light >= LIGHT_EDGE)) {
+          doomed.push([x, y]);
+        }
+      }
+    }
+
+    if (doomed.length === 0) {
+      break;
+    }
+
+    for (const [x, y] of doomed) {
+      clear(x, y);
+    }
+  }
+}
+
+/**
+ * Снимает крапины фона, застрявшие внутри фигуры.
+ *
+ * Уменьшение идёт «ближайшим соседом» — сглаживать пиксель-арт нельзя, — и
+ * там, где сквозь волосы просвечивал белый фон, отдельные точки этого фона
+ * попадают в кадр и остаются внутри причёски. Заливка до них не достаёт:
+ * они со всех сторон окружены рисунком.
+ *
+ * Берём только крошечные пятна цвета фона — три точки и меньше. Зубы, майка
+ * и блик на цепи крупнее, и ни одно из них не совпадает с фоном настолько
+ * точно.
+ */
+function clearSpecks(data, br, bg, bb, clear) {
+  const seen = new Uint8Array(width * height);
+  const nearHalo = (x, y) => {
+    const i = (y * width + x) * 4;
+
+    return (
+      Math.abs(data[i] - br) + Math.abs(data[i + 1] - bg) + Math.abs(data[i + 2] - bb) <= HALO
+    );
+  };
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const start = y * width + x;
+
+      if (seen[start] || data[start * 4 + 3] < 128 || !nearHalo(x, y)) {
+        continue;
+      }
+
+      const area = [];
+      const queue = [start];
+      seen[start] = 1;
+
+      while (queue.length > 0 && area.length <= 4) {
+        const p = queue.pop();
+        const px = p % width;
+        const py = (p - px) / width;
+        area.push([px, py]);
+
+        for (const [nx, ny] of [[px + 1, py], [px - 1, py], [px, py + 1], [px, py - 1]]) {
+          if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+          const q = ny * width + nx;
+          if (seen[q] || data[q * 4 + 3] < 128 || !nearHalo(nx, ny)) continue;
+          seen[q] = 1;
+          queue.push(q);
+        }
+      }
+
+      if (area.length <= 3) {
+        for (const [ax, ay] of area) {
+          clear(ax, ay);
+        }
+      }
+    }
+  }
 }
 
 /**
