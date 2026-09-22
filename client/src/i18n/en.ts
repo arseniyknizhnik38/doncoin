@@ -24,17 +24,18 @@ export const EN: Record<string, string> = {
   'Шаг 3': 'Step 3',
   'Шаг 4': 'Step 4',
   'Ты никто': 'You are nobody',
-  'Тапай. Каждый тап — монеты в карман. Это единственное, что ты сейчас умеешь, и этого хватит, чтобы начать.':
-    'Tap. Every tap is money in your pocket. It is the only thing you can do right now, and it is enough to start.',
+  'Толстый Бобби': 'Fat Bobby',
+  'Слушай сюда. Тапай — каждый тап кладёт монеты в карман. Я тоже так начинал. Правда, я до сих пор не ушёл дальше, но у тебя-то получится.':
+    'Listen up. Tap — every tap puts coins in your pocket. I started the same way. Never got much further, truth be told, but you will do better.',
   'Обойма кончается': 'The clip runs out',
-  'За один заход можно выбить только полную обойму. Она копится сама, примерно за полтора часа. Заходи несколько раз в день — так семья и работает.':
-    'One sitting gets you one full clip. It refills on its own, in about an hour and a half. Come back a few times a day — that is how the family works.',
+  'За заход выбьешь одну полную обойму, дальше она копится сама, часа полтора. Как раз успеешь поесть. Мне-то дон велел одни салаты… короче, заходи несколько раз в день.':
+    'One sitting gets you one full clip, then it refills on its own, hour and a half or so. Just enough time to eat. Me, the don has me on salads… anyway, come back a few times a day.',
   'Деньги должны работать': 'Money has to work',
-  'Во вкладке «Дело» покупай улучшения и бизнесы. Бизнесы приносят деньги, пока тебя нет, — но касса переполняется за четыре часа, так что возвращайся.':
-    'Buy upgrades and businesses under Business. They earn while you are away — but the till fills up in four hours, so come back.',
+  'Во вкладке «Дело» бери улучшения и бизнесы — они капают, пока тебя нет. Только касса переполняется за четыре часа. Я свою однажды на неделю забыл. Не будем об этом.':
+    'Under Business, grab upgrades and businesses — they earn while you are away. But the till overflows in four hours. I once forgot mine for a week. We do not talk about it.',
   'Один в поле не воин': 'Nobody makes it alone',
-  'Зови друзей, вступай в клан, забирай задания дня и ежедневный бонус. Пропустишь день — серия сгорит и начнётся сначала.':
-    'Bring friends, join a family, collect the daily jobs and the daily bonus. Miss a day and the streak burns down to zero.',
+  'Зови друзей, вступай в клан, забирай бонус каждый день. Пропустишь день — серия сгорит. У меня так с диетой вышло. Всё, иди работай. И это — меня здесь не было.':
+    'Bring friends, join a family, grab the bonus every day. Miss a day and the streak burns. Same thing happened to my diet. Now get to work. And hey — I was never here.',
   'Дальше': 'Next',
   'Начать': 'Start',
   'Понятно': 'Got it',
