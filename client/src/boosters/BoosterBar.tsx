@@ -1,13 +1,9 @@
+import { PixelIcon } from '../ui/PixelIcon';
 import type { BoostersApi } from './useBoosters';
 
 interface BoosterBarProps {
   api: BoostersApi;
 }
-
-const ICONS: Record<string, string> = {
-  full_energy: '⚡',
-  rush: '🔥',
-};
 
 /**
  * Два бустера под кнопкой тапа. Стоят на виду намеренно: три бесплатных
@@ -40,7 +36,7 @@ export function BoosterBar({ api }: BoosterBarProps) {
                   : 'border-don-edge bg-don-ink/80 text-don-gold-soft active:scale-95'
             }`}
           >
-            <span aria-hidden>{ICONS[booster.id] ?? '✨'}</span>
+            <PixelIcon id={booster.id} emoji="✨" className="h-4 w-4 shrink-0" />
             <span className="truncate">{booster.title}</span>
             <span className="tabular-nums text-neutral-400">
               {active ? `${booster.activeSeconds} с` : `${booster.left}/${booster.perDay}`}

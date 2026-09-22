@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useT } from '../i18n';
+import { PixelIcon } from '../ui/PixelIcon';
 import type { OmertaApi } from './useOmerta';
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
@@ -54,9 +55,11 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
     return (
       <div className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-3 text-left">
         {header}
-        <p className="mt-2 text-center text-3xl tracking-[0.3em]">
-          {(omerta.answer ?? []).map((id) => byId.get(id)?.emoji).join('')}
-        </p>
+        <div className="mt-2 flex items-center justify-center gap-3">
+          {(omerta.answer ?? []).map((id) => (
+            <PixelIcon key={id} id={id} emoji={byId.get(id)?.emoji} />
+          ))}
+        </div>
         <p className="mt-2 text-sm text-neutral-400">
           {t('Разгадан')}
           {api.justSolved && (
@@ -98,7 +101,11 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
               id ? 'border-don-gold/70 bg-black/40' : 'border-dashed border-don-edge bg-black/40'
             }`}
           >
-            {id ? byId.get(id)?.emoji : <span className="text-sm text-neutral-400">{index + 1}</span>}
+            {id ? (
+              <PixelIcon id={id} emoji={byId.get(id)?.emoji} className="h-6 w-6" />
+            ) : (
+              <span className="text-sm text-neutral-400">{index + 1}</span>
+            )}
           </button>
         ))}
       </div>
@@ -118,7 +125,7 @@ export function OmertaCard({ api }: { api: OmertaApi }) {
                 used ? 'border-don-gold/40 opacity-30' : 'border-don-edge bg-black/40'
               }`}
             >
-              {item.emoji}
+              <PixelIcon id={item.id} emoji={item.emoji} />
             </button>
           );
         })}
