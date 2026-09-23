@@ -24,6 +24,14 @@ export interface AdminStats {
     newPlayers: number;
     activePlayers: number;
   }[];
+  /** Платные и прочие метки из ссылок ?startapp=… без пригласившего. */
+  sources: {
+    tag: string;
+    total: number;
+    returnedNextDay: number;
+    eligibleForReturn: number;
+    favors: number;
+  }[];
   funnel: {
     boughtUpgrade: number;
     boughtBusiness: number;

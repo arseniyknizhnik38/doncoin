@@ -97,6 +97,36 @@ export function AdminPanel({
               />
             </Section>
 
+            {/* Каждому каналу — своя ссылка с меткой, и уже через сутки
+                видно, какой канал привёл игроков, а какой съел бюджет. */}
+            <Section title="Источники трафика">
+              {stats.sources.length === 0 ? (
+                <p className="text-xs leading-relaxed text-neutral-400">
+                  Меток пока нет. Дай каналу ссылку вида
+                  {' '}
+                  <span className="break-all text-don-gold-soft">
+                    t.me/DonCoinTapGameBot/?startapp=ad-nazvanie
+                  </span>
+                  {' '}
+                  — и здесь появится строка: сколько пришло, сколько вернулось,
+                  сколько подписалось.
+                </p>
+              ) : (
+                stats.sources.map((source) => (
+                  <Row
+                    key={source.tag}
+                    label={source.tag}
+                    value={formatNumber(source.total)}
+                    hint={`вернулись ${formatNumber(source.returnedNextDay)}${
+                      source.eligibleForReturn > 0
+                        ? ` из ${formatNumber(source.eligibleForReturn)}`
+                        : ''
+                    } · подписок ${formatNumber(source.favors)}`}
+                  />
+                ))
+              )}
+            </Section>
+
             <Section title="Докуда доходят">
               <Row
                 label="Купили улучшение"

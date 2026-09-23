@@ -367,6 +367,22 @@ const today = stats.payload?.days?.find((entry) => entry.ago === 0);
 check('сегодняшние новички посчитаны', today?.newPlayers === 4, `${today?.newPlayers}`);
 check('сегодняшние заходы посчитаны', today?.activePlayers === 4, `${today?.activePlayers}`);
 
+// ——— Метки источников: вход по рекламной ссылке считается отдельно.
+const fromAd = await login(777050, 'Пришедший с рекламы', 'ad-smoke');
+check('вход с рекламной меткой проходит', fromAd.status === 200);
+check(
+  'метка не притворяется рефералом: бонуса нет',
+  Number(fromAd.payload?.state?.balance) === 0,
+  fromAd.payload?.state?.balance,
+);
+
+const statsWithSource = await call('/api/admin/stats', { token });
+const adSource = statsWithSource.payload?.sources?.find((row) => row.tag === 'ad-smoke');
+check('метка видна в отчёте источников', adSource?.total === 1,
+  JSON.stringify(statsWithSource.payload?.sources)?.slice(0, 120));
+check('подписки по метке считаются с нуля', adSource?.favors === 0);
+
+
 // ——— Лидерборд и кланы
 const board = await call('/api/leaderboard', { token });
 check('лидерборд отвечает', board.status === 200, `статус ${board.status}`);

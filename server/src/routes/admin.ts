@@ -91,6 +91,46 @@ adminRouter.get('/stats', async (_req: Request, res: Response) => {
   });
   const returned = Number(returnedRows[0]?.count ?? 0n);
 
+  // ——— Источники трафика.
+  //
+  // Рекламному каналу выдаётся ссылка с меткой: ?startapp=ad-название.
+  // Метка проходит дорогой реферального кода, но кода такого нет — игрок
+  // остаётся без пригласившего, а сырая строка лежит в referredByCode.
+  // Здесь она превращается в цену игрока по каждому каналу: сколько пришло,
+  // сколько вернулось через сутки, сколько выполнило подписку.
+  const sourceRows = await prisma.$queryRaw<
+    { tag: string; total: bigint; returned: bigint; eligible: bigint }[]
+  >`
+    SELECT
+      "referredByCode" AS tag,
+      COUNT(*)::bigint AS total,
+      COUNT(*) FILTER (WHERE "lastSeenAt" >= "createdAt" + INTERVAL '24 hours')::bigint AS returned,
+      COUNT(*) FILTER (WHERE "createdAt" < ${day})::bigint AS eligible
+    FROM "User"
+    WHERE "referredById" IS NULL AND "referredByCode" IS NOT NULL
+    GROUP BY "referredByCode"
+    ORDER BY total DESC
+    LIMIT 50
+  `;
+
+  const sourceFavors = await prisma.$queryRaw<{ tag: string; favors: bigint }[]>`
+    SELECT u."referredByCode" AS tag, COUNT(*)::bigint AS favors
+    FROM "FavorCompletion" fc
+    JOIN "User" u ON u.id = fc."userId"
+    WHERE u."referredById" IS NULL AND u."referredByCode" IS NOT NULL
+    GROUP BY u."referredByCode"
+  `;
+
+  const favorsByTag = new Map(sourceFavors.map((row) => [row.tag, Number(row.favors)]));
+
+  const sources = sourceRows.map((row) => ({
+    tag: row.tag,
+    total: Number(row.total),
+    returnedNextDay: Number(row.returned),
+    eligibleForReturn: Number(row.eligible),
+    favors: favorsByTag.get(row.tag) ?? 0,
+  }));
+
   res.json({
     players: {
       total,
@@ -102,6 +142,7 @@ adminRouter.get('/stats', async (_req: Request, res: Response) => {
       returnedNextDay: returned,
       eligibleForReturn: olderThanDay,
     },
+    sources,
     // Удержание по когортам: заходил ли игрок именно на N-й день после
     // регистрации. Это и есть ответ на вопрос, жива ли игра.
     retention: await retention(now),
