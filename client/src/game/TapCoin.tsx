@@ -44,6 +44,18 @@ export const RANK_SPRITES: Record<string, string> = {
   don: '/don-don.webp',
 };
 
+/**
+ * Кадры покоя — где они есть.
+ *
+ * Между тапами персонаж замирает на первом кадре ленты, но у дона вся лента —
+ * «задумался с кулаком у подбородка»: нейтральной позы в ней нет вовсе.
+ * Для таких характеров покой — отдельная картинка из исходника: стоит
+ * спокойно, лицо открыто, а на тапах оживает прежняя анимация.
+ */
+const REST_SPRITES: Record<string, string> = {
+  don: '/don-don-rest.webp',
+};
+
 /** Сколько персонаж «живёт» после последнего тапа, прежде чем замереть. */
 const MOTION_LINGER_MS = 600;
 
@@ -154,9 +166,18 @@ export function TapCoin({ coinsPerTap, disabled, rankId, scale, backdrop, onTap 
             <span
               className="don-strip block"
               style={{
-                backgroundImage: `url(${sprite})`,
-                // Сдвиг в процентах от ширины самой ленты: 1 кадр = 12.5%.
-                transform: `translateX(-${(frame * 100) / SPRITE_FRAMES}%)`,
+                ...(REST_SPRITES[rankId] && !moving
+                  ? {
+                      // Покой: одиночный кадр вместо ленты.
+                      backgroundImage: `url(${REST_SPRITES[rankId]})`,
+                      width: '100%',
+                      transform: 'none',
+                    }
+                  : {
+                      backgroundImage: `url(${sprite})`,
+                      // Сдвиг в процентах от ширины самой ленты: 1 кадр = 12.5%.
+                      transform: `translateX(-${(frame * 100) / SPRITE_FRAMES}%)`,
+                    }),
                 // Свет своей комнаты: посчитан по картинке фона. Фон без
                 // записи в карте получает прежний общий фильтр.
                 filter: (backdrop && ROOM_LIGHT[backdrop]) || DEFAULT_LIGHT,
