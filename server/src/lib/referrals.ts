@@ -1,5 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { prisma } from './prisma.js';
+import { REFERRAL_TICKETS, grantTickets } from './raffle.js';
 
 /** Монет пригласившему за каждого приведённого игрока. */
 export const INVITER_REWARD = 25_000n;
@@ -90,6 +91,10 @@ export async function payReferralIfQualified(referral: {
       referralEarned: { increment: INVITER_REWARD },
     },
   });
+
+  // Билеты розыгрыша — за живого кента, а не за регистрацию: порог тапов
+  // уже отсёк накрутку, дальше билетам можно доверять.
+  await grantTickets(referral.referredById, 'referral', REFERRAL_TICKETS);
 
   return INVITER_REWARD;
 }

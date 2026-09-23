@@ -3,6 +3,7 @@ import { adReward, isRunning, slotsLeft } from '../config/ads.js';
 import { isAdmin } from '../config/admin.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
+import { grantTickets } from '../lib/raffle.js';
 import { SubscriptionCheckError, checkSubscription } from '../lib/telegramApi.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
@@ -210,6 +211,10 @@ favorsRouter.post('/:id/complete', async (req: Request, res: Response) => {
 
     throw error;
   }
+
+  // Билет розыгрыша — за подписку. Вне транзакции: билет — приложение
+  // к награде, а не её условие.
+  await grantTickets(user.id, 'favor');
 
   const fresh = {
     ...user,

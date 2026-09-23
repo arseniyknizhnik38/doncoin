@@ -22,7 +22,8 @@ export type FeedKind =
   /** Игроки — только редкое. */
   | 'rank_up'
   | 'retired'
-  | 'fat_envelope';
+  | 'fat_envelope'
+  | 'raffle_won';
 
 /**
  * С какой ступени ранга повышение попадает в ленту.
@@ -62,6 +63,8 @@ export function feedText(event: Pick<FeedEvent, 'kind' | 'actor' | 'rival' | 'am
       return `${event.actor} отошёл от дел`;
     case 'fat_envelope':
       return `${event.actor} получил толстый конверт: ${coins(event.amount)}`;
+    case 'raffle_won':
+      return `${event.actor} забрал из розыгрыша «${event.rival}»`;
     default:
       return event.actor;
   }

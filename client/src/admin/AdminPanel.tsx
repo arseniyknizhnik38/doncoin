@@ -2,6 +2,7 @@ import { ErrorState, SkeletonList } from '../ui/States';
 import { AdsPanel } from './AdsPanel';
 import { CipherPanel } from './CipherPanel';
 import { OmertaPanel } from './OmertaPanel';
+import { RafflePanel } from './RafflePanel';
 import type { AdsApi } from './useAds';
 import type { CiphersApi } from './useCiphers';
 import type { AdminStatsApi } from './useAdminStats';
@@ -205,6 +206,10 @@ export function AdminPanel({
                 обе панели владелец открывает в одном заходе. */}
             <CipherPanel api={ciphers} />
             <OmertaPanel token={token} />
+
+            {/* Розыгрыши стоят после шифров: объявляются реже, чем задаётся
+                шифр, но итоги каждого — готовый пост в каналы. */}
+            <RafflePanel token={token} />
 
             <Section title="Топ по заработку">
               {stats.top.map((player, index) => (

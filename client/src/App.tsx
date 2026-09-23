@@ -28,6 +28,7 @@ import { useReferrals } from './referrals/useReferrals';
 import { Onboarding } from './onboarding/Onboarding';
 import { useOnboarding } from './onboarding/useOnboarding';
 import { usePerks } from './perks/usePerks';
+import { useRaffle } from './raffle/useRaffle';
 import { useRetirement } from './retirement/useRetirement';
 import { useQuests } from './quests/useQuests';
 import { SettingsPanel } from './settings/SettingsPanel';
@@ -122,9 +123,19 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
   const cipher = useCipher(sessionToken, game.applyServerState);
   const omerta = useOmerta(sessionToken, game.applyServerState);
   const envelope = useEnvelope(sessionToken, game.applyServerState);
+  const raffle = useRaffle(sessionToken);
   // Лента обновляется при открытии клана, но читается и на главном экране —
   // ключ общий, чтобы не тянуть её дважды.
   const feed = useFeed(sessionToken, refreshKeys.clan);
+
+  // Бонус дня — самый частый источник билетов розыгрыша: счётчик на
+  // карточке должен подрасти сразу, а не при следующем заходе.
+  const raffleReload = raffle.reload;
+  useEffect(() => {
+    if (daily.justClaimed) {
+      raffleReload();
+    }
+  }, [daily.justClaimed, raffleReload]);
   // Что ждёт игрока в «Заданиях»: награды, неоткрытый конверт, неразгаданный
   // шифр, невыполненные подписки, бонус дня.
   const waiting =
@@ -299,6 +310,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               favors={favors}
               daily={daily}
               boosters={boosters}
+              raffle={raffle}
               offline={auth.offline}
               comeback={auth.comeback}
               onClose={() => setTasksOpen(false)}

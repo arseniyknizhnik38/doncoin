@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { BUSINESS_CATALOG } from '../src/config/businesses.js';
+import { NFT_CATALOG } from '../src/config/nft.js';
 import { prisma } from '../src/lib/prisma.js';
 
 /**
@@ -63,6 +64,24 @@ async function main() {
   }
 
   console.log(`свои каналы: ${OWN_CHANNELS.length} кампании на месте`);
+
+  // ——— Генезис-коллекция вещей.
+  //
+  // Тексты и редкость можно править до запуска — они доезжают сидом. Чего
+  // сид не трогает никогда: счётчик выданных экземпляров. А тираж supply
+  // после первого тиража менять нельзя руками нигде: обещанная игрокам
+  // редкость не допечатывается.
+  for (const item of NFT_CATALOG) {
+    const { id, ...data } = item;
+
+    await prisma.nftItem.upsert({
+      where: { id },
+      update: data,
+      create: { id, ...data },
+    });
+  }
+
+  console.log(`генезис-коллекция: ${NFT_CATALOG.length} вещей на месте`);
 
   const total = await prisma.business.count();
   console.log(`каталог бизнесов: ${BUSINESS_CATALOG.length} записей обновлено, всего в базе ${total}`);

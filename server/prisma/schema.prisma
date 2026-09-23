@@ -179,6 +179,11 @@ model User {
   /// Выполненные еженедельные поручения.
   favorCompletions FavorCompletion[]
 
+  /// Сейф: выигранные вещи генезис-коллекции, билеты и выигранные тиражи.
+  nftItems      NftOwnership[]
+  raffleTickets RaffleTicket[]
+  rafflesWon    Raffle[]
+
   /// Бизнесы игрока и момент последнего начисления дохода с них.
   businesses          UserBusiness[]
   businessCollectedAt DateTime      @default(now())
@@ -559,5 +564,86 @@ model FeedEvent {
 
   createdAt DateTime @default(now())
 
+  @@index([createdAt])
+}
+
+/// Вещь генезис-коллекции семьи.
+///
+/// До вывода в TON «NFT» — это запись здесь: вещь, тираж, серийные номера.
+/// В цепочку экземпляр уходит только по требованию владельца — газ платится
+/// за то, что реально забрали в кошелёк, а розыгрыш не требует кошелька
+/// вообще. Каталог живёт в config/nft.ts и доезжает сидом.
+model NftItem {
+  id          String @id
+  name        String
+  description String
+  /// Иконка из client/public/icons — та же, что рисует PixelIcon.
+  icon        String
+  /// 'common' | 'rare' | 'epic' | 'legendary'
+  rarity      String
+  /// Полный тираж. После запуска не меняется: обещанную редкость
+  /// не допечатывают.
+  supply      Int
+  /// Выдано экземпляров; следующий серийник = minted + 1.
+  minted      Int    @default(0)
+
+  ownerships NftOwnership[]
+  raffles    Raffle[]
+}
+
+/// Экземпляр вещи в сейфе игрока.
+model NftOwnership {
+  id     String  @id @default(uuid())
+  itemId String
+  item   NftItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Номер экземпляра, 1..supply. Чем меньше — тем раньше в истории семьи.
+  serial Int
+  /// Откуда пришёл: 'raffle' | 'admin'.
+  source String   @default("raffle")
+  wonAt  DateTime @default(now())
+
+  /// Адрес TON, куда выведен экземпляр; null — лежит в сейфе.
+  withdrawnTo String?
+  withdrawnAt DateTime?
+
+  @@unique([itemId, serial])
+  @@index([userId])
+}
+
+/// Розыгрыш одного экземпляра вещи.
+model Raffle {
+  id     String  @id @default(uuid())
+  itemId String
+  item   NftItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  /// Когда обещан тираж. Показывается игрокам; сам тираж проводит владелец.
+  endsAt   DateTime
+  winnerId String?
+  winner   User?     @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+  drawnAt  DateTime?
+  /// Сколько билетов участвовало — для честного поста итогов.
+  totalTickets Int @default(0)
+
+  createdAt DateTime @default(now())
+}
+
+/// Билет розыгрыша.
+///
+/// Билет играет ровно в одном тираже: тираж считает билеты, выданные после
+/// предыдущего тиража. Иначе накопленная за месяцы пачка выигрывала бы
+/// каждый розыгрыш, и у новичка не было бы причин участвовать.
+model RaffleTicket {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// За что выдан: 'daily' | 'referral' | 'favor'.
+  reason    String
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
   @@index([createdAt])
 }

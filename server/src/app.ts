@@ -29,6 +29,7 @@ import { gameRouter } from './routes/game.js';
 import { leaderboardRouter } from './routes/leaderboard.js';
 import { perksRouter } from './routes/perks.js';
 import { questsRouter } from './routes/quests.js';
+import { raffleRouter } from './routes/raffle.js';
 import { referralsRouter } from './routes/referrals.js';
 import { retirementRouter } from './routes/retirement.js';
 import { settingsRouter } from './routes/settings.js';
@@ -61,6 +62,7 @@ export function createApp() {
   app.use('/api/settings', settingsRouter);
   app.use('/api/daily', dailyRouter);
   app.use('/api/quests', questsRouter);
+  app.use('/api/raffle', raffleRouter);
   app.use('/api/boosters', boostersRouter);
   app.use('/api/backdrops', backdropsRouter);
   app.use('/api/cipher', cipherRouter);

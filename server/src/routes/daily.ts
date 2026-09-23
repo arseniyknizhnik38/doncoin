@@ -6,6 +6,7 @@ import {
   utcDayNumber,
 } from '../config/rewards.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
+import { grantTickets } from '../lib/raffle.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
 import { getTelegramId, requireTelegramAuth } from '../middleware/telegramAuth.js';
@@ -78,6 +79,9 @@ dailyRouter.post('/claim', async (_req: Request, res: Response) => {
     res.status(409).json({ error: 'Бонус за сегодня уже получен', code: 'ALREADY_CLAIMED' });
     return;
   }
+
+  // Билет розыгрыша — за каждый забранный бонус дня.
+  await grantTickets(user.id, 'daily');
 
   const fresh = {
     ...user,

@@ -534,5 +534,70 @@ const friendRelogin = await login(777003, 'Приведённый', referrals.pa
 check('обычный перевход кента куша не даёт', friendRelogin.payload?.comeback === null,
   JSON.stringify(friendRelogin.payload?.comeback));
 
+// ——— Розыгрыш генезис-коллекции.
+//
+// Билеты уже накапали по ходу смоука: бонус дня (+1) и засчитанный кент (+3)
+// выписали их Дону молча, вместе с наградами. Здесь проверяется полный круг:
+// коллекция засеяна, розыгрыш объявляется, билеты видны, тираж выдаёт вещь
+// с серийником, сейф победителя её показывает, лента объявляет итог.
+const raffleBefore = await call('/api/raffle', { token });
+check('розыгрыш отвечает', raffleBefore.status === 200);
+check('активного розыгрыша ещё нет', raffleBefore.payload?.raffle?.active === null);
+
+const ownerRaffle = await call('/api/admin/raffle', { token });
+check('генезис-коллекция из 6 вещей', ownerRaffle.payload?.raffle?.items?.length === 6,
+  `${ownerRaffle.payload?.raffle?.items?.length}`);
+check('билеты окна посчитаны', ownerRaffle.payload?.raffle?.ticketsInWindow >= 4,
+  `${ownerRaffle.payload?.raffle?.ticketsInWindow}`);
+
+await wait(260);
+const createdRaffle = await call('/api/admin/raffle', {
+  token, method: 'POST', body: { itemId: 'cigar' },
+});
+check('розыгрыш объявлен', createdRaffle.status === 200, JSON.stringify(createdRaffle.payload));
+
+await wait(260);
+const secondRaffle = await call('/api/admin/raffle', {
+  token, method: 'POST', body: { itemId: 'dice' },
+});
+check('второй розыгрыш одновременно не объявить', secondRaffle.status === 409,
+  `${secondRaffle.status}`);
+
+const raffleActive = await call('/api/raffle', { token });
+check('карточка показывает вещь', raffleActive.payload?.raffle?.active?.item?.id === 'cigar',
+  JSON.stringify(raffleActive.payload?.raffle?.active)?.slice(0, 120));
+check('билеты игрока на карточке', raffleActive.payload?.raffle?.active?.myTickets >= 4,
+  `${raffleActive.payload?.raffle?.active?.myTickets}`);
+
+await wait(260);
+const draw = await call(`/api/admin/raffle/${createdRaffle.payload?.raffle?.id}/draw`, {
+  token, method: 'POST',
+});
+check('тираж проведён', draw.status === 200, JSON.stringify(draw.payload));
+check('серийник экземпляра — первый', draw.payload?.draw?.serial === 1,
+  `${draw.payload?.draw?.serial}`);
+check('в тираже участвовали все билеты окна', draw.payload?.draw?.totalTickets >= 4,
+  `${draw.payload?.draw?.totalTickets}`);
+
+await wait(260);
+const drawAgain = await call(`/api/admin/raffle/${createdRaffle.payload?.raffle?.id}/draw`, {
+  token, method: 'POST',
+});
+check('дважды один тираж не провести', drawAgain.status === 409, `${drawAgain.status}`);
+
+const winnerAuth = await login(Number(draw.payload?.draw?.winner?.telegramId), 'Победитель');
+const winnerVault = await call('/api/raffle', { token: winnerAuth.payload?.session?.token });
+check('вещь лежит в сейфе победителя',
+  winnerVault.payload?.raffle?.vault?.some((owned) => owned.itemId === 'cigar' && owned.serial === 1),
+  JSON.stringify(winnerVault.payload?.raffle?.vault));
+check('прошлый тираж виден игрокам',
+  winnerVault.payload?.raffle?.lastWinner?.itemName === 'Сигара с виллы',
+  JSON.stringify(winnerVault.payload?.raffle?.lastWinner));
+
+const feedAfterDraw = await call('/api/feed', { token });
+check('лента объявила победителя',
+  feedAfterDraw.payload?.events?.some((event) => event.kind === 'raffle_won'),
+  JSON.stringify(feedAfterDraw.payload?.events?.slice(0, 3)));
+
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);

@@ -11,6 +11,8 @@ import type { FeedApi } from '../feed/useFeed';
 import { OmertaCard } from '../omerta/OmertaCard';
 import type { OmertaApi } from '../omerta/useOmerta';
 import { QuestList } from '../quests/QuestList';
+import { RaffleCard } from '../raffle/RaffleCard';
+import type { RaffleApi } from '../raffle/useRaffle';
 import type { QuestsApi } from '../quests/useQuests';
 import type { DailyApi } from '../rewards/useDaily';
 import type { OfflineEarnings } from '../rewards/types';
@@ -28,6 +30,7 @@ interface TasksPanelProps {
   favors: FavorsApi;
   daily: DailyApi;
   boosters: BoostersApi;
+  raffle: RaffleApi;
   /** Что накапало, пока игрока не было. */
   offline: OfflineEarnings | null;
   /** Куш за возвращение, если кента подозревали. */
@@ -58,6 +61,7 @@ export function TasksPanel({
   favors,
   daily,
   boosters,
+  raffle,
   offline,
   comeback,
   onClose,
@@ -139,6 +143,7 @@ export function TasksPanel({
         <BoosterBar api={boosters} />
 
         <EnvelopeCard api={envelope} />
+        <RaffleCard api={raffle} />
         <FeedTicker api={feed} />
         <OmertaCard api={omerta} />
 

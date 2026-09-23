@@ -114,4 +114,23 @@ export const EN: Record<string, string> = {
   'Ошибка сети': 'Network error',
   'Не удалось загрузить': 'Could not load',
   'Повторить': 'Retry',
+
+  // ——— Розыгрыш генезис-коллекции
+  'Розыгрыш': 'Raffle',
+  'Ходовая вещь': 'Common piece',
+  'Редкая вещь': 'Rare piece',
+  'Именная вещь': 'Named piece',
+  'Единственная': 'One of a kind',
+  'из': 'of',
+  'Твоих билетов: {n}': 'Your tickets: {n}',
+  'в тираже {n}': '{n} in the draw',
+  'Билет — за бонус дня и за подписку. Кент в деле — сразу три.':
+    'A ticket for the daily bonus and each subscription. A crew member who plays — three at once.',
+  'Прошлый тираж: {name} забрал «{item}»': 'Last draw: {name} took “{item}”',
+  'Твой сейф': 'Your vault',
+  'Вывод вещи в TON — напиши в {channel}': 'To withdraw to TON, message {channel}',
+  'тираж вот-вот': 'drawing any moment',
+  '{d} дн {h} ч': '{d}d {h}h',
+  '{h} ч {m} мин': '{h}h {m}m',
+  '{m} мин': '{m} min',
 };

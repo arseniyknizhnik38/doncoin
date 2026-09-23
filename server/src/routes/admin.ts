@@ -5,6 +5,7 @@ import { isValidCipher, normalizeCipher } from '../config/cipher.js';
 import { utcDayNumber } from '../config/rewards.js';
 import { dailyCounts, retention } from '../lib/analytics.js';
 import { setCipher } from '../lib/cipher.js';
+import { DrawError, drawRaffle, ticketWindowStart } from '../lib/raffle.js';
 import { omertaForOwner } from '../lib/omerta.js';
 import { prisma } from '../lib/prisma.js';
 import { diagnoseChannel } from '../lib/telegramApi.js';
@@ -449,4 +450,115 @@ adminRouter.post('/ads/:id/diagnose', async (req: Request, res: Response) => {
 /** GET /api/admin/omerta — ответ Шифра Омерты на сегодня и завтра. */
 adminRouter.get('/omerta', async (_req: Request, res: Response) => {
   res.json({ omerta: await omertaForOwner(new Date()) });
+});
+
+/** GET /api/admin/raffle — коллекция, тиражи и билеты текущего окна. */
+adminRouter.get('/raffle', async (_req: Request, res: Response) => {
+  const since = await ticketWindowStart();
+
+  const [items, raffles, ticketsInWindow, holders] = await Promise.all([
+    prisma.nftItem.findMany({ orderBy: { supply: 'desc' } }),
+    prisma.raffle.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: { item: true, winner: true },
+    }),
+    prisma.raffleTicket.count({ where: { createdAt: { gt: since } } }),
+    prisma.raffleTicket.findMany({
+      where: { createdAt: { gt: since } },
+      distinct: ['userId'],
+      select: { userId: true },
+    }),
+  ]);
+
+  res.json({
+    raffle: {
+      items: items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        rarity: item.rarity,
+        supply: item.supply,
+        minted: item.minted,
+      })),
+      raffles: raffles.map((raffle) => ({
+        id: raffle.id,
+        itemName: raffle.item.name,
+        endsAt: raffle.endsAt,
+        drawnAt: raffle.drawnAt,
+        totalTickets: raffle.totalTickets,
+        winner: raffle.winner
+          ? (raffle.winner.firstName ?? raffle.winner.username ?? raffle.winner.telegramId)
+          : null,
+      })),
+      ticketsInWindow,
+      ticketHolders: holders.length,
+    },
+  });
+});
+
+/**
+ * POST /api/admin/raffle — объявить розыгрыш вещи.
+ *
+ * Идёт один розыгрыш за раз: пока тираж не проведён, второй не объявить.
+ * Так у каждого поста в канале один герой, а у игрока — одна цель.
+ */
+adminRouter.post('/raffle', async (req: Request, res: Response) => {
+  const { itemId, hours } = (req.body ?? {}) as { itemId?: string; hours?: number };
+
+  const item = itemId ? await prisma.nftItem.findUnique({ where: { id: itemId } }) : null;
+
+  if (!item) {
+    res.status(404).json({ error: 'Такой вещи нет в коллекции', code: 'ITEM_NOT_FOUND' });
+    return;
+  }
+
+  if (item.minted >= item.supply) {
+    res.status(409).json({ error: 'Тираж этой вещи разыгран целиком', code: 'SUPPLY_EXHAUSTED' });
+    return;
+  }
+
+  const running = await prisma.raffle.findFirst({ where: { drawnAt: null } });
+
+  if (running) {
+    res.status(409).json({ error: 'Розыгрыш уже идёт — сначала проведите тираж', code: 'RAFFLE_RUNNING' });
+    return;
+  }
+
+  const lifetime = Number.isFinite(hours) && (hours as number) > 0 ? (hours as number) : 72;
+
+  const raffle = await prisma.raffle.create({
+    data: {
+      itemId: item.id,
+      endsAt: new Date(Date.now() + lifetime * 3_600_000),
+    },
+  });
+
+  res.json({ raffle: { id: raffle.id, itemName: item.name, endsAt: raffle.endsAt } });
+});
+
+/** POST /api/admin/raffle/:id/draw — провести тираж. */
+adminRouter.post('/raffle/:id/draw', async (req: Request, res: Response) => {
+  const rawId = req.params.id;
+  const raffleId = Array.isArray(rawId) ? rawId[0] : rawId;
+
+  if (!raffleId) {
+    res.status(404).json({ error: 'Розыгрыш не найден', code: 'RAFFLE_NOT_FOUND' });
+    return;
+  }
+
+  try {
+    const result = await drawRaffle(raffleId);
+
+    res.json({ draw: result });
+  } catch (error) {
+    if (error instanceof DrawError) {
+      res.status(error.code === 'RAFFLE_NOT_FOUND' ? 404 : 409).json({
+        error: error.message,
+        code: error.code,
+      });
+      return;
+    }
+
+    throw error;
+  }
 });
