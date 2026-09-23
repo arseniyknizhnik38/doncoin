@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { hapticFeedback } from '@telegram-apps/sdk-react';
 import { useT } from '../i18n';
+import { PixelIcon } from '../ui/PixelIcon';
 import { RANK_SPRITES } from './TapCoin';
 import type { RankView } from './types';
 
@@ -53,6 +54,7 @@ export function RankUp({ rank, onClose }: RankUpProps) {
 
         <div className="flex w-full flex-col items-center gap-4">
           <div className="flex flex-col items-center gap-1">
+            <PixelIcon id={`rank-${rank.id}`} className="h-12 w-12 animate-pop-in" />
             <h2 className="animate-pop-in font-pixel text-2xl leading-relaxed text-don-gold uppercase">
               {rank.title}
             </h2>

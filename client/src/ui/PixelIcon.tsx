@@ -19,6 +19,9 @@ const DRAWN = new Set([
   'street_food', 'pizzeria', 'car_wash', 'pawnshop', 'restaurant',
   'night_club', 'casino', 'construction', 'union', 'private_club',
   'port', 'offshore',
+  // Эмблемы рангов.
+  'rank-outsider', 'rank-associate', 'rank-soldier', 'rank-capo',
+  'rank-consigliere', 'rank-don',
 ]);
 
 interface PixelIconProps {

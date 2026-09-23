@@ -1,4 +1,5 @@
 import { ErrorState, SkeletonList } from '../ui/States';
+import { PixelIcon } from '../ui/PixelIcon';
 import { useState } from 'react';
 import type { LeaderboardApi } from './useLeaderboard';
 
@@ -6,9 +7,19 @@ type Scope = 'players' | 'clans';
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
-/** Медали за первые три места, дальше просто номер. */
-const positionLabel = (position: number) =>
-  position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : `${position}`;
+/**
+ * Первые три места выделяются цветом номера, а не медальками-эмодзи:
+ * эмодзи в этой игре больше нет нигде, и топ не исключение. Золото, кость и
+ * терракота — те же три степени почёта, но нашей краской.
+ */
+const positionClass = (position: number) =>
+  position === 1
+    ? 'font-pixel text-xs text-don-gold'
+    : position === 2
+      ? 'font-pixel text-xs text-don-bone'
+      : position === 3
+        ? 'font-pixel text-xs text-don-blood-light'
+        : 'text-sm text-neutral-400';
 
 export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
   const [scope, setScope] = useState<Scope>('players');
@@ -67,6 +78,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
                 position={entry.position}
                 title={entry.name}
                 subtitle={`${entry.rank}${entry.clan ? ` · ${entry.clan}` : ''}`}
+                emblem={RANK_EMBLEMS[entry.rank]}
                 value={formatCoins(entry.totalEarned)}
                 highlight={entry.isMe}
               />
@@ -102,6 +114,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
               position={data.players.me.position}
               title={data.players.me.name}
               subtitle={data.players.me.rank}
+              emblem={RANK_EMBLEMS[data.players.me.rank]}
               value={formatCoins(data.players.me.totalEarned)}
               highlight
             />
@@ -124,15 +137,26 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
   );
 }
 
+/** Ранг в топе приходит названием — знак подбираем по нему. */
+const RANK_EMBLEMS: Record<string, string> = {
+  'Аутсайдер': 'rank-outsider',
+  'Приближённый': 'rank-associate',
+  'Солдат': 'rank-soldier',
+  'Капо': 'rank-capo',
+  'Консильери': 'rank-consigliere',
+  'Дон': 'rank-don',
+};
+
 interface RowProps {
   position: number;
   title: string;
   subtitle: string;
   value: string;
   highlight?: boolean;
+  emblem?: string;
 }
 
-function Row({ position, title, subtitle, value, highlight }: RowProps) {
+function Row({ position, title, subtitle, value, highlight, emblem }: RowProps) {
   return (
     <div
       className={`flex items-center gap-3 rounded-lg border px-4 py-2.5 text-left ${
@@ -141,9 +165,10 @@ function Row({ position, title, subtitle, value, highlight }: RowProps) {
           : 'border-don-edge bg-don-ink/80'
       }`}
     >
-      <span className="w-7 shrink-0 text-center text-sm text-neutral-400 tabular-nums">
-        {positionLabel(position)}
+      <span className={`w-7 shrink-0 text-center tabular-nums ${positionClass(position)}`}>
+        {position}
       </span>
+      {emblem && <PixelIcon id={emblem} className="h-6 w-6 shrink-0" />}
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-don-bone">{title}</p>
         <p className="truncate text-[11px] tracking-wider text-neutral-400 uppercase">
