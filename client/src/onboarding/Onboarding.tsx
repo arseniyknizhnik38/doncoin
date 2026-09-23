@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useT } from '../i18n';
+import { seenOnboarding } from './useOnboarding';
 
 /** Кадров в ленте Бобби и как быстро они сменяются: видео резалось на 8 к/с. */
 const BOBBY_FRAMES = 8;
@@ -23,6 +24,16 @@ const BOBBY_BY_STEP: readonly { file: string; pingpong?: boolean }[] = [
 
 /** Порядок кадров туда-обратно: 0..7, затем 6..1. */
 const PINGPONG = [0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1] as const;
+
+// Ленты качаются заранее, при загрузке бандла: обучение открывается в первые
+// секунды первого входа, и если тянуть картинку в этот момент, новичок
+// смотрит на пустое место вместо рассказчика. Тем, кто обучение уже видел,
+// не качается ничего.
+if (typeof window !== 'undefined' && !seenOnboarding()) {
+  for (const file of new Set(BOBBY_BY_STEP.map((step) => step.file))) {
+    new Image().src = file;
+  }
+}
 
 interface OnboardingProps {
   onDone: () => void;

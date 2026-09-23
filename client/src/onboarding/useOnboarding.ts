@@ -12,7 +12,8 @@ const STORAGE_KEY = 'doncoin:onboarding-seen';
  */
 const NEWCOMER_EARNED = 15_000;
 
-function seen(): boolean {
+/** Смотрел ли игрок обучение. Экспорт — для предзагрузки лент Бобби. */
+export function seenOnboarding(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEY) === '1';
   } catch {
@@ -44,7 +45,7 @@ export function useOnboarding(isNew: boolean, totalEarned: string | null) {
   }, []);
 
   const newcomer = isNew || (totalEarned !== null && Number(totalEarned) < NEWCOMER_EARNED);
-  const visible = !dismissed && newcomer && !seen();
+  const visible = !dismissed && newcomer && !seenOnboarding();
 
   return { visible, dismiss };
 }
