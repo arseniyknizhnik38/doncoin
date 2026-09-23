@@ -101,7 +101,11 @@ export function useAuth(): AuthState {
         setState((prev) => ({
           status: 'authorized',
           user: payload.user as AuthUser,
-          isNew: Boolean(payload.isNew),
+          // Защёлка: «новый» игрок остаётся новым на всю сессию. Повторный
+          // вход (перезапуск webview, переавторизация после 401) приходит с
+          // isNew=false и раньше стирал флаг — а на нём держится показ
+          // обучения.
+          isNew: prev.isNew || Boolean(payload.isNew),
           error: null,
           state: (payload.state ?? null) as GameState | null,
           sessionToken: (payload.session?.token ?? null) as string | null,
