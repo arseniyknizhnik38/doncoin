@@ -1,4 +1,5 @@
 import type { GameState } from '../game/types';
+import { PixelIcon } from '../ui/PixelIcon';
 import { ErrorState, SkeletonList } from '../ui/States';
 import type { BusinessesApi } from './useBusinesses';
 
@@ -9,21 +10,6 @@ interface BusinessListProps {
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
-/** Иконки держим на клиенте: это оформление, а не данные каталога. */
-const ICONS: Record<string, string> = {
-  street_food: '🌯',
-  pizzeria: '🍕',
-  car_wash: '🚿',
-  pawnshop: '💍',
-  restaurant: '🍽️',
-  night_club: '🎧',
-  casino: '🎰',
-  construction: '🏗️',
-  union: '⚓',
-  private_club: '🥃',
-  port: '🚢',
-  offshore: '🏦',
-};
 
 export function BusinessList({ api, state }: BusinessListProps) {
   const { businesses, income, loading, buying, error } = api;
@@ -77,9 +63,9 @@ export function BusinessList({ api, state }: BusinessListProps) {
             }`}
           >
             <div className="flex items-start gap-3">
-              <span className="text-2xl leading-none" aria-hidden>
-                {ICONS[business.slug] ?? '💼'}
-              </span>
+              {/* Рисованные значки; новый бизнес без картинки получает
+                  нейтральный портфель, а не дыру. */}
+              <PixelIcon id={business.slug} emoji="💼" className="mt-0.5 h-6 w-6 shrink-0" />
 
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
