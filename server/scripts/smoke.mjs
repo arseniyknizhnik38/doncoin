@@ -328,14 +328,21 @@ const ad = await call('/api/admin/ads', {
 check('кампания заводится', ad.status === 200, JSON.stringify(ad.payload).slice(0, 160));
 
 const ads = await call('/api/admin/ads', { token });
-check('кампания видна в админке', ads.payload?.ads?.length >= 1);
-check('статус — идёт', ads.payload?.ads?.[0]?.status === 'running',
-  ads.payload?.ads?.[0]?.status);
-check('лимит подписок сохранён', ads.payload?.ads?.[0]?.slots === 2);
+const testAd = ads.payload?.ads?.find((row) => row.channelName === 'Матрёшка Экспресс');
+check('кампания видна в админке', Boolean(testAd));
+check('статус — идёт', testAd?.status === 'running', testAd?.status);
+check('лимит подписок сохранён', testAd?.slots === 2);
 
 const playerAds = await call('/api/favors', { token });
-check('кампания видна игроку', playerAds.payload?.favors?.length === 1);
-check('осталось два места', playerAds.payload?.favors?.[0]?.slotsLeft === 2);
+// Сид заводит подписки на два своих канала, тестовая кампания — третья.
+check('кампании видны игроку', playerAds.payload?.favors?.length === 3,
+  `${playerAds.payload?.favors?.length}`);
+const testFavor = playerAds.payload?.favors?.find((row) => row.channelName === 'Матрёшка Экспресс');
+check('осталось два места', testFavor?.slotsLeft === 2);
+check('свой RU-канал в заданиях',
+  playerAds.payload?.favors?.some((row) => row.channelUrl === 'https://t.me/doncoin_ru'));
+check('свой EN-канал в заданиях',
+  playerAds.payload?.favors?.some((row) => row.channelUrl === 'https://t.me/doncoin_en'));
 
 const badAd = await call('/api/admin/ads', {
   token,
