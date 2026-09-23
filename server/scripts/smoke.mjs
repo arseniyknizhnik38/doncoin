@@ -591,7 +591,7 @@ check('вещь лежит в сейфе победителя',
   winnerVault.payload?.raffle?.vault?.some((owned) => owned.itemId === 'cigar' && owned.serial === 1),
   JSON.stringify(winnerVault.payload?.raffle?.vault));
 check('прошлый тираж виден игрокам',
-  winnerVault.payload?.raffle?.lastWinner?.itemName === 'Сигара с виллы',
+  winnerVault.payload?.raffle?.lastWinner?.itemName === 'Сигара с особняка дона',
   JSON.stringify(winnerVault.payload?.raffle?.lastWinner));
 
 const feedAfterDraw = await call('/api/feed', { token });
