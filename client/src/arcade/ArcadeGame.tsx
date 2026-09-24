@@ -11,6 +11,31 @@ const RUN_MS = 30_000;
 const SPAWN_MS = 420;
 /** Сколько предмет летит сверху вниз. */
 const FALL_MS = 2_600;
+/** На тренировке предметы падают медленно: их надо успеть разглядеть. */
+const TUTORIAL_FALL_MS = 5_500;
+
+/** Прошёл ли игрок урок Бобби. */
+const TUTORED_KEY = 'doncoin:arcade-tutored';
+
+function wasTutored(): boolean {
+  try {
+    return localStorage.getItem(TUTORED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markTutored(): void {
+  try {
+    localStorage.setItem(TUTORED_KEY, '1');
+  } catch {
+    // Не записалось — покажем урок ещё раз. Не страшно.
+  }
+}
+
+/** Кадры Бобби, как в обучении игры: лента 8 кадров, 8 к/с. */
+const BOBBY_FRAMES = 8;
+const BOBBY_FRAME_MS = 125;
 
 /**
  * Что падает. Жетон — единственная «плохая» цель: тапнул — минус очки.
@@ -39,6 +64,40 @@ function rollDrop() {
 
   return DROPS[0];
 }
+
+/**
+ * Урок Бобби: четыре шага, два из которых игрок делает руками.
+ *
+ * Пачку и жетон он тапает сам — правило «жетон это минус» усваивается
+ * пальцем, а не табличкой. Тренировочный счёт на сервер не уходит:
+ * настоящий забег начинается с нуля.
+ */
+const TUTORIAL_STEPS = [
+  {
+    say: 'Первый раз на сборе? Смотри, показываю. Дон настоял, чтобы объяснял я. Не спрашивай.',
+    item: null,
+    after: null,
+    button: 'Показывай',
+  },
+  {
+    say: 'Всё, что блестит, — в карман. Тапни пачку.',
+    item: { icon: 'rank-capo', value: 10 },
+    after: 'Вот так. Пачка +10, фишка +25, перстень +50.',
+    button: 'Дальше',
+  },
+  {
+    say: 'А это жетон копа. Тапни разок — здесь можно, это тренировка.',
+    item: { icon: 'badge', value: -30 },
+    after: 'Минус тридцать! Видишь жетон — руки в карманы.',
+    button: 'Понятно',
+  },
+  {
+    say: 'Это была тренировка — счёт сгорел. Теперь по-настоящему: 30 секунд. Погнали.',
+    item: null,
+    after: null,
+    button: 'Начать забег',
+  },
+] as const;
 
 interface FallingItem {
   id: number;
@@ -78,10 +137,19 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [score, setScore] = useState(0);
   const [left, setLeft] = useState(RUN_MS);
-  // Забег начинается не сразу: сначала инструктаж. Что тапать, а что
-  // нет, игрок должен узнать до первого жетона, а не после.
-  const [phase, setPhase] = useState<'intro' | 'run' | 'done'>('intro');
+  // Первый раз игру объясняет Бобби на живом примере; дальше — короткий
+  // инструктаж-памятка. Забег в обоих случаях начинается только по кнопке.
+  const [phase, setPhase] = useState<'tutorial' | 'intro' | 'run' | 'done'>(
+    wasTutored() ? 'intro' : 'tutorial',
+  );
   const [flash, setFlash] = useState(false);
+
+  // Урок: номер шага, пойман ли предмет шага, счётчик перезапусков
+  // улетевшего мимо предмета.
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [caught, setCaught] = useState(false);
+  const [itemKey, setItemKey] = useState(0);
+  const [bobbyTick, setBobbyTick] = useState(0);
 
   const nextId = useRef(1);
   const scoreRef = useRef(0);
@@ -124,37 +192,97 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
     };
   }, [phase]);
 
+  // Бобби говорит всё время, пока идёт урок.
+  useEffect(() => {
+    if (phase !== 'tutorial') {
+      return;
+    }
+
+    const timer = window.setInterval(
+      () => setBobbyTick((value) => value + 1),
+      BOBBY_FRAME_MS,
+    );
+
+    return () => window.clearInterval(timer);
+  }, [phase]);
+
+  const showBurst = useCallback((value: number, clientX: number, clientY: number) => {
+    const bad = value < 0;
+
+    if (bad) {
+      setFlash(true);
+      window.setTimeout(() => setFlash(false), 220);
+      hapticFeedback.notificationOccurred.ifAvailable('error');
+    } else {
+      hapticFeedback.impactOccurred.ifAvailable('light');
+    }
+
+    const id = nextId.current++;
+    setBursts((prev) => [
+      ...prev.slice(-6),
+      { id, x: clientX, y: clientY, text: bad ? String(value) : `+${value}`, bad },
+    ]);
+    window.setTimeout(
+      () => setBursts((prev) => prev.filter((burst) => burst.id !== id)),
+      700,
+    );
+  }, []);
+
   const catchItem = useCallback(
     (item: FallingItem, clientX: number, clientY: number) => {
       setItems((prev) => prev.filter((other) => other.id !== item.id));
       scoreRef.current = Math.max(0, scoreRef.current + item.value);
       setScore(scoreRef.current);
-
-      const bad = item.value < 0;
-
-      if (bad) {
-        setFlash(true);
-        window.setTimeout(() => setFlash(false), 220);
-        hapticFeedback.notificationOccurred.ifAvailable('error');
-      } else {
-        hapticFeedback.impactOccurred.ifAvailable('light');
-      }
-
-      const id = nextId.current++;
-      setBursts((prev) => [
-        ...prev.slice(-6),
-        { id, x: clientX, y: clientY, text: bad ? String(item.value) : `+${item.value}`, bad },
-      ]);
-      window.setTimeout(
-        () => setBursts((prev) => prev.filter((burst) => burst.id !== id)),
-        700,
-      );
+      showBurst(item.value, clientX, clientY);
     },
-    [],
+    [showBurst],
   );
+
+  /** Тап по предмету урока: тренировочный счёт живёт только на экране. */
+  const catchTutorial = useCallback(
+    (value: number, clientX: number, clientY: number) => {
+      setCaught(true);
+      setScore((prev) => Math.max(0, prev + value));
+      showBurst(value, clientX, clientY);
+    },
+    [showBurst],
+  );
+
+  const startRun = useCallback(() => {
+    markTutored();
+    // Тренировка на счёт не идёт: настоящий забег начинается с нуля.
+    scoreRef.current = 0;
+    setScore(0);
+    setItems([]);
+    setBursts([]);
+    setLeft(RUN_MS);
+    setPhase('run');
+  }, []);
+
+  const openTutorial = useCallback(() => {
+    setTutorialStep(0);
+    setCaught(false);
+    setScore(0);
+    setPhase('tutorial');
+  }, []);
 
   const perPoint = api.status?.perPoint ?? 1;
   const record = api.status && score > api.status.best;
+
+  const step = TUTORIAL_STEPS[tutorialStep] ?? TUTORIAL_STEPS[0];
+  const bobbyLine = caught && step.after ? step.after : step.say;
+  const waitingForTap = phase === 'tutorial' && step.item !== null && !caught;
+
+  const nextTutorialStep = () => {
+    if (tutorialStep >= TUTORIAL_STEPS.length - 1) {
+      startRun();
+      return;
+    }
+
+    setTutorialStep(tutorialStep + 1);
+    setCaught(false);
+    setItemKey((key) => key + 1);
+  };
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-don-black">
@@ -167,13 +295,99 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
         </p>
         <div className="flex items-baseline gap-4 tabular-nums">
           <span className="font-display text-2xl font-semibold text-don-gold-soft">{score}</span>
-          <span className={`text-sm ${left <= 5_000 ? 'text-don-blood-light' : 'text-neutral-400'}`}>
-            0:{String(Math.ceil(left / 1_000)).padStart(2, '0')}
-          </span>
+          {phase === 'tutorial' ? (
+            <span className="text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
+              {t('тренировка')}
+            </span>
+          ) : (
+            <span className={`text-sm ${left <= 5_000 ? 'text-don-blood-light' : 'text-neutral-400'}`}>
+              0:{String(Math.ceil(left / 1_000)).padStart(2, '0')}
+            </span>
+          )}
         </div>
       </header>
 
-      {phase === 'intro' ? (
+      {phase === 'tutorial' ? (
+        <div className="flex min-h-0 flex-1 flex-col">
+          {/* Поле урока: один предмет за раз, падает медленно; улетел мимо —
+              падает снова, пока игрок его не поймает. */}
+          <div className="relative min-h-0 flex-1 select-none touch-none">
+            {waitingForTap && step.item && (
+              <button
+                key={itemKey}
+                type="button"
+                aria-label={step.item.value > 0 ? `+${step.item.value}` : t('Жетон')}
+                onPointerDown={(event) =>
+                  catchTutorial(step.item!.value, event.clientX, event.clientY)
+                }
+                onAnimationEnd={() => setItemKey((key) => key + 1)}
+                className="arcade-fall absolute -top-16 left-[42%] flex h-16 w-16 items-center justify-center"
+                style={{ animationDuration: `${TUTORIAL_FALL_MS}ms` }}
+              >
+                <PixelIcon id={step.item.icon} className="h-12 w-12" />
+              </button>
+            )}
+
+            {bursts.map((burst) => (
+              <span
+                key={burst.id}
+                className={`animate-coin-pop pointer-events-none fixed z-30 font-display text-xl font-semibold ${
+                  burst.bad ? 'text-don-blood-light' : 'text-don-gold'
+                }`}
+                style={{ left: burst.x - 16, top: burst.y - 40 }}
+              >
+                {burst.text}
+              </span>
+            ))}
+          </div>
+
+          {/* Бобби с репликой — как в обучении игры, только компактнее. */}
+          <div className="mx-auto w-full max-w-md shrink-0 px-4 pb-6">
+            <div className="flex items-end gap-3">
+              <span
+                aria-hidden
+                className="don-frame relative block aspect-square h-28 shrink-0 select-none"
+              >
+                <span
+                  className="don-strip block"
+                  style={{
+                    backgroundImage: 'url(/bobby.webp)',
+                    transform: `translateX(-${((bobbyTick % BOBBY_FRAMES) * 100) / BOBBY_FRAMES}%)`,
+                  }}
+                />
+              </span>
+
+              <div className="min-w-0 flex-1 rounded-lg border border-don-edge bg-don-ink/80 p-3 text-left">
+                <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
+                  {t('Толстый Бобби')}
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-don-bone">{t(bobbyLine)}</p>
+              </div>
+            </div>
+
+            {!waitingForTap && (
+              <button
+                type="button"
+                onClick={nextTutorialStep}
+                className="mt-3 w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-3 text-base font-semibold tracking-wider text-don-gold-soft active:scale-95"
+              >
+                {t(step.button)}
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                markTutored();
+                setPhase('intro');
+              }}
+              className="mt-2 w-full text-center text-xs tracking-wider text-neutral-400"
+            >
+              {t('Пропустить обучение')}
+            </button>
+          </div>
+        </div>
+      ) : phase === 'intro' ? (
         <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-4 px-6">
           <p className="text-center text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
             {t('Как это работает')}
@@ -212,16 +426,20 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
             })}
           </p>
 
-          <p className="text-center text-xs leading-relaxed text-neutral-400">
-            {t('Бобби: «Собирай всё, что плохо лежит. Увидел жетон — руки в карманы».')}
-          </p>
-
           <button
             type="button"
-            onClick={() => setPhase('run')}
+            onClick={startRun}
             className="w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-3.5 text-base font-semibold tracking-wider text-don-gold-soft active:scale-95"
           >
             {t('Начать забег')}
+          </button>
+
+          <button
+            type="button"
+            onClick={openTutorial}
+            className="text-xs tracking-wider text-don-gold-soft"
+          >
+            {t('Бобби, покажи ещё раз')}
           </button>
 
           <button

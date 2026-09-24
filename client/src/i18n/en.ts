@@ -520,4 +520,21 @@ export const EN: Record<string, string> = {
     'Bobby: “Grab everything that isn’t nailed down. See a badge — hands in your pockets.”',
   'Начать забег': 'Start the run',
   'Не сейчас': 'Not now',
+
+  'тренировка': 'practice',
+  'Первый раз на сборе? Смотри, показываю. Дон настоял, чтобы объяснял я. Не спрашивай.':
+    'First collection? Watch me. The don insisted I do the explaining. Don’t ask.',
+  'Показывай': 'Show me',
+  'Всё, что блестит, — в карман. Тапни пачку.':
+    'Everything that shines goes in the pocket. Tap the bundle.',
+  'Вот так. Пачка +10, фишка +25, перстень +50.':
+    'That’s it. Bundle +10, chip +25, ring +50.',
+  'А это жетон копа. Тапни разок — здесь можно, это тренировка.':
+    'That’s a police badge. Tap it once — go on, this is practice.',
+  'Минус тридцать! Видишь жетон — руки в карманы.':
+    'Minus thirty! See a badge — hands in your pockets.',
+  'Это была тренировка — счёт сгорел. Теперь по-настоящему: 30 секунд. Погнали.':
+    'That was practice — the score burns. Now for real: 30 seconds. Let’s go.',
+  'Пропустить обучение': 'Skip the lesson',
+  'Бобби, покажи ещё раз': 'Bobby, show me again',
 };
