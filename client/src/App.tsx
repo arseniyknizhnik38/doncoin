@@ -28,6 +28,7 @@ import { useGame } from './game/useGame';
 import { useReferrals } from './referrals/useReferrals';
 import { Onboarding } from './onboarding/Onboarding';
 import { useArcade } from './arcade/useArcade';
+import { useCases } from './cases/useCases';
 import { useOnboarding } from './onboarding/useOnboarding';
 import { usePerks } from './perks/usePerks';
 import { useRaffle } from './raffle/useRaffle';
@@ -124,6 +125,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
   const favors = useFavors(sessionToken, questsKey, game.applyServerState);
   const boosters = useBoosters(sessionToken, game.applyServerState);
   const arcade = useArcade(sessionToken, game.applyServerState);
+  const cases = useCases(sessionToken, questsKey, game.applyServerState);
   const cipher = useCipher(sessionToken, game.applyServerState);
   const omerta = useOmerta(sessionToken, game.applyServerState);
   const envelope = useEnvelope(sessionToken, game.applyServerState);
@@ -316,6 +318,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               boosters={boosters}
               raffle={raffle}
               arcade={arcade}
+              cases={cases}
               offline={auth.offline}
               comeback={auth.comeback}
               onClose={() => setTasksOpen(false)}

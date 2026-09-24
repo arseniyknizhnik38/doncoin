@@ -1,4 +1,6 @@
 import { ArcadeCard } from '../arcade/ArcadeCard';
+import { CaseCard } from '../cases/CaseCard';
+import type { CasesApi } from '../cases/useCases';
 import type { ArcadeApi } from '../arcade/useArcade';
 import { BoosterBar } from '../boosters/BoosterBar';
 import { useT } from '../i18n';
@@ -36,6 +38,7 @@ interface TasksPanelProps {
   boosters: BoostersApi;
   raffle: RaffleApi;
   arcade: ArcadeApi;
+  cases: CasesApi;
   /** Что накапало, пока игрока не было. */
   offline: OfflineEarnings | null;
   /** Куш за возвращение, если кента подозревали. */
@@ -70,6 +73,7 @@ export function TasksPanel({
   boosters,
   raffle,
   arcade,
+  cases,
   offline,
   comeback,
   onClose,
@@ -152,6 +156,7 @@ export function TasksPanel({
 
         <BoosterBar api={boosters} />
         <ArcadeCard api={arcade} />
+        <CaseCard api={cases} />
 
         <EnvelopeCard api={envelope} />
         <RaffleCard api={raffle} />

@@ -201,6 +201,9 @@ model User {
   /// Места в недельных турнирах кентов.
   tournamentResults ReferralTournamentResult[]
 
+  /// Дела семьи: текущее и закрытые.
+  cases UserCase[]
+
   /// Личная лига: неделя, ступень, группа и след прошлой недели.
   ///
   /// Перекат ленивый — при первом входе новой недели. leagueLastGroupId и
@@ -659,6 +662,28 @@ model Raffle {
   totalTickets Int @default(0)
 
   createdAt DateTime @default(now())
+}
+
+/// Дело семьи, взятое игроком.
+///
+/// Каталог дел живёт в config/cases.ts; здесь — номер дела, текущий шаг
+/// и точка отсчёта шага: «заработай 25 000» значит новых, а не когда-либо.
+model UserCase {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Индекс дела в каталоге: дела идут по порядку.
+  caseIndex Int
+  step      Int      @default(0)
+  /// Значение счётчика шага в момент его выдачи.
+  baseline      BigInt   @default(0)
+  stepStartedAt DateTime @default(now())
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  @@index([userId, completedAt])
 }
 
 /// Группа личной лиги: до полусотни игроков одной ступени одной недели.

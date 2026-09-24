@@ -699,5 +699,67 @@ await wait(260);
 const runAgain = await call('/api/arcade/claim', { token, method: 'POST', body: { score: 10 } });
 check('второй забег в день не принимается', runAgain.status === 409, `${runAgain.status}`);
 
+// ——— Дела семьи: первое дело проходится целиком.
+//
+// «Испытательный срок»: заработать 2 000 новых, сто тапов, одно улучшение.
+// Шаги продвигаются лениво при чтении, награда закрывается условием.
+const caseIdle = await call('/api/cases', { token });
+check('дело предлагается', caseIdle.payload?.case?.state === 'available',
+  JSON.stringify(caseIdle.payload?.case)?.slice(0, 120));
+
+await wait(260);
+const caseStarted = await call('/api/cases/start', { token, method: 'POST' });
+check('дело взято: первый шаг — заработок', caseStarted.payload?.case?.state === 'active' &&
+  caseStarted.payload?.case?.step?.index === 1,
+  JSON.stringify(caseStarted.payload?.case?.step));
+
+// Шаг 1: 2 000 новых монет — 200 тапов по 10.
+for (let i = 0; i < 4; i += 1) {
+  await call('/api/game/tap', { token, method: 'POST', body: { taps: 50 } });
+  await wait(260);
+}
+
+const caseStep2 = await call('/api/cases', { token });
+check('шаг заработка закрыт, пошли тапы', caseStep2.payload?.case?.step?.index === 2,
+  JSON.stringify(caseStep2.payload?.case?.step));
+
+// Шаг 2: сто НОВЫХ тапов — точка отсчёта встала при продвижении.
+for (let i = 0; i < 2; i += 1) {
+  await call('/api/game/tap', { token, method: 'POST', body: { taps: 50 } });
+  await wait(260);
+}
+
+const caseStep3 = await call('/api/cases', { token });
+check('шаг тапов закрыт, остался апгрейд', caseStep3.payload?.case?.step?.index === 3,
+  JSON.stringify(caseStep3.payload?.case?.step));
+
+await call('/api/upgrades/tap/buy', { token, method: 'POST' });
+await wait(260);
+
+const caseReady = await call('/api/cases', { token });
+check('дело готово к закрытию', caseReady.payload?.case?.state === 'ready',
+  JSON.stringify(caseReady.payload?.case)?.slice(0, 120));
+
+const balanceBeforeCase = BigInt(
+  (await call('/api/game/state', { token })).payload?.state?.balance ?? 0,
+);
+
+await wait(260);
+const caseClaim = await call('/api/cases/claim', { token, method: 'POST' });
+check('дело закрыто с наградой', caseClaim.status === 200 &&
+  BigInt(caseClaim.payload?.reward ?? 0) > 0n &&
+  typeof caseClaim.payload?.outro === 'string',
+  JSON.stringify(caseClaim.payload)?.slice(0, 140));
+check('награда дела пришла на счёт',
+  BigInt(caseClaim.payload?.state?.balance ?? 0) - balanceBeforeCase ===
+    BigInt(caseClaim.payload?.reward ?? 0),
+  caseClaim.payload?.reward);
+check('после дела — пауза', caseClaim.payload?.case?.state === 'cooldown',
+  caseClaim.payload?.case?.state);
+
+await wait(260);
+const caseClaimAgain = await call('/api/cases/claim', { token, method: 'POST' });
+check('дважды дело не закрыть', caseClaimAgain.status === 409, `${caseClaimAgain.status}`);
+
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);

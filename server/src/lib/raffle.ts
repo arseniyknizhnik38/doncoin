@@ -13,7 +13,7 @@ import { prisma } from './prisma.js';
  * у того и шансов больше, без отдельной арифметики весов.
  */
 
-export type TicketReason = 'daily' | 'referral' | 'favor' | 'tournament';
+export type TicketReason = 'daily' | 'referral' | 'favor' | 'tournament' | 'case';
 
 /** Билетов за приведённого кента — дороже всего, это и есть привлечение. */
 export const REFERRAL_TICKETS = 3;

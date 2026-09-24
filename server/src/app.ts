@@ -17,6 +17,7 @@ import { arcadeRouter } from './routes/arcade.js';
 import { authRouter } from './routes/auth.js';
 import { backdropsRouter } from './routes/backdrops.js';
 import { boostersRouter } from './routes/boosters.js';
+import { casesRouter } from './routes/cases.js';
 import { businessesRouter } from './routes/businesses.js';
 import { cipherRouter } from './routes/cipher.js';
 import { omertaRouter } from './routes/omerta.js';
@@ -67,6 +68,7 @@ export function createApp() {
   app.use('/api/raffle', raffleRouter);
   app.use('/api/league', leagueRouter);
   app.use('/api/arcade', arcadeRouter);
+  app.use('/api/cases', casesRouter);
   app.use('/api/boosters', boostersRouter);
   app.use('/api/backdrops', backdropsRouter);
   app.use('/api/cipher', cipherRouter);

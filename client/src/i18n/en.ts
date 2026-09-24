@@ -537,4 +537,21 @@ export const EN: Record<string, string> = {
     'That was practice — the score burns. Now for real: 30 seconds. Let’s go.',
   'Пропустить обучение': 'Skip the lesson',
   'Бобби, покажи ещё раз': 'Bobby, show me again',
+
+  // ——— Дела семьи
+  'Дело семьи': 'Family case',
+  'Дело закрыто': 'Case closed',
+  'шаг {a} из {b}': 'step {a} of {b}',
+  'Награда за дело: +{n} и {k} билета розыгрыша': 'Case reward: +{n} and {k} raffle tickets',
+  '+{n} билета розыгрыша': '+{n} raffle tickets',
+  'Взять дело': 'Take the case',
+  'Берём…': 'Taking…',
+  'Закрыть дело': 'Close the case',
+  'Закрываем…': 'Closing…',
+  'Бобби подберёт новое дело {time}': 'Bobby will bring a new case {time}',
+  'Бобби подберёт новое дело': 'Bobby will bring a new case',
+  'через {n} ч': 'in {n} h',
+  'Сейчас дела нет — Бобби подойдёт позже': 'No case right now — Bobby will come by later',
+  'Дело ещё не закончено': 'The case is not finished yet',
+  'Дело уже закрыто': 'The case is already closed',
 };
