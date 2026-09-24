@@ -1,4 +1,5 @@
 import type { GameState } from '../game/types';
+import { useT } from '../i18n';
 import { PixelIcon } from '../ui/PixelIcon';
 import { ErrorState, SkeletonList } from '../ui/States';
 import type { BusinessesApi } from './useBusinesses';
@@ -12,6 +13,7 @@ const formatCoins = (value: string | number) => Number(value).toLocaleString('ru
 
 
 export function BusinessList({ api, state }: BusinessListProps) {
+  const t = useT();
   const { businesses, income, loading, buying, error } = api;
 
   if (!businesses) {
@@ -26,10 +28,10 @@ export function BusinessList({ api, state }: BusinessListProps) {
     <div className="flex w-full flex-col gap-3">
       <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
         <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
-          Доход с бизнесов
+          {t('Доход с бизнесов')}
         </p>
         <p className="text-xl font-bold text-don-gold tabular-nums">
-          {formatCoins(income?.perHour ?? 0)} <span className="text-sm text-neutral-400">в час</span>
+          {formatCoins(income?.perHour ?? 0)} <span className="text-sm text-neutral-400">{t('в час')}</span>
         </p>
         {Number(income?.pending ?? 0) > 0 && (
           <p
@@ -38,14 +40,14 @@ export function BusinessList({ api, state }: BusinessListProps) {
             }`}
           >
             {income?.full
-              ? `Касса переполнена: ${formatCoins(income.pending)}. Часы простаивают`
-              : `Накоплено ${formatCoins(income?.pending ?? 0)} — придёт при следующем входе`}
+              ? t('Касса переполнена: {n}. Часы простаивают', { n: formatCoins(income.pending) })
+              : t('Накоплено {n} — придёт при следующем входе', { n: formatCoins(income?.pending ?? 0) })}
           </p>
         )}
       </div>
 
       {error && (
-        <p className="text-center text-xs tracking-wider text-don-blood-light">{error}</p>
+        <p className="text-center text-xs tracking-wider text-don-blood-light">{t(error)}</p>
       )}
 
       {businesses.map((business) => {
@@ -70,25 +72,25 @@ export function BusinessList({ api, state }: BusinessListProps) {
               <div className="min-w-0 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <h3 className="truncate text-base font-semibold text-don-bone">
-                    {business.name}
+                    {t(business.name)}
                   </h3>
                   <span className="shrink-0 text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
-                    {business.owned ? `ур. ${business.level}` : business.category}
+                    {business.owned ? `${t('ур.')} ${business.level}` : t(business.category)}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-neutral-400">{business.description}</p>
+                <p className="mt-0.5 text-xs text-neutral-400">{t(business.description)}</p>
               </div>
             </div>
 
             <p className="mt-3 text-sm">
               <span className="text-neutral-400">
                 {business.owned
-                  ? `${formatCoins(business.incomePerHour)} в час`
-                  : 'Не куплен'}
+                  ? `${formatCoins(business.incomePerHour)} ${t('в час')}`
+                  : t('Не куплен')}
               </span>
               <span className="mx-2 text-don-blood-light">→</span>
               <span className="font-semibold text-don-gold-soft">
-                {formatCoins(business.nextIncomePerHour)} в час
+                {formatCoins(business.nextIncomePerHour)} {t('в час')}
               </span>
             </p>
 
@@ -103,10 +105,12 @@ export function BusinessList({ api, state }: BusinessListProps) {
               }`}
             >
               {business.locked
-                ? `Откроется на ранге «${business.requiredRank}»`
+                ? t('Откроется на ранге «{rank}»', { rank: t(business.requiredRank) })
                 : buying === business.id
-                  ? 'Покупаем…'
-                  : `${business.owned ? 'Улучшить' : 'Купить'} за ${formatCoins(business.nextCost)}`}
+                  ? t('Покупаем…')
+                  : t(business.owned ? 'Улучшить за {n}' : 'Купить за {n}', {
+                      n: formatCoins(business.nextCost),
+                    })}
             </button>
           </div>
         );

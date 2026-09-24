@@ -1,7 +1,9 @@
+import { useT } from '../i18n';
 import { ErrorState, SkeletonList } from '../ui/States';
 import type { PerksApi } from './usePerks';
 
 export function PerkList({ api }: { api: PerksApi }) {
+  const t = useT();
   const { perks, respect, loading, buying, error } = api;
 
   if (!perks) {
@@ -16,21 +18,21 @@ export function PerkList({ api }: { api: PerksApi }) {
     <div className="flex w-full flex-col gap-3">
       <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
         <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
-          Свободный Respect
+          {t('Свободный Respect')}
         </p>
         <p className="text-xl font-bold text-don-gold tabular-nums">
           ★ {respect?.available ?? 0}
           <span className="ml-2 text-xs font-normal text-neutral-400">
-            из {respect?.total ?? 0} заработанных
+            {t('из {n} заработанных', { n: respect?.total ?? 0 })}
           </span>
         </p>
         <p className="mt-1 text-xs text-neutral-400">
-          Respect копится за тапы и не сгорает — тратится только «свободный» остаток.
+          {t('Respect копится за тапы и не сгорает — тратится только «свободный» остаток.')}
         </p>
       </div>
 
       {error && (
-        <p className="text-center text-xs tracking-wider text-don-blood-light">{error}</p>
+        <p className="text-center text-xs tracking-wider text-don-blood-light">{t(error)}</p>
       )}
 
       {perks.map((perk) => {
@@ -43,13 +45,13 @@ export function PerkList({ api }: { api: PerksApi }) {
             className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left"
           >
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="text-base font-semibold text-don-bone">{perk.title}</h3>
+              <h3 className="text-base font-semibold text-don-bone">{t(perk.title)}</h3>
               <span className="shrink-0 text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
-                ур. {perk.level} / {perk.maxLevel}
+                {t('ур.')} {perk.level} / {perk.maxLevel}
               </span>
             </div>
 
-            <p className="mt-1 text-xs text-neutral-400">{perk.description}</p>
+            <p className="mt-1 text-xs text-neutral-400">{t(perk.description)}</p>
 
             <p className="mt-3 text-sm">
               <span className="text-neutral-400">+{perk.bonus}%</span>
@@ -74,10 +76,10 @@ export function PerkList({ api }: { api: PerksApi }) {
               }`}
             >
               {isMax
-                ? 'Максимум'
+                ? t('Максимум')
                 : buying === perk.id
-                  ? 'Покупаем…'
-                  : `Купить за ★ ${perk.cost}`}
+                  ? t('Покупаем…')
+                  : t('Купить за ★ {n}', { n: perk.cost ?? 0 })}
             </button>
           </div>
         );

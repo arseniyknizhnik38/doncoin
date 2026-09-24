@@ -40,12 +40,69 @@ export const FEED_LIMIT = 30;
 const coins = (value: bigint | null) => (value ?? 0n).toLocaleString('ru-RU');
 
 /**
+ * Английские подписи рангов: rank_up хранит русский титул со звёздами
+ * («Капо ★★»), и для английской ленты титул надо подменить на месте.
+ */
+const EN_RANKS: Record<string, string> = {
+  'Аутсайдер': 'Outsider',
+  'Приближённый': 'Associate',
+  'Солдат': 'Soldier',
+  'Капо': 'Capo',
+  'Консильери': 'Consigliere',
+  'Дон': 'Don',
+};
+
+/** Английские имена вещей коллекции — для новостей о розыгрышах. */
+const EN_ITEMS: Record<string, string> = {
+  'Сигара с особняка дона': 'A cigar from the don’s mansion',
+  'Кости из задней комнаты': 'Dice from the back room',
+  'Очки с похорон': 'Funeral shades',
+  'Ключи от седана с тонировкой': 'Keys to a tinted sedan',
+  'Револьвер с посвящения': 'The oath ceremony revolver',
+  'Перстень дона': 'The don’s ring',
+};
+
+const enRank = (rank: string | null): string => {
+  const [title, stars] = (rank ?? '').split(' ');
+
+  return `${EN_RANKS[title ?? ''] ?? title}${stars ? ` ${stars}` : ''}`;
+};
+
+/**
  * Текст события.
  *
  * Формулируется здесь, а не при записи: события хранятся разобранными на
  * части, поэтому формулировку можно переписать, не трогая уже случившееся.
  */
-export function feedText(event: Pick<FeedEvent, 'kind' | 'actor' | 'rival' | 'amount' | 'rank'>): string {
+export function feedText(
+  event: Pick<FeedEvent, 'kind' | 'actor' | 'rival' | 'amount' | 'rank'>,
+  lang: 'ru' | 'en' = 'ru',
+): string {
+  if (lang === 'en') {
+    switch (event.kind as FeedKind) {
+      case 'clan_created':
+        return `The “${event.actor}” family has made itself known`;
+      case 'clan_level':
+        return `“${event.actor}” is gaining strength: level ${event.amount ?? 1}`;
+      case 'war_started':
+        return `“${event.actor}” clashed with “${event.rival}”`;
+      case 'war_won':
+        return event.amount && event.amount > 0n
+          ? `“${event.actor}” took ${coins(event.amount)} off “${event.rival}”`
+          : `“${event.actor}” settled things with “${event.rival}”`;
+      case 'rank_up':
+        return `${event.actor} is now ${enRank(event.rank)}`;
+      case 'retired':
+        return `${event.actor} has stepped away from the business`;
+      case 'fat_envelope':
+        return `${event.actor} got a fat envelope: ${coins(event.amount)}`;
+      case 'raffle_won':
+        return `${event.actor} took “${EN_ITEMS[event.rival ?? ''] ?? event.rival}” from the raffle`;
+      default:
+        return event.actor;
+    }
+  }
+
   switch (event.kind as FeedKind) {
     case 'clan_created':
       return `Семья «${event.actor}» заявила о себе`;

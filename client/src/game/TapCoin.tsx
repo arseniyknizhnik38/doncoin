@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { hapticFeedback } from '@telegram-apps/sdk-react';
 import { DEFAULT_LIGHT, ROOM_LIGHT } from './roomLight';
+import { useT } from '../i18n';
 
 interface FloatingNumber {
   id: number;
@@ -64,6 +65,7 @@ const SPRITE_FRAMES = 8;
 const FRAME_MS = 90;
 
 export function TapCoin({ coinsPerTap, disabled, rankId, scale, backdrop, onTap }: TapCoinProps) {
+  const t = useT();
   const [floats, setFloats] = useState<FloatingNumber[]>([]);
   const [sparks, setSparks] = useState<Spark[]>([]);
   const [pressed, setPressed] = useState(false);
@@ -144,7 +146,7 @@ export function TapCoin({ coinsPerTap, disabled, rankId, scale, backdrop, onTap 
       type="button"
       onPointerDown={handleTap}
       disabled={disabled}
-      aria-label="Тапнуть"
+      aria-label={t('Тапнуть')}
       className={`relative flex h-full max-h-full items-end justify-center touch-manipulation select-none transition-transform duration-75 ${
         sprite ? '' : 'rounded-full'
       } ${pressed ? 'scale-95' : 'scale-100'} ${disabled ? 'opacity-40' : ''}`}

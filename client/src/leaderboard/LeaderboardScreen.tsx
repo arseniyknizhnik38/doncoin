@@ -1,6 +1,7 @@
 import { ErrorState, SkeletonList } from '../ui/States';
 import { PixelIcon } from '../ui/PixelIcon';
 import { useState } from 'react';
+import { useT } from '../i18n';
 import type { LeaderboardApi } from './useLeaderboard';
 
 type Scope = 'players' | 'clans';
@@ -22,6 +23,7 @@ const positionClass = (position: number) =>
         : 'text-sm text-neutral-400';
 
 export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
+  const t = useT();
   const [scope, setScope] = useState<Scope>('players');
   const { data, loading, error } = board;
 
@@ -45,7 +47,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
   return (
     <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto pt-2 pb-4 [&>*]:shrink-0">
       <header className="text-center">
-        <h2 className="font-pixel text-2xl leading-relaxed text-don-gold uppercase">Топ</h2>
+        <h2 className="font-pixel text-2xl leading-relaxed text-don-gold uppercase">{t('Топ')}</h2>
       </header>
 
       <div className="flex gap-2 rounded-lg border border-don-edge bg-don-ink/80 p-1.5">
@@ -65,7 +67,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
                 : 'text-neutral-400'
             }`}
           >
-            {label}
+            {t(label)}
           </button>
         ))}
       </div>
@@ -77,7 +79,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
                 key={entry.position}
                 position={entry.position}
                 title={entry.name}
-                subtitle={`${entry.rank}${entry.clan ? ` · ${entry.clan}` : ''}`}
+                subtitle={`${t(entry.rank)}${entry.clan ? ` · ${entry.clan}` : ''}`}
                 emblem={RANK_EMBLEMS[entry.rank]}
                 value={formatCoins(entry.totalEarned)}
                 highlight={entry.isMe}
@@ -88,7 +90,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
                 key={entry.position}
                 position={entry.position}
                 title={entry.name}
-                subtitle={`${entry.memberCount} в семье`}
+                subtitle={t('{n} в семье', { n: entry.memberCount })}
                 value={formatCoins(entry.treasury)}
                 highlight={entry.isMine}
               />
@@ -96,12 +98,12 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
 
         {scope === 'players' && data.players.top.length === 0 && (
           <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
-            Пока пусто
+            {t('Пока пусто')}
           </p>
         )}
         {scope === 'clans' && data.clans.top.length === 0 && (
           <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
-            Семей пока нет
+            {t('Семей пока нет')}
           </p>
         )}
       </div>
@@ -113,7 +115,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
             <Row
               position={data.players.me.position}
               title={data.players.me.name}
-              subtitle={data.players.me.rank}
+              subtitle={t(data.players.me.rank)}
               emblem={RANK_EMBLEMS[data.players.me.rank]}
               value={formatCoins(data.players.me.totalEarned)}
               highlight
@@ -122,13 +124,13 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
             <Row
               position={data.clans.me.position}
               title={data.clans.me.name}
-              subtitle="ваша семья"
+              subtitle={t('ваша семья')}
               value={formatCoins(data.clans.me.treasury)}
               highlight
             />
           ) : (
             <p className="text-center text-xs tracking-wider text-neutral-400">
-              Вы пока не в семье
+              {t('Вы пока не в семье')}
             </p>
           )}
         </div>

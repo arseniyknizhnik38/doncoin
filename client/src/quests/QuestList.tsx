@@ -1,3 +1,5 @@
+import { useT } from '../i18n';
+import type { Translate } from '../i18n';
 import type { QuestsApi } from './useQuests';
 
 interface QuestListProps {
@@ -7,11 +9,13 @@ interface QuestListProps {
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
 /** Срок до обнуления списка — читается как дедлайн, поэтому не в секундах. */
-function formatReset(seconds: number): string {
+function formatReset(seconds: number, t: Translate): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
 
-  return hours > 0 ? `${hours} ч ${minutes} мин` : `${minutes} мин`;
+  return hours > 0
+    ? t('{h} ч {m} мин', { h: hours, m: minutes })
+    : t('{m} мин', { m: minutes });
 }
 
 /**
@@ -19,6 +23,7 @@ function formatReset(seconds: number): string {
  * ради чего игру открывают завтра.
  */
 export function QuestList({ api }: QuestListProps) {
+  const t = useT();
   const state = api.state;
 
   if (!state) {
@@ -29,10 +34,10 @@ export function QuestList({ api }: QuestListProps) {
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between">
         <h3 className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
-          Задания дня
+          {t('Задания дня')}
         </h3>
         <span className="text-[11px] tracking-wider text-neutral-400">
-          обновятся через {formatReset(state.resetInSeconds)}
+          {t('обновятся через {time}', { time: formatReset(state.resetInSeconds, t) })}
         </span>
       </div>
 
@@ -46,7 +51,7 @@ export function QuestList({ api }: QuestListProps) {
           >
             <div className="flex items-baseline justify-between gap-2">
               <h4 className="truncate text-sm font-semibold text-don-bone">
-                {quest.title}
+                {t(quest.title)}
               </h4>
               <span className="shrink-0 text-xs text-don-gold-soft tabular-nums">
                 +{formatCoins(quest.rewardCoins)}
@@ -56,7 +61,7 @@ export function QuestList({ api }: QuestListProps) {
               </span>
             </div>
 
-            <p className="mt-0.5 text-xs text-neutral-400">{quest.description}</p>
+            <p className="mt-0.5 text-xs text-neutral-400">{t(quest.description)}</p>
 
             <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
               <div
@@ -71,7 +76,7 @@ export function QuestList({ api }: QuestListProps) {
               </span>
 
               {quest.claimed ? (
-                <span className="text-[11px] tracking-wider text-neutral-400">Получено</span>
+                <span className="text-[11px] tracking-wider text-neutral-400">{t('Получено')}</span>
               ) : (
                 <button
                   type="button"
@@ -83,7 +88,7 @@ export function QuestList({ api }: QuestListProps) {
                       : 'border border-neutral-700 text-neutral-400'
                   }`}
                 >
-                  {api.claiming === quest.id ? 'Забираем…' : 'Забрать'}
+                  {t(api.claiming === quest.id ? 'Забираем…' : 'Забрать')}
                 </button>
               )}
             </div>
@@ -105,8 +110,11 @@ export function QuestList({ api }: QuestListProps) {
         }`}
       >
         {state.chest.claimed
-          ? 'Сундук за день получен'
-          : `Сундук за все три · +${formatCoins(state.chest.rewardCoins)} · ★${state.chest.rewardRespect}`}
+          ? t('Сундук за день получен')
+          : t('Сундук за все три · +{n} · ★{r}', {
+              n: formatCoins(state.chest.rewardCoins),
+              r: state.chest.rewardRespect,
+            })}
       </button>
     </div>
   );

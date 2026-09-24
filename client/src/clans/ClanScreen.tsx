@@ -1,6 +1,7 @@
 import { ErrorState, SkeletonList } from '../ui/States';
 import { ClanWarPanel } from './ClanWarPanel';
 import { useState } from 'react';
+import { useT } from '../i18n';
 import { FeedList } from '../feed/FeedList';
 import type { FeedApi } from '../feed/useFeed';
 import type { ClansApi } from './useClans';
@@ -17,6 +18,7 @@ const memberName = (member: { firstName: string | null; username: string | null 
   member.firstName ?? (member.username ? `@${member.username}` : 'Аноним');
 
 export function ClanScreen({ clans, feed }: ClanScreenProps) {
+  const t = useT();
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
 
@@ -40,19 +42,21 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
     <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto pt-2 pb-4 [&>*]:shrink-0">
       <header className="text-center">
         <h2 className="font-pixel text-2xl leading-relaxed text-don-gold uppercase">
-          Семья
+          {t('Семья')}
         </h2>
         {/* Не ошибка, а условие: бордовым это читалось как отказ. */}
         {!data.canJoin && !my && (
           <p className="mt-2 text-xs tracking-wider text-neutral-400">
-            Открывается с ранга «{data.requiredRank.title}» —{' '}
-            {formatCoins(data.requiredRank.minBalance)} ДонКоинов
+            {t('Открывается с ранга «{rank}» — {n} ДонКоинов', {
+              rank: t(data.requiredRank.title),
+              n: formatCoins(data.requiredRank.minBalance),
+            })}
           </p>
         )}
       </header>
 
       {error && (
-        <p className="text-center text-xs tracking-wider text-don-blood-light">{error}</p>
+        <p className="text-center text-xs tracking-wider text-don-blood-light">{t(error)}</p>
       )}
 
       <FeedList api={feed} />
@@ -65,12 +69,12 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="truncate text-lg font-bold text-don-gold-soft">{my.name}</h3>
               <span className="shrink-0 text-[11px] tracking-[0.2em] text-neutral-400 uppercase">
-                {my.memberCount} в семье
+                {t('{n} в семье', { n: my.memberCount })}
               </span>
             </div>
 
             <p className="mt-3 text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
-              Касса
+              {t('Касса')}
             </p>
             <p className="text-2xl font-bold text-don-gold tabular-nums">
               {formatCoins(my.treasury)}
@@ -79,7 +83,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
             {/* Ставку проговариваем всем, а не только главе: доля, которую
                 снимают молча, читается как кража, даже когда она мала. */}
             <p className="mt-1 text-[11px] tracking-wider text-neutral-400">
-              Наверх отстёгивается {my.tributePercent}% с дохода бизнесов
+              {t('Наверх отстёгивается {n}% с дохода бизнесов', { n: my.tributePercent })}
               {my.isOwner && (
                 <>
                   {' · '}
@@ -88,22 +92,23 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                     onClick={() => clans.setTribute(my.tributePercent >= my.tributeMax ? 0 : my.tributePercent + 5)}
                     className="text-don-gold-soft underline underline-offset-2"
                   >
-                    изменить
+                    {t('изменить')}
                   </button>
                 </>
               )}
             </p>
 
             <p className="mt-2 text-xs text-neutral-400">
-              Уровень семьи{' '}
-              <span className="text-don-gold-soft">{my.level ?? 0}</span> — каждому
-              участнику{' '}
-              <span className="text-don-gold-soft">+{my.bonusPercent ?? 0}%</span> к
-              пассивному доходу
+              {t('Уровень семьи')}{' '}
+              <span className="text-don-gold-soft">{my.level ?? 0}</span>
+              {' — '}
+              {t('каждому участнику')}{' '}
+              <span className="text-don-gold-soft">+{my.bonusPercent ?? 0}%</span>{' '}
+              {t('к пассивному доходу')}
             </p>
             {my.familyXp > 0 && (
               <p className="mt-1 text-[11px] text-neutral-400">
-                Опыт за поручения: {formatCoins(my.familyXp)} — он тоже идёт в силу семьи
+                {t('Опыт за поручения: {n} — он тоже идёт в силу семьи', { n: formatCoins(my.familyXp) })}
               </p>
             )}
 
@@ -112,7 +117,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                 inputMode="numeric"
                 value={amount}
                 onChange={(event) => setAmount(event.target.value.replace(/\D/g, ''))}
-                placeholder="Сумма взноса"
+                placeholder={t('Сумма взноса')}
                 className="min-w-0 flex-1 rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm text-don-bone placeholder:text-neutral-400"
               />
               <button
@@ -124,7 +129,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                 }}
                 className="min-h-11 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
               >
-                Внести
+                {t('Внести')}
               </button>
             </div>
 
@@ -134,7 +139,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
               onClick={clans.leave}
               className="mt-3 w-full rounded-lg border border-neutral-700 px-4 min-h-11 inline-flex items-center justify-center py-2 text-xs tracking-wider text-neutral-400 disabled:opacity-40"
             >
-              {my.isOwner ? 'Распустить семью' : 'Выйти из семьи'}
+              {t(my.isOwner ? 'Распустить семью' : 'Выйти из семьи')}
             </button>
           </div>
 
@@ -145,9 +150,9 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                 className="flex items-center justify-between gap-3 rounded-lg border border-don-edge bg-don-ink/80 px-4 py-2.5 text-left"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm text-don-bone">{memberName(member)}</p>
+                  <p className="truncate text-sm text-don-bone">{t(memberName(member))}</p>
                   <p className="text-[11px] tracking-wider text-neutral-400 uppercase">
-                    {member.rank}
+                    {t(member.rank)}
                   </p>
                 </div>
                 <span className="shrink-0 text-xs text-don-gold-soft tabular-nums">
@@ -162,14 +167,14 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
           {data.canJoin && (
             <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
               <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
-                Основать свою
+                {t('Основать свою')}
               </p>
               <div className="mt-2 flex gap-2">
                 <input
                   value={name}
                   maxLength={24}
                   onChange={(event) => setName(event.target.value)}
-                  placeholder="Название семьи"
+                  placeholder={t('Название семьи')}
                   className="min-w-0 flex-1 rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm text-don-bone placeholder:text-neutral-400"
                 />
                 <button
@@ -181,7 +186,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                   }}
                   className="min-h-11 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-40"
                 >
-                  Создать
+                  {t('Создать')}
                 </button>
               </div>
             </div>
@@ -190,7 +195,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
           <div className="flex flex-col gap-2">
             {data.clans.length === 0 ? (
               <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
-                Семей пока нет. Первый основатель войдёт в историю.
+                {t('Семей пока нет. Первый основатель войдёт в историю.')}
               </p>
             ) : (
               data.clans.map((clan) => (
@@ -201,7 +206,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                   <div className="min-w-0">
                     <p className="truncate text-sm text-don-bone">{clan.name}</p>
                     <p className="text-[11px] tracking-wider text-neutral-400">
-                      {clan.memberCount} в семье · касса {formatCoins(clan.treasury)}
+                      {t('{n} в семье · касса {m}', { n: clan.memberCount, m: formatCoins(clan.treasury) })}
                     </p>
                   </div>
                   {data.canJoin && (
@@ -211,7 +216,7 @@ export function ClanScreen({ clans, feed }: ClanScreenProps) {
                       onClick={() => clans.join(clan.id)}
                       className="min-h-11 shrink-0 rounded-lg border border-don-gold/40 px-3 py-1.5 text-xs text-don-gold disabled:opacity-40"
                     >
-                      Вступить
+                      {t('Вступить')}
                     </button>
                   )}
                 </div>

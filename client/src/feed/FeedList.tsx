@@ -1,26 +1,28 @@
+import { useT } from '../i18n';
+import type { Translate } from '../i18n';
 import type { FeedApi } from './useFeed';
 
 /** «5 мин назад», «2 ч назад», «вчера» — точное время здесь не нужно. */
-function when(iso: string): string {
+function when(iso: string, t: Translate): string {
   const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
 
   if (minutes < 1) {
-    return 'только что';
+    return t('только что');
   }
 
   if (minutes < 60) {
-    return `${minutes} мин назад`;
+    return t('{n} мин назад', { n: minutes });
   }
 
   const hours = Math.floor(minutes / 60);
 
   if (hours < 24) {
-    return `${hours} ч назад`;
+    return t('{n} ч назад', { n: hours });
   }
 
   const days = Math.floor(hours / 24);
 
-  return days === 1 ? 'вчера' : `${days} дн. назад`;
+  return days === 1 ? t('вчера') : t('{n} дн. назад', { n: days });
 }
 
 /**
@@ -31,12 +33,13 @@ function when(iso: string): string {
  * попадает только редкое, иначе лента превращается в бегущую строку.
  */
 export function FeedList({ api }: { api: FeedApi }) {
+  const t = useT();
   const events = api.events;
 
   if (!events || events.length === 0) {
     return (
       <p className="rounded-lg border border-don-edge/60 px-4 py-5 text-center text-xs tracking-wider text-neutral-400">
-        {api.loading ? 'Слушаем улицу…' : 'Пока тихо. Первая новость — за вами.'}
+        {t(api.loading ? 'Слушаем улицу…' : 'Пока тихо. Первая новость — за вами.')}
       </p>
     );
   }
@@ -44,7 +47,7 @@ export function FeedList({ api }: { api: FeedApi }) {
   return (
     <div className="flex flex-col gap-1.5">
       <h3 className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
-        Что слышно
+        {t('Что слышно')}
       </h3>
 
       {events.map((event) => (
@@ -58,7 +61,7 @@ export function FeedList({ api }: { api: FeedApi }) {
         >
           <p className="text-xs text-don-bone">{event.text}</p>
           <p className="mt-0.5 text-[11px] tracking-wider text-neutral-400">
-            {when(event.createdAt)}
+            {when(event.createdAt, t)}
           </p>
         </div>
       ))}

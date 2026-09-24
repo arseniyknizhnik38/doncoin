@@ -217,7 +217,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
               <button
                 type="button"
                 onClick={() => setSettingsOpen(true)}
-                aria-label="Настройки"
+                aria-label={t('Настройки')}
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-don-edge text-base text-neutral-400 active:scale-95"
               >
                 ⚙
@@ -357,11 +357,11 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
             <div className="mt-12 min-w-[16rem] rounded-lg border border-don-edge bg-don-ink/80 px-6 py-4 backdrop-blur-sm">
               {!isTelegram ? (
                 <p className="text-sm tracking-wider text-neutral-400">
-                  Тестовый режим (не в Telegram)
+                  {t('Тестовый режим (не в Telegram)')}
                 </p>
               ) : (
                 <p className="text-sm tracking-wider text-neutral-400">
-                  {displayName ? `${displayName}, входим…` : 'Входим…'}
+                  {displayName ? t('{name}, входим…', { name: displayName }) : t('Входим…')}
                 </p>
               )}
             </div>

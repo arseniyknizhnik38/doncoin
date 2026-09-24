@@ -1,4 +1,5 @@
 import type { GameState } from '../game/types';
+import { useT } from '../i18n';
 import { ErrorState, SkeletonList } from '../ui/States';
 import type { BackdropsApi } from './useBackdrops';
 
@@ -17,6 +18,8 @@ const formatCoins = (value: string | number) => Number(value).toLocaleString('ru
  * покупает тот, кто не хочет ждать, а не тот, кто не понял.
  */
 export function BackdropList({ api, state }: BackdropListProps) {
+  const t = useT();
+
   if (!api.backdrops) {
     return api.loading ? (
       <SkeletonList rows={3} />
@@ -28,12 +31,11 @@ export function BackdropList({ api, state }: BackdropListProps) {
   return (
     <div className="flex w-full flex-col gap-3">
       <p className="text-center text-xs tracking-wider text-neutral-400">
-        Фон своего ранга достаётся даром. Остальные — за монеты, и монеты
-        уходят насовсем.
+        {t('Фон своего ранга достаётся даром. Остальные — за монеты, и монеты уходят насовсем.')}
       </p>
 
       {api.error && (
-        <p className="text-center text-xs tracking-wider text-don-blood-light">{api.error}</p>
+        <p className="text-center text-xs tracking-wider text-don-blood-light">{t(api.error)}</p>
       )}
 
       {api.backdrops.map((backdrop) => {
@@ -71,22 +73,22 @@ export function BackdropList({ api, state }: BackdropListProps) {
             <div className="p-4">
               <div className="flex items-baseline justify-between gap-2">
                 <h3 className="truncate text-base font-semibold text-don-bone">
-                  {backdrop.title}
+                  {t(backdrop.title)}
                 </h3>
                 {backdrop.equipped && (
                   <span className="shrink-0 text-[11px] tracking-[0.2em] text-don-gold uppercase">
-                    выбран
+                    {t('выбран')}
                   </span>
                 )}
               </div>
 
-              <p className="mt-0.5 text-xs text-neutral-400">{backdrop.description}</p>
+              <p className="mt-0.5 text-xs text-neutral-400">{t(backdrop.description)}</p>
 
               {!backdrop.owned && (
                 <p className="mt-1 text-[11px] text-neutral-400">
                   {backdrop.freeAt
-                    ? `Бесплатно на ранге «${backdrop.freeAt}»`
-                    : 'Рангом не даётся — только покупка'}
+                    ? t('Бесплатно на ранге «{rank}»', { rank: t(backdrop.freeAt) })
+                    : t('Рангом не даётся — только покупка')}
                 </p>
               )}
 
@@ -97,7 +99,7 @@ export function BackdropList({ api, state }: BackdropListProps) {
                   onClick={() => api.equip(backdrop.id)}
                   className="mt-3 min-h-11 w-full rounded-lg border border-don-gold/40 px-4 py-2.5 text-sm font-semibold text-don-gold active:scale-95 disabled:opacity-50"
                 >
-                  {api.busy === backdrop.id ? 'Ставим…' : 'Поставить'}
+                  {t(api.busy === backdrop.id ? 'Ставим…' : 'Поставить')}
                 </button>
               ) : backdrop.price === null ? null : (
                 <button
@@ -111,8 +113,8 @@ export function BackdropList({ api, state }: BackdropListProps) {
                   }`}
                 >
                   {api.busy === backdrop.id
-                    ? 'Покупаем…'
-                    : `Купить за ${formatCoins(backdrop.price)}`}
+                    ? t('Покупаем…')
+                    : t('Купить за {n}', { n: formatCoins(backdrop.price) })}
                 </button>
               )}
             </div>

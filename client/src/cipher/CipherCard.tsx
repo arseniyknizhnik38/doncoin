@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../i18n';
 import type { CipherApi } from './useCipher';
 
 interface CipherCardProps {
@@ -14,6 +15,7 @@ const formatCoins = (value: string | number) => Number(value).toLocaleString('ru
  * отдельное дело на пару минут, и оно не должно перебивать кнопку тапа.
  */
 export function CipherCard({ api }: CipherCardProps) {
+  const t = useT();
   const [code, setCode] = useState('');
   const cipher = api.cipher;
 
@@ -27,14 +29,14 @@ export function CipherCard({ api }: CipherCardProps) {
     return (
       <div className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-3 text-left">
         <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
-          Шифр дня
+          {t('Шифр дня')}
         </p>
         <p className="mt-1 text-sm text-neutral-400">
-          Разгадан
+          {t('Разгадан')}
           {api.justSolved && (
             <span className="text-don-gold-soft"> · +{formatCoins(api.justSolved)}</span>
           )}
-          . Следующий — завтра.
+          {'. '}{t('Следующий — завтра.')}
         </p>
       </div>
     );
@@ -46,10 +48,10 @@ export function CipherCard({ api }: CipherCardProps) {
     return (
       <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
         <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
-          Шифр дня
+          {t('Шифр дня')}
         </p>
         <p className="mt-1 text-sm text-neutral-400">
-          Попытки на сегодня кончились. Новый шифр — завтра.
+          {t('Попытки на сегодня кончились. Новый шифр — завтра.')}
         </p>
       </div>
     );
@@ -59,7 +61,7 @@ export function CipherCard({ api }: CipherCardProps) {
     <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
-          Шифр дня
+          {t('Шифр дня')}
         </p>
         <span className="text-xs text-don-gold-soft tabular-nums">
           +{formatCoins(cipher.rewardCoins)}
@@ -67,13 +69,13 @@ export function CipherCard({ api }: CipherCardProps) {
       </div>
 
       <p className="mt-1 text-xs text-neutral-400">
-        {cipher.hint ?? 'Код спрятан в нашем канале'}
+        {cipher.hint ? t(cipher.hint) : t('Код спрятан в нашем канале')}
       </p>
 
       {/* Попытки ограничены, чтобы код не подбирали перебором. Молчать об
           этом нельзя: иначе игрок узнаёт о лимите, только упершись в него. */}
       <p className="mt-1 text-[11px] tracking-wider text-neutral-400">
-        Попыток осталось: {cipher.attemptsLeft}
+        {t('Попыток осталось: {n}', { n: cipher.attemptsLeft })}
       </p>
 
       <form
@@ -88,8 +90,8 @@ export function CipherCard({ api }: CipherCardProps) {
           value={code}
           onChange={(event) => setCode(event.target.value)}
           maxLength={32}
-          placeholder="Код"
-          aria-label="Код шифра"
+          placeholder={t('Код')}
+          aria-label={t('Код шифра')}
           className="min-w-0 flex-1 rounded-lg border border-don-edge bg-black/40 px-3 py-2 text-sm tracking-[0.2em] text-don-bone uppercase placeholder:tracking-normal placeholder:text-neutral-400"
         />
         <button
@@ -97,12 +99,12 @@ export function CipherCard({ api }: CipherCardProps) {
           disabled={api.sending || !code.trim()}
           className="shrink-0 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
         >
-          {api.sending ? '…' : 'Ввести'}
+          {api.sending ? '…' : t('Ввести')}
         </button>
       </form>
 
       {api.error && (
-        <p className="mt-2 text-xs tracking-wider text-don-blood-light">{api.error}</p>
+        <p className="mt-2 text-xs tracking-wider text-don-blood-light">{t(api.error)}</p>
       )}
     </div>
   );

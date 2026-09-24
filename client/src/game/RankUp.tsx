@@ -56,7 +56,7 @@ export function RankUp({ rank, onClose }: RankUpProps) {
           <div className="flex flex-col items-center gap-1">
             <PixelIcon id={`rank-${rank.id}`} className="h-12 w-12 animate-pop-in" />
             <h2 className="animate-pop-in font-pixel text-2xl leading-relaxed text-don-gold uppercase">
-              {rank.title}
+              {t(rank.title)}
             </h2>
             <p className="text-sm tracking-[0.25em]" aria-hidden>
               {Array.from({ length: rank.stars }, (_, index) => (
@@ -72,7 +72,7 @@ export function RankUp({ rank, onClose }: RankUpProps) {
 
           {rank.unlocks && (
             <p className="rounded-lg border border-don-gold/40 bg-don-ink/80 px-4 py-2 text-sm text-don-gold-soft">
-              {rank.unlocks}
+              {t(rank.unlocks)}
             </p>
           )}
 

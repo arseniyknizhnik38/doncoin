@@ -1,4 +1,5 @@
 import { openTelegramLink } from '@telegram-apps/sdk-react';
+import { useT } from '../i18n';
 import { ErrorState, SkeletonList } from '../ui/States';
 import type { FavorsApi } from './useFavors';
 
@@ -14,6 +15,7 @@ const openChannel = (url: string) => {
 };
 
 export function FavorsScreen({ api }: { api: FavorsApi }) {
+  const t = useT();
   const { data, loading, checking, error, failed } = api;
 
   if (!data) {
@@ -31,12 +33,12 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
       </p>
 
       {error && (
-        <p className="text-center text-xs tracking-wider text-don-blood-light">{error}</p>
+        <p className="text-center text-xs tracking-wider text-don-blood-light">{t(error)}</p>
       )}
 
       {data.favors.length === 0 ? (
         <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
-          На этой неделе поручений нет. Загляните позже.
+          {t('На этой неделе поручений нет. Загляните позже.')}
         </p>
       ) : (
         data.favors.map((favor) => (
@@ -57,7 +59,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
               </div>
               {favor.completed && (
                 <span className="shrink-0 text-[11px] tracking-[0.2em] text-emerald-400/80 uppercase">
-                  ✓ Сделано
+                  ✓ {t('Сделано')}
                 </span>
               )}
             </div>
@@ -68,7 +70,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
               {favor.familyXpReward > 0 && (
                 <span className="text-neutral-400">
                   {' '}
-                  · +{favor.familyXpReward} опыта семье
+                  · {t('+{n} опыта семье', { n: favor.familyXpReward })}
                 </span>
               )}
             </p>
@@ -79,13 +81,13 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
                 читается как шум. */}
             {!favor.completed && favor.slotsLeft !== null && favor.slotsLeft <= 100 && (
               <p className="mt-1 text-xs tracking-wider text-don-blood-light">
-                Осталось наград: {favor.slotsLeft}
+                {t('Осталось наград: {n}', { n: favor.slotsLeft })}
               </p>
             )}
 
             {!favor.completed && failed?.id === favor.id && (
               <p className="mt-2 text-xs tracking-wider text-don-blood-light">
-                {failed.message}
+                {t(failed.message)}
               </p>
             )}
 
@@ -96,7 +98,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
                   onClick={() => openChannel(favor.channelUrl)}
                   className="min-h-11 flex-1 rounded-lg border border-don-gold/40 px-4 py-2.5 text-sm text-don-gold active:scale-95"
                 >
-                  Перейти
+                  {t('Перейти')}
                 </button>
                 <button
                   type="button"
@@ -104,7 +106,7 @@ export function FavorsScreen({ api }: { api: FavorsApi }) {
                   onClick={() => api.check(favor.id)}
                   className="min-h-11 flex-1 rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-2.5 text-sm font-semibold text-don-gold-soft disabled:opacity-50"
                 >
-                  {checking === favor.id ? 'Проверяем…' : 'Проверить'}
+                  {t(checking === favor.id ? 'Проверяем…' : 'Проверить')}
                 </button>
               </div>
             )}

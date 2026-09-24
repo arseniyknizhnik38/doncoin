@@ -1,4 +1,5 @@
 import type React from 'react';
+import { useT } from '../i18n';
 
 /**
  * Общие состояния экранов: заглушка загрузки и ошибка с повтором.
@@ -26,16 +27,18 @@ interface ErrorStateProps {
 }
 
 export function ErrorState({ message, onRetry }: ErrorStateProps) {
+  const t = useT();
+
   return (
     <div className="flex flex-col items-center gap-3 rounded-lg border border-don-blood/50 bg-don-ink/80 px-4 py-6">
-      <p className="text-center text-sm text-don-blood-light">{message}</p>
+      <p className="text-center text-sm text-don-blood-light">{t(message)}</p>
       {onRetry && (
         <button
           type="button"
           onClick={onRetry}
           className="rounded-lg border border-don-gold/40 px-4 min-h-11 inline-flex items-center justify-center py-2 text-sm text-don-gold active:scale-95"
         >
-          Повторить
+          {t('Повторить')}
         </button>
       )}
     </div>

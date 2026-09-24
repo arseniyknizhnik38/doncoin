@@ -1,3 +1,4 @@
+import { useT } from '../i18n';
 import { TapCoin } from './TapCoin';
 import type { GameState } from './types';
 
@@ -21,6 +22,7 @@ export function GameScreen({
   error,
   onTap,
 }: GameScreenProps) {
+  const t = useT();
   const energyPercent = Math.round((state.energy / state.energyMax) * 100);
   const empty = state.energy < state.energyPerTap;
 
@@ -61,13 +63,13 @@ export function GameScreen({
       <footer className={`flex w-full shrink-0 flex-col gap-1.5 px-3 py-2 ${PLATE}`}>
         <div className="flex items-center justify-between text-xs tracking-wider text-neutral-400">
           <span>
-            Обойма{' '}
+            {t('Обойма')}{' '}
             <span className="text-don-gold-soft tabular-nums">
               {tapsLeft} / {tapsMax}
             </span>
           </span>
           <span className={rushActive ? 'font-semibold text-don-gold' : 'text-neutral-400'}>
-            +{perTap} за тап{rushActive ? ` ×${state.rushMultiplier}` : ''}
+            +{perTap} {t('за тап')}{rushActive ? ` ×${state.rushMultiplier}` : ''}
           </span>
         </div>
 
@@ -80,11 +82,11 @@ export function GameScreen({
 
         {empty && (
           <p className="text-center text-xs tracking-wider text-don-blood-light">
-            Обойма пуста — восстанавливается {tapsPerMinute} тапов в минуту
+            {t('Обойма пуста — восстанавливается {n} тапов в минуту', { n: tapsPerMinute })}
           </p>
         )}
         {error && (
-          <p className="text-center text-xs tracking-wider text-don-blood-light">{error}</p>
+          <p className="text-center text-xs tracking-wider text-don-blood-light">{t(error)}</p>
         )}
       </footer>
     </div>

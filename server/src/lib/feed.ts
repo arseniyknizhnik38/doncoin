@@ -48,7 +48,7 @@ export interface FeedView {
   createdAt: Date;
 }
 
-export async function loadFeed(limit = FEED_LIMIT): Promise<FeedView[]> {
+export async function loadFeed(lang: 'ru' | 'en' = 'ru', limit = FEED_LIMIT): Promise<FeedView[]> {
   const events = await prisma.feedEvent.findMany({
     orderBy: { createdAt: 'desc' },
     take: limit,
@@ -57,7 +57,7 @@ export async function loadFeed(limit = FEED_LIMIT): Promise<FeedView[]> {
   return events.map((event) => ({
     id: event.id,
     kind: event.kind,
-    text: feedText(event),
+    text: feedText(event, lang),
     aboutClan: isClanEvent(event.kind),
     createdAt: event.createdAt,
   }));

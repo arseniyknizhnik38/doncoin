@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useT } from '../i18n';
 import { BackdropList } from '../backdrops/BackdropList';
 import type { BackdropsApi } from '../backdrops/useBackdrops';
 import { BusinessList } from '../businesses/BusinessList';
@@ -32,16 +33,17 @@ export function DealScreen({
   backdrops,
   state,
 }: DealScreenProps) {
+  const t = useT();
   const [mode, setMode] = useState<Mode>('upgrades');
 
   return (
     <div className="flex w-full max-w-md min-h-0 flex-1 flex-col gap-4 overflow-y-auto pt-2 pb-4 [&>*]:shrink-0">
       <header className="text-center">
         <h2 className="font-pixel text-2xl leading-relaxed text-don-gold uppercase">
-          Наше дело
+          {t('Наше дело')}
         </h2>
         <p className="mt-2 text-sm text-neutral-400">
-          В казне{' '}
+          {t('В казне')}{' '}
           <span className="font-semibold text-don-gold-soft tabular-nums">
             {formatCoins(state.balance)}
           </span>
@@ -67,7 +69,7 @@ export function DealScreen({
                 : 'text-neutral-400'
             }`}
           >
-            {label}
+            {t(label)}
           </button>
         ))}
       </div>

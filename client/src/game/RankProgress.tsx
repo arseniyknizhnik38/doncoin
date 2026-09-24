@@ -1,3 +1,4 @@
+import { useT } from '../i18n';
 import type { RankView } from './types';
 
 interface RankProgressProps {
@@ -8,6 +9,7 @@ interface RankProgressProps {
 
 /** Ранг игрока и прогресс до следующего. */
 export function RankProgress({ rank, earned }: RankProgressProps) {
+  const t = useT();
   const target = rank.next ? Number(rank.next.minBalance) : null;
 
   // Баланс обновляется локально сразу, а ранг приходит с сервера следующим
@@ -26,10 +28,10 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
       {/* Ранг и звёзды — одно сообщение, поэтому и строка одна. Раздельными
           строками шапка разрасталась на пустом месте. */}
       <p className="flex items-baseline gap-2.5 font-pixel text-base leading-relaxed text-don-gold-soft uppercase">
-        {rank.title}
+        {t(rank.title)}
         <span
           className="text-sm tracking-[0.25em]"
-          aria-label={`Звезда ${rank.star} из ${rank.stars}`}
+          aria-label={t('Звезда {a} из {b}', { a: rank.star, b: rank.stars })}
         >
           {Array.from({ length: rank.stars }, (_, index) => (
             <span
@@ -55,7 +57,7 @@ export function RankProgress({ rank, earned }: RankProgressProps) {
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label={
-          rank.next ? `До ранга ${rank.next.title}` : 'Высший ранг достигнут'
+          rank.next ? t('До ранга {rank}', { rank: t(rank.next.title) }) : t('Высший ранг достигнут')
         }
       >
         <div

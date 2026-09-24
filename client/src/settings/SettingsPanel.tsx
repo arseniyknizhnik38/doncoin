@@ -1,3 +1,4 @@
+import { useT } from '../i18n';
 import { RetirementCard } from '../retirement/RetirementCard';
 import type { RetirementApi } from '../retirement/useRetirement';
 import { ErrorState } from '../ui/States';
@@ -12,6 +13,7 @@ export function SettingsPanel({
   retirement: RetirementApi;
   onClose: () => void;
 }) {
+  const t = useT();
   const { settings, loading, saving, error } = api;
 
   return (
@@ -19,20 +21,20 @@ export function SettingsPanel({
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4 overflow-y-auto px-6 py-8 [&>*]:shrink-0">
         <header className="flex items-center justify-between">
           <h2 className="font-pixel text-2xl leading-relaxed text-don-gold uppercase">
-            Настройки
+            {t('Настройки')}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg border border-don-edge px-3 min-h-11 inline-flex items-center justify-center py-1.5 text-sm text-neutral-400"
           >
-            Закрыть
+            {t('Закрыть')}
           </button>
         </header>
 
         {!settings ? (
           loading ? (
-            <p className="text-center text-sm tracking-wider text-neutral-400">Загружаем…</p>
+            <p className="text-center text-sm tracking-wider text-neutral-400">{t('Загружаем…')}</p>
           ) : (
             <ErrorState message={error ?? 'Не удалось загрузить'} />
           )
@@ -40,10 +42,9 @@ export function SettingsPanel({
           <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-don-bone">Напоминания от бота</p>
+                <p className="text-sm font-semibold text-don-bone">{t('Напоминания от бота')}</p>
                 <p className="mt-1 text-xs text-neutral-400">
-                  Сообщение, когда энергия восстановилась, бизнесы накопили доход или
-                  серия вот-вот прервётся. Не чаще раза в сутки и не по ночам.
+                  {t('Сообщение, когда энергия восстановилась, бизнесы накопили доход или серия вот-вот прервётся. Не чаще раза в сутки и не по ночам.')}
                 </p>
               </div>
 
@@ -69,13 +70,12 @@ export function SettingsPanel({
 
             {settings.notificationsBlocked && (
               <p className="mt-3 text-xs text-don-blood-light">
-                Бот не может вам написать — похоже, он заблокирован. Разблокируйте его
-                в Telegram, и напоминания вернутся.
+                {t('Бот не может вам написать — похоже, он заблокирован. Разблокируйте его в Telegram, и напоминания вернутся.')}
               </p>
             )}
 
             {error && (
-              <p className="mt-3 text-xs text-don-blood-light">{error}</p>
+              <p className="mt-3 text-xs text-don-blood-light">{t(error)}</p>
             )}
           </div>
         )}

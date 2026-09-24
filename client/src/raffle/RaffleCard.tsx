@@ -81,7 +81,7 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
             <PixelIcon id={active.item.icon} className="h-12 w-12" />
             <div className="min-w-0">
               <h3 className="font-pixel text-base leading-relaxed text-don-gold uppercase">
-                {active.item.name}
+                {t(active.item.name)}
               </h3>
               <p className={`text-[11px] tracking-wider uppercase ${rarity.className}`}>
                 {t(rarity.title)} · {active.item.minted + 1} {t('из')} {active.item.supply}
@@ -90,7 +90,7 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
           </div>
 
           <p className="mt-2 text-xs leading-relaxed text-neutral-400">
-            {active.item.description}
+            {t(active.item.description)}
           </p>
 
           <div className="mt-3 flex items-baseline justify-between gap-3">
@@ -115,7 +115,7 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
         <p className="mt-2 border-t border-don-edge pt-2 text-[11px] text-neutral-400">
           {t('Прошлый тираж: {name} забрал «{item}»', {
             name: raffle.lastWinner.name,
-            item: raffle.lastWinner.itemName,
+            item: t(raffle.lastWinner.itemName),
           })}
         </p>
       )}
@@ -129,7 +129,7 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
             {raffle.vault.map((owned) => (
               <li key={owned.id} className="flex items-center gap-3">
                 <PixelIcon id={owned.icon} className="h-6 w-6" />
-                <span className="min-w-0 flex-1 truncate text-sm text-don-bone">{owned.name}</span>
+                <span className="min-w-0 flex-1 truncate text-sm text-don-bone">{t(owned.name)}</span>
                 <span className={`shrink-0 text-xs tabular-nums ${RARITY[owned.rarity].className}`}>
                   № {owned.serial}/{owned.supply}
                 </span>

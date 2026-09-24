@@ -1,3 +1,5 @@
+import { useT } from '../i18n';
+import type { Translate } from '../i18n';
 import type { WarState } from './types';
 
 interface ClanWarPanelProps {
@@ -10,11 +12,11 @@ const fighterName = (fighter: { firstName: string | null; username: string | nul
   fighter.firstName ?? (fighter.username ? `@${fighter.username}` : 'Аноним');
 
 /** Сколько осталось до конца войны, человеческими словами. */
-function timeLeft(endsAt: string): string {
+function timeLeft(endsAt: string, t: Translate): string {
   const ms = new Date(endsAt).getTime() - Date.now();
 
   if (ms <= 0) {
-    return 'подводим итоги';
+    return t('подводим итоги');
   }
 
   const hours = Math.floor(ms / 3_600_000);
@@ -25,7 +27,7 @@ function timeLeft(endsAt: string): string {
     const teen = days % 100 >= 11 && days % 100 <= 14;
     const word = teen || tail === 0 || tail >= 5 ? 'дней' : tail === 1 ? 'день' : 'дня';
 
-    return `${days} ${word}`;
+    return t(`{n} ${word}`, { n: days });
   }
 
   if (hours >= 1) {
@@ -33,10 +35,10 @@ function timeLeft(endsAt: string): string {
     const teen = hours % 100 >= 11 && hours % 100 <= 14;
     const word = teen || tail === 0 || tail >= 5 ? 'часов' : tail === 1 ? 'час' : 'часа';
 
-    return `${hours} ${word}`;
+    return t(`{n} ${word}`, { n: hours });
   }
 
-  return 'меньше часа';
+  return t('меньше часа');
 }
 
 const OUTCOME = {
@@ -46,14 +48,15 @@ const OUTCOME = {
 } as const;
 
 export function ClanWarPanel({ war }: ClanWarPanelProps) {
+  const t = useT();
   const { current, last } = war;
 
   if (!current && !last) {
     return (
       <div className="rounded-lg border border-don-edge/60 px-4 py-5 text-center">
-        <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">Война</p>
+        <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">{t('Война')}</p>
         <p className="mt-2 text-xs text-neutral-400">
-          Пара на эту неделю ещё не составлена. Соперник появится в понедельник.
+          {t('Пара на эту неделю ещё не составлена. Соперник появится в понедельник.')}
         </p>
       </div>
     );
@@ -68,6 +71,7 @@ export function ClanWarPanel({ war }: ClanWarPanelProps) {
 }
 
 function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
+  const t = useT();
   const mine = Number(war.me.score);
   const theirs = Number(war.rival.score);
   const total = mine + theirs;
@@ -80,10 +84,10 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
     <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-[11px] tracking-[0.25em] text-don-blood-light uppercase">
-          Война семей
+          {t('Война семей')}
         </p>
         <p className="text-[11px] tracking-wider text-neutral-400">
-          осталось {timeLeft(war.endsAt)}
+          {t('осталось')} {timeLeft(war.endsAt, t)}
         </p>
       </div>
 
@@ -118,13 +122,13 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
       </div>
 
       <p className="mt-3 text-xs text-neutral-400">
-        {leading ? 'Ведём' : total === 0 ? 'Счёт не открыт' : 'Отстаём'} · ваш вклад{' '}
+        {t(leading ? 'Ведём' : total === 0 ? 'Счёт не открыт' : 'Отстаём')} · {t('ваш вклад')}{' '}
         <span className="text-don-gold-soft tabular-nums">
           {formatCoins(war.myEarned)}
         </span>
       </p>
       <p className="mt-1 text-[11px] text-neutral-400">
-        В счёт идёт всё, что семья заработала за неделю: тапы, бизнесы, бонусы.
+        {t('В счёт идёт всё, что семья заработала за неделю: тапы, бизнесы, бонусы.')}
       </p>
 
       {war.fighters.length > 0 && (
@@ -135,9 +139,9 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
               className="flex items-center justify-between gap-3 text-xs"
             >
               <span className="truncate text-neutral-400">
-                {fighterName(fighter)}
+                {t(fighterName(fighter))}
                 {fighter.left && (
-                  <span className="ml-1 text-[11px] text-neutral-400">вышел</span>
+                  <span className="ml-1 text-[11px] text-neutral-400">{t('вышел')}</span>
                 )}
               </span>
               <span className="shrink-0 text-don-gold-soft tabular-nums">
@@ -152,22 +156,23 @@ function ActiveWar({ war }: { war: NonNullable<WarState['current']> }) {
 }
 
 function LastResult({ result }: { result: NonNullable<WarState['last']> }) {
+  const t = useT();
   const outcome = OUTCOME[result.outcome];
 
   return (
     <div className="rounded-lg border border-don-edge bg-don-ink/80 px-4 py-3 text-left">
       <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
-        Прошлая война
+        {t('Прошлая война')}
       </p>
       <p className={`mt-1 text-sm font-semibold ${outcome.tone}`}>
-        {outcome.label} · {result.rivalName}
+        {t(outcome.label)} · {result.rivalName}
       </p>
       <p className="mt-1 text-xs text-neutral-400 tabular-nums">
         {formatCoins(result.myScore)} : {formatCoins(result.rivalScore)}
       </p>
       {result.potPaid !== '0' && (
         <p className="mt-1 text-[11px] text-neutral-400">
-          {result.outcome === 'win' ? 'Взяли с проигравших' : 'Ушло из кассы'}:{' '}
+          {t(result.outcome === 'win' ? 'Взяли с проигравших' : 'Ушло из кассы')}:{' '}
           <span className="text-don-gold-soft">{formatCoins(result.potPaid)}</span>
         </p>
       )}
