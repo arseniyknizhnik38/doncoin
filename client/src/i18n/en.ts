@@ -508,4 +508,16 @@ export const EN: Record<string, string> = {
   'Сдать выручку': 'Hand in the take',
   'Выручка за сегодня уже сдана. Новый заход — завтра': 'Today’s take is already in. Next run tomorrow',
   'Такой выручки не бывает': 'No take looks like that',
+
+  'Как это работает': 'How it works',
+  'Пачка наличных': 'Cash bundle',
+  'Фишка казино': 'Casino chip',
+  'Перстень': 'Ring',
+  'Жетон копа — не тапай': 'Police badge — do not tap',
+  '30 секунд. Каждое очко — монеты по цене твоего тапа: сейчас +{n} за очко.':
+    '30 seconds. Every point pays coins at your tap price: right now +{n} per point.',
+  'Бобби: «Собирай всё, что плохо лежит. Увидел жетон — руки в карманы».':
+    'Bobby: “Grab everything that isn’t nailed down. See a badge — hands in your pockets.”',
+  'Начать забег': 'Start the run',
+  'Не сейчас': 'Not now',
 };

@@ -78,7 +78,9 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
   const [bursts, setBursts] = useState<Burst[]>([]);
   const [score, setScore] = useState(0);
   const [left, setLeft] = useState(RUN_MS);
-  const [finished, setFinished] = useState(false);
+  // Забег начинается не сразу: сначала инструктаж. Что тапать, а что
+  // нет, игрок должен узнать до первого жетона, а не после.
+  const [phase, setPhase] = useState<'intro' | 'run' | 'done'>('intro');
   const [flash, setFlash] = useState(false);
 
   const nextId = useRef(1);
@@ -87,7 +89,7 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
   // Спавн и часы живут на интервалах: точность в полсекунды здесь не
   // важна, а два таймера читаются проще игрового цикла на rAF.
   useEffect(() => {
-    if (finished) {
+    if (phase !== 'run') {
       return;
     }
 
@@ -108,7 +110,7 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
     const clock = window.setInterval(() => {
       setLeft((prev) => {
         if (prev <= 1_000) {
-          setFinished(true);
+          setPhase('done');
           return 0;
         }
 
@@ -120,7 +122,7 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
       window.clearInterval(spawner);
       window.clearInterval(clock);
     };
-  }, [finished]);
+  }, [phase]);
 
   const catchItem = useCallback(
     (item: FallingItem, clientX: number, clientY: number) => {
@@ -171,7 +173,66 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
         </div>
       </header>
 
-      {!finished ? (
+      {phase === 'intro' ? (
+        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-4 px-6">
+          <p className="text-center text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
+            {t('Как это работает')}
+          </p>
+
+          <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4">
+            <ul className="flex flex-col gap-3">
+              {[
+                { icon: 'rank-capo', label: t('Пачка наличных'), value: '+10' },
+                { icon: 'casino', label: t('Фишка казино'), value: '+25' },
+                { icon: 'ring', label: t('Перстень'), value: '+50' },
+              ].map((row) => (
+                <li key={row.icon} className="flex items-center gap-3">
+                  <PixelIcon id={row.icon} className="h-8 w-8 shrink-0" />
+                  <span className="min-w-0 flex-1 text-sm text-don-bone">{row.label}</span>
+                  <span className="shrink-0 font-display text-lg font-semibold text-don-gold-soft tabular-nums">
+                    {row.value}
+                  </span>
+                </li>
+              ))}
+              <li className="flex items-center gap-3 border-t border-don-edge pt-3">
+                <PixelIcon id="badge" className="h-8 w-8 shrink-0" />
+                <span className="min-w-0 flex-1 text-sm text-don-bone">
+                  {t('Жетон копа — не тапай')}
+                </span>
+                <span className="shrink-0 font-display text-lg font-semibold text-don-blood-light tabular-nums">
+                  −30
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <p className="text-center text-xs leading-relaxed text-neutral-400">
+            {t('30 секунд. Каждое очко — монеты по цене твоего тапа: сейчас +{n} за очко.', {
+              n: perPoint,
+            })}
+          </p>
+
+          <p className="text-center text-xs leading-relaxed text-neutral-400">
+            {t('Бобби: «Собирай всё, что плохо лежит. Увидел жетон — руки в карманы».')}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setPhase('run')}
+            className="w-full rounded-lg bg-don-blood border-b-2 border-b-don-blood-deep px-4 py-3.5 text-base font-semibold tracking-wider text-don-gold-soft active:scale-95"
+          >
+            {t('Начать забег')}
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-xs tracking-wider text-neutral-400"
+          >
+            {t('Не сейчас')}
+          </button>
+        </div>
+      ) : phase === 'run' ? (
         <div className="relative flex-1 select-none touch-none">
           {items.map((item) => (
             <button
