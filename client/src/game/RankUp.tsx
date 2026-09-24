@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { hapticFeedback } from '@telegram-apps/sdk-react';
-import { useT } from '../i18n';
+import { useLang, useT } from '../i18n';
+import { canShareStory, shareRankStory } from '../telegram/story';
 import { PixelIcon } from '../ui/PixelIcon';
 import { RANK_SPRITES } from './TapCoin';
 import type { RankView } from './types';
@@ -22,6 +23,7 @@ interface RankUpProps {
  */
 export function RankUp({ rank, onClose }: RankUpProps) {
   const t = useT();
+  const lang = useLang();
 
   useEffect(() => {
     hapticFeedback.notificationOccurred.ifAvailable('success');
@@ -83,6 +85,19 @@ export function RankUp({ rank, onClose }: RankUpProps) {
           >
             {t('В дело')}
           </button>
+
+          {/* Хвастовство — канал привлечения: карточка ранга уходит в
+              сторис с подписью и ссылкой. Кнопка только там, где Telegram
+              умеет сторис, — мёртвая кнопка хуже отсутствующей. */}
+          {canShareStory() && (
+            <button
+              type="button"
+              onClick={() => shareRankStory(rank.id, t(rank.title), lang)}
+              className="w-full rounded-lg border border-don-gold/40 px-4 py-2.5 text-sm font-semibold text-don-gold active:scale-95"
+            >
+              {t('В сторис')}
+            </button>
+          )}
         </div>
       </div>
     </div>

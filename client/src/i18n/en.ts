@@ -488,4 +488,6 @@ export const EN: Record<string, string> = {
 
   'Прошлые тиражи': 'Past draws',
   'билетов {n}': 'tickets: {n}',
+
+  'В сторис': 'To story',
 };

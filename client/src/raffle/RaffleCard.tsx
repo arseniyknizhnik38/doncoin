@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useT } from '../i18n';
+import { useLang, useT } from '../i18n';
+import { canShareStory, shareItemStory } from '../telegram/story';
 import { PixelIcon } from '../ui/PixelIcon';
 import type { RaffleApi, RaffleItem } from './useRaffle';
 
@@ -50,6 +51,7 @@ function untilDraw(endsAt: string, t: (s: string, v?: Record<string, string | nu
  */
 export function RaffleCard({ api }: { api: RaffleApi }) {
   const t = useT();
+  const lang = useLang();
   const raffle = api.raffle;
 
   // Счётчик до тиража оживает раз в минуту: точнее не нужно, тираж
@@ -147,6 +149,17 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
                 <span className={`shrink-0 text-xs tabular-nums ${RARITY[owned.rarity].className}`}>
                   № {owned.serial}/{owned.supply}
                 </span>
+                {canShareStory() && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      shareItemStory(owned.itemId, t(owned.name), owned.serial, owned.supply, lang)
+                    }
+                    className="min-h-11 shrink-0 rounded-lg border border-don-gold/40 px-2.5 text-[11px] font-semibold text-don-gold active:scale-95"
+                  >
+                    {t('В сторис')}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
