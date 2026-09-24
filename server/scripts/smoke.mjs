@@ -672,5 +672,32 @@ check('недельный счёт живой: заработок смоука �
 check('своё место в группе видно', league.payload?.league?.myPlace >= 1,
   `${league.payload?.league?.myPlace}`);
 
+// ——— «Сбор выручки»: забег раз в день, потолок очков, курс «очко = тап».
+const arcadeBefore = await call('/api/arcade', { token });
+check('сбор выручки доступен', arcadeBefore.payload?.arcade?.available === true,
+  JSON.stringify(arcadeBefore.payload));
+
+await wait(260);
+const fakeScore = await call('/api/arcade/claim', {
+  token, method: 'POST', body: { score: 999_999 },
+});
+check('поддельная выручка отклоняется', fakeScore.status === 400, `${fakeScore.status}`);
+
+const balanceBeforeArcade = BigInt(
+  (await call('/api/game/state', { token })).payload?.state?.balance ?? 0,
+);
+
+await wait(260);
+const run = await call('/api/arcade/claim', { token, method: 'POST', body: { score: 300 } });
+check('выручка сдана', run.status === 200, JSON.stringify(run.payload));
+check('награда — очки на цену тапа',
+  BigInt(run.payload?.state?.balance ?? 0) - balanceBeforeArcade === BigInt(run.payload?.reward),
+  run.payload?.reward);
+check('рекорд записан', run.payload?.best === 300, `${run.payload?.best}`);
+
+await wait(260);
+const runAgain = await call('/api/arcade/claim', { token, method: 'POST', body: { score: 10 } });
+check('второй забег в день не принимается', runAgain.status === 409, `${runAgain.status}`);
+
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);

@@ -490,4 +490,22 @@ export const EN: Record<string, string> = {
   'билетов {n}': 'tickets: {n}',
 
   'В сторис': 'To story',
+
+  // ——— Сбор выручки
+  'Сбор выручки': 'The Collection Run',
+  'Сбор выручки: 30 секунд': 'The Collection Run: 30 seconds',
+  'рекорд {n}': 'best {n}',
+  'Выручка сдана. Рекорд: {n}. Новый заход — завтра': 'Take handed in. Best: {n}. Next run tomorrow',
+  'Выручка сдана. Новый заход — завтра': 'Take handed in. Next run tomorrow',
+  'Тапай по деньгам. Жетоны не трогай.': 'Tap the money. Leave the badges alone.',
+  'Жетон': 'Badge',
+  'Забег окончен': 'Run over',
+  'Выручка сдана: +{n}': 'Take handed in: +{n}',
+  'Новый рекорд!': 'New record!',
+  'К сдаче: +{n}': 'To hand in: +{n}',
+  'это рекорд': 'a new record',
+  'Сдаём…': 'Handing in…',
+  'Сдать выручку': 'Hand in the take',
+  'Выручка за сегодня уже сдана. Новый заход — завтра': 'Today’s take is already in. Next run tomorrow',
+  'Такой выручки не бывает': 'No take looks like that',
 };

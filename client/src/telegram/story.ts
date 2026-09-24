@@ -41,6 +41,15 @@ export function shareRankStory(rankId: string, title: string, lang: Lang): void 
   shareStory.ifAvailable(cardUrl(`rank-${rankId}-${lang}.png`), { text });
 }
 
+export function shareArcadeStory(score: number, lang: Lang): void {
+  const text =
+    lang === 'en'
+      ? `My Collection Run record in DONCOIN: ${score}. Beat it: ${MINI_APP_LINK}`
+      : `Мой рекорд в «Сборе выручки» DONCOIN: ${score}. Побей: ${MINI_APP_LINK}`;
+
+  shareStory.ifAvailable(cardUrl(`arcade-${lang}.png`), { text });
+}
+
 export function shareItemStory(
   itemId: string,
   name: string,

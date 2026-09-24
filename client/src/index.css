@@ -250,3 +250,16 @@ body {
    */
   filter: sepia(0.14) saturate(0.95) brightness(0.94);
 }
+
+/* «Сбор выручки»: предмет падает сверху за пределы экрана. Линейно —
+   ускорение здесь читалось бы как лаг, а не как физика. */
+@keyframes arcade-fall {
+  from { transform: translateY(0); }
+  to { transform: translateY(115vh); }
+}
+
+.arcade-fall {
+  animation-name: arcade-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}

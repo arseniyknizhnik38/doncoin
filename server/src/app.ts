@@ -13,6 +13,7 @@ import { EnvelopeError } from './lib/envelope.js';
 import { QuestError } from './lib/quests.js';
 import { RetirementError } from './lib/retirement.js';
 import { adminRouter } from './routes/admin.js';
+import { arcadeRouter } from './routes/arcade.js';
 import { authRouter } from './routes/auth.js';
 import { backdropsRouter } from './routes/backdrops.js';
 import { boostersRouter } from './routes/boosters.js';
@@ -65,6 +66,7 @@ export function createApp() {
   app.use('/api/quests', questsRouter);
   app.use('/api/raffle', raffleRouter);
   app.use('/api/league', leagueRouter);
+  app.use('/api/arcade', arcadeRouter);
   app.use('/api/boosters', boostersRouter);
   app.use('/api/backdrops', backdropsRouter);
   app.use('/api/cipher', cipherRouter);
