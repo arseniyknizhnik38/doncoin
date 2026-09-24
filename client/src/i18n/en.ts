@@ -451,4 +451,15 @@ export const EN: Record<string, string> = {
   'Сундук уже получен': 'Chest already collected',
   'Сначала выполните все три задания': 'Finish all three jobs first',
   'Такого задания сегодня нет': 'No such job today',
+
+  // ——— Турнир недели
+  'Турнир недели': 'Tournament of the week',
+  'до конца {time}': '{time} left',
+  'Топ-10 по кентам в деле получают билеты розыгрыша: {list}':
+    'Top 10 by crew members who play get raffle tickets: {list}',
+  'бил.': 'tkt',
+  'Неделя только началась — первый кент в деле выводит в лидеры.':
+    'The week has just begun — one crew member who plays puts you on top.',
+  'У тебя кентов в деле: {n} — зови ещё': 'Your crew in play: {n} — bring more',
+  'Прошлая неделя: {name} — {n} билетов': 'Last week: {name} — {n} tickets',
 };

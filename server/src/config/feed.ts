@@ -24,7 +24,8 @@ export type FeedKind =
   | 'rank_up'
   | 'retired'
   | 'fat_envelope'
-  | 'raffle_won';
+  | 'raffle_won'
+  | 'tournament_won';
 
 /**
  * С какой ступени ранга повышение попадает в ленту.
@@ -89,6 +90,8 @@ export function feedText(
         return `${event.actor} got a fat envelope: ${coins(event.amount)}`;
       case 'raffle_won':
         return `${event.actor} took “${EN_NFT_NAMES[event.rival ?? ''] ?? event.rival}” from the raffle`;
+      case 'tournament_won':
+        return `${event.actor} won the week’s crew tournament: ${event.amount ?? 0} brought in`;
       default:
         return event.actor;
     }
@@ -113,6 +116,8 @@ export function feedText(
       return `${event.actor} получил толстый конверт: ${coins(event.amount)}`;
     case 'raffle_won':
       return `${event.actor} забрал из розыгрыша «${event.rival}»`;
+    case 'tournament_won':
+      return `${event.actor} взял недельный турнир кентов: ${event.amount ?? 0} в деле`;
     default:
       return event.actor;
   }

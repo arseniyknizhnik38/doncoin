@@ -11,6 +11,7 @@ import { buildNotifyContext, draftNotification } from '../lib/notifications.js';
 import { raffleAnnouncement } from '../lib/raffle.js';
 import { prisma } from '../lib/prisma.js';
 import { sendMessage } from '../lib/telegramApi.js';
+import { settleTournament } from '../lib/tournament.js';
 import { settleDueWars, startWarsForWeek } from '../lib/wars.js';
 
 export const cronRouter = Router();
@@ -220,14 +221,18 @@ async function runWars(_req: Request, res: Response) {
 
   const settled = await settleDueWars(now);
   const started = await startWarsForWeek(now);
+  // Турнир кентов живёт той же неделей, что и войны, — итоги подводятся
+  // тем же запуском.
+  const tournamentWinners = await settleTournament(now);
 
   console.log(
     `[wars] закрыто ${settled}, создано пар ${started.created}` +
       (started.skipped ? ` (пропуск: ${started.skipped})` : '') +
-      (started.byeClan ? `, без пары: ${started.byeClan}` : ''),
+      (started.byeClan ? `, без пары: ${started.byeClan}` : '') +
+      `, турнир: ${tournamentWinners}`,
   );
 
-  res.json({ settled, ...started });
+  res.json({ settled, ...started, tournament: { winners: tournamentWinners } });
 }
 
 cronRouter.get('/wars', runWars);

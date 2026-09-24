@@ -8,7 +8,16 @@ export interface InvitedFriend {
   taps: number;
 }
 
+export interface TournamentData {
+  endsAt: string;
+  prizes: number[];
+  top: { name: string; qualified: number; isMe: boolean }[];
+  my: { qualified: number; place: number | null };
+  last: { place: number; name: string; tickets: number }[];
+}
+
 export interface ReferralsData {
+  tournament: TournamentData;
   code: string;
   invitedCount: number;
   earned: string;

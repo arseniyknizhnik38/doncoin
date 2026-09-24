@@ -636,5 +636,24 @@ check('свежим игрокам анонс не шлётся',
   quiet || notifyWithRaffle.payload?.raffle?.sent === 0,
   `${notifyWithRaffle.payload?.raffle?.sent}`);
 
+// ——— Недельный турнир кентов: зачёт друга уже случился по ходу смоука.
+const refsWithTournament = await call('/api/referrals', { token });
+check('турнир недели отдаётся', refsWithTournament.payload?.tournament?.top?.length >= 1,
+  JSON.stringify(refsWithTournament.payload?.tournament)?.slice(0, 140));
+check('лидер турнира — пригласивший, кентов 1',
+  refsWithTournament.payload?.tournament?.top?.[0]?.isMe === true &&
+    refsWithTournament.payload?.tournament?.top?.[0]?.qualified === 1,
+  JSON.stringify(refsWithTournament.payload?.tournament?.top?.[0]));
+check('свой зачёт в турнире виден', refsWithTournament.payload?.tournament?.my?.qualified === 1,
+  `${refsWithTournament.payload?.tournament?.my?.qualified}`);
+
+const warsCron = await fetch(`${API}/api/cron/wars`, {
+  method: 'POST',
+  headers: { 'x-cron-secret': cronSecret },
+}).then(async (r) => ({ status: r.status, payload: await r.json().catch(() => null) }));
+check('крон войн подводит и турнир', warsCron.status === 200 &&
+  warsCron.payload?.tournament?.winners === 0,
+  JSON.stringify(warsCron.payload));
+
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);

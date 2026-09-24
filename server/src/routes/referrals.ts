@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import { tournamentView } from '../lib/tournament.js';
 import { prisma } from '../lib/prisma.js';
 import { TAPS_PER_RESPECT } from '../lib/game.js';
 import {
@@ -22,6 +23,7 @@ referralsRouter.get('/', async (_req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { telegramId: getTelegramId(res) },
     select: {
+      id: true,
       referralCode: true,
       referralEarned: true,
       _count: { select: { referrals: true } },
@@ -50,7 +52,10 @@ referralsRouter.get('/', async (_req: Request, res: Response) => {
     return;
   }
 
+  const tournament = await tournamentView(user.id, new Date());
+
   res.json({
+    tournament,
     code: user.referralCode,
     invitedCount: user._count.referrals,
     earned: user.referralEarned.toString(),

@@ -188,6 +188,14 @@ model User {
   /// Анонс уходит один раз за тираж — без отметки рассылка зациклилась бы.
   raffleNotifiedId String?
 
+  /// Когда этот игрок прошёл порог тапов и был засчитан пригласившему.
+  /// По этому моменту считается недельный турнир кентов: флага
+  /// referralRewarded мало — у него нет даты.
+  referralQualifiedAt DateTime?
+
+  /// Места в недельных турнирах кентов.
+  tournamentResults ReferralTournamentResult[]
+
   /// Бизнесы игрока и момент последнего начисления дохода с них.
   businesses          UserBusiness[]
   businessCollectedAt DateTime      @default(now())
@@ -632,6 +640,29 @@ model Raffle {
   totalTickets Int @default(0)
 
   createdAt DateTime @default(now())
+}
+
+/// Итог недельного турнира кентов: место, игрок, выданные билеты.
+///
+/// Строки пишутся один раз при подведении итогов; уникальность
+/// (weekNumber, place) не даёт двум запускам крона рассчитать одну неделю
+/// дважды.
+model ReferralTournamentResult {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Номер недели в счёте wars.ts: ГОД*100 + ISO-неделя.
+  weekNumber Int
+  place      Int
+  /// Сколько кентов засчитано за неделю — для честного поста итогов.
+  qualified  Int
+  tickets    Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([weekNumber, place])
+  @@index([weekNumber])
 }
 
 /// Билет розыгрыша.

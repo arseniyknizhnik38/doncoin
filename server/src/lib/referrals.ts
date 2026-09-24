@@ -75,7 +75,8 @@ export async function payReferralIfQualified(referral: {
 
   const marked = await prisma.user.updateMany({
     where: { id: referral.userId, referralRewarded: false },
-    data: { referralRewarded: true },
+    // Момент зачёта нужен недельному турниру кентов: у флага нет даты.
+    data: { referralRewarded: true, referralQualifiedAt: new Date() },
   });
 
   if (marked.count === 0) {

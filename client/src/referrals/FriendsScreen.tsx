@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useT } from '../i18n';
 import { copyTextToClipboard, shareURL } from '@telegram-apps/sdk-react';
 import { buildReferralLink } from '../config';
-import type { ReferralsData } from './types';
+import type { ReferralsData, TournamentData } from './types';
 
 interface FriendsScreenProps {
   data: ReferralsData | null;
@@ -81,6 +81,8 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
         </div>
       </div>
 
+      <TournamentCard tournament={data.tournament} />
+
       <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4">
         <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
           {t('Твоя ссылка')}
@@ -134,6 +136,94 @@ export function FriendsScreen({ data, loading, error, onRetry }: FriendsScreenPr
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+/** «3 дн 4 ч», «5 ч» — сколько осталось до конца недели турнира. */
+function untilEnd(endsAt: string, t: (s: string, v?: Record<string, string | number>) => string): string {
+  const left = new Date(endsAt).getTime() - Date.now();
+  const hours = Math.max(0, Math.floor(left / 3_600_000));
+
+  return hours >= 24
+    ? t('{d} дн {h} ч', { d: Math.floor(hours / 24), h: hours % 24 })
+    : t('{n} ч', { n: Math.max(1, hours) });
+}
+
+/**
+ * Недельный турнир кентов.
+ *
+ * Стоит над ссылкой приглашения — сначала причина звать, потом инструмент.
+ * Считаются только кенты в деле (прошедшие порог тапов): место в турнире
+ * ботофермой не взять, как и саму награду за друга.
+ */
+function TournamentCard({ tournament }: { tournament?: TournamentData }) {
+  const t = useT();
+
+  if (!tournament) {
+    return null;
+  }
+
+  const inTop = tournament.top.some((row) => row.isMe);
+
+  return (
+    <div className="rounded-lg border border-don-gold/40 bg-don-ink/80 p-4 text-left">
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
+          {t('Турнир недели')}
+        </p>
+        <span className="shrink-0 text-[11px] tracking-wider text-neutral-400 tabular-nums">
+          {t('до конца {time}', { time: untilEnd(tournament.endsAt, t) })}
+        </span>
+      </div>
+
+      <p className="mt-1 text-xs leading-relaxed text-neutral-400">
+        {t('Топ-10 по кентам в деле получают билеты розыгрыша: {list}', {
+          list: tournament.prizes.slice(0, 3).join(', ') + '…',
+        })}
+      </p>
+
+      {tournament.top.length > 0 ? (
+        <ul className="mt-3 flex flex-col gap-1.5">
+          {tournament.top.map((row, index) => (
+            <li
+              key={`${row.name}-${index}`}
+              className={`flex items-center justify-between gap-3 text-sm ${
+                row.isMe ? 'text-don-gold-soft' : 'text-don-bone'
+              }`}
+            >
+              <span className="min-w-0 truncate">
+                <span className="mr-2 inline-block w-5 text-right text-xs text-neutral-400 tabular-nums">
+                  {index + 1}
+                </span>
+                {row.name}
+              </span>
+              <span className="shrink-0 text-xs tabular-nums text-neutral-400">
+                {row.qualified} · +{tournament.prizes[index] ?? 0} {t('бил.')}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-xs tracking-wider text-neutral-400">
+          {t('Неделя только началась — первый кент в деле выводит в лидеры.')}
+        </p>
+      )}
+
+      {!inTop && tournament.my.qualified > 0 && (
+        <p className="mt-2 border-t border-don-edge pt-2 text-xs text-neutral-400">
+          {t('У тебя кентов в деле: {n} — зови ещё', { n: tournament.my.qualified })}
+        </p>
+      )}
+
+      {tournament.last.length > 0 && (
+        <p className="mt-2 border-t border-don-edge pt-2 text-[11px] text-neutral-400">
+          {t('Прошлая неделя: {name} — {n} билетов', {
+            name: tournament.last[0]!.name,
+            n: tournament.last[0]!.tickets,
+          })}
+        </p>
+      )}
     </div>
   );
 }
