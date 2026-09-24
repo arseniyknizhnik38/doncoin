@@ -599,5 +599,42 @@ check('лента объявила победителя',
   feedAfterDraw.payload?.events?.some((event) => event.kind === 'raffle_won'),
   JSON.stringify(feedAfterDraw.payload?.events?.slice(0, 3)));
 
+// ——— Крон уведомлений и анонс розыгрыша.
+//
+// Секрет обязателен, а поле raffle появляется, только когда идёт розыгрыш.
+// Реальная отправка здесь не проверяется — токен бота тестовый; проверяется
+// отбор и форма ответа.
+const cronNoSecret = await call('/api/cron/notify', { method: 'POST' });
+check('крон без секрета не отвечает', cronNoSecret.status === 404, `${cronNoSecret.status}`);
+
+const cronSecret = process.env.CRON_SECRET ?? 'verify-cron';
+const notifyIdle = await fetch(`${API}/api/cron/notify`, {
+  method: 'POST',
+  headers: { 'x-cron-secret': cronSecret },
+}).then(async (r) => ({ status: r.status, payload: await r.json().catch(() => null) }));
+check('крон уведомлений отвечает', notifyIdle.status === 200, JSON.stringify(notifyIdle.payload));
+// Ночью крон уходит в тихие часы и поля raffle не отдаёт — это тоже норма.
+const quiet = notifyIdle.payload?.skipped === 'quiet-hours';
+check('без розыгрыша анонсов нет', quiet || notifyIdle.payload?.raffle === null,
+  JSON.stringify(notifyIdle.payload));
+
+await wait(260);
+const secondRaffleForNotify = await call('/api/admin/raffle', {
+  token, method: 'POST', body: { itemId: 'dice' },
+});
+check('второй розыгрыш объявлен', secondRaffleForNotify.status === 200,
+  JSON.stringify(secondRaffleForNotify.payload));
+
+const notifyWithRaffle = await fetch(`${API}/api/cron/notify`, {
+  method: 'POST',
+  headers: { 'x-cron-secret': cronSecret },
+}).then(async (r) => ({ status: r.status, payload: await r.json().catch(() => null) }));
+check('при живом розыгрыше поле анонсов на месте',
+  quiet || (notifyWithRaffle.payload?.raffle !== null && notifyWithRaffle.payload?.raffle !== undefined),
+  JSON.stringify(notifyWithRaffle.payload));
+check('свежим игрокам анонс не шлётся',
+  quiet || notifyWithRaffle.payload?.raffle?.sent === 0,
+  `${notifyWithRaffle.payload?.raffle?.sent}`);
+
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);

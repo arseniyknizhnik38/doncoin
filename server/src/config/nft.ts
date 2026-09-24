@@ -23,6 +23,19 @@ export interface NftCatalogItem {
   supply: number;
 }
 
+/**
+ * Английские имена вещей — для ленты и личных сообщений бота.
+ * Интерфейс переводит клиент, но эти тексты собираются на сервере.
+ */
+export const EN_NFT_NAMES: Record<string, string> = {
+  'Сигара с особняка дона': 'A cigar from the don’s mansion',
+  'Кости из задней комнаты': 'Dice from the back room',
+  'Очки с похорон': 'Funeral shades',
+  'Ключи от седана с тонировкой': 'Keys to a tinted sedan',
+  'Револьвер с посвящения': 'The oath ceremony revolver',
+  'Перстень дона': 'The don’s ring',
+};
+
 export const NFT_CATALOG: NftCatalogItem[] = [
   {
     id: 'cigar',

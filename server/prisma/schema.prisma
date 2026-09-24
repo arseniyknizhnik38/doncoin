@@ -184,6 +184,10 @@ model User {
   raffleTickets RaffleTicket[]
   rafflesWon    Raffle[]
 
+  /// О каком розыгрыше боту уже случалось написать этому игроку.
+  /// Анонс уходит один раз за тираж — без отметки рассылка зациклилась бы.
+  raffleNotifiedId String?
+
   /// Бизнесы игрока и момент последнего начисления дохода с них.
   businesses          UserBusiness[]
   businessCollectedAt DateTime      @default(now())

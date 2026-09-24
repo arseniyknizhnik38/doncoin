@@ -39,6 +39,7 @@ const env = {
   DATABASE_POOL_MAX: '1',
   TELEGRAM_BOT_TOKEN: BOT_TOKEN,
   ADMIN_TELEGRAM_IDS: '777001',
+  CRON_SECRET: 'verify-cron',
   PORT: String(PORT),
   API: `http://127.0.0.1:${PORT}`,
 };

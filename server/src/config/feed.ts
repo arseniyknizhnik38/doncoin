@@ -1,4 +1,5 @@
 import type { FeedEvent } from '../generated/prisma/client.js';
+import { EN_NFT_NAMES } from './nft.js';
 
 /**
  * Лента «Что слышно».
@@ -52,16 +53,6 @@ const EN_RANKS: Record<string, string> = {
   'Дон': 'Don',
 };
 
-/** Английские имена вещей коллекции — для новостей о розыгрышах. */
-const EN_ITEMS: Record<string, string> = {
-  'Сигара с особняка дона': 'A cigar from the don’s mansion',
-  'Кости из задней комнаты': 'Dice from the back room',
-  'Очки с похорон': 'Funeral shades',
-  'Ключи от седана с тонировкой': 'Keys to a tinted sedan',
-  'Револьвер с посвящения': 'The oath ceremony revolver',
-  'Перстень дона': 'The don’s ring',
-};
-
 const enRank = (rank: string | null): string => {
   const [title, stars] = (rank ?? '').split(' ');
 
@@ -97,7 +88,7 @@ export function feedText(
       case 'fat_envelope':
         return `${event.actor} got a fat envelope: ${coins(event.amount)}`;
       case 'raffle_won':
-        return `${event.actor} took “${EN_ITEMS[event.rival ?? ''] ?? event.rival}” from the raffle`;
+        return `${event.actor} took “${EN_NFT_NAMES[event.rival ?? ''] ?? event.rival}” from the raffle`;
       default:
         return event.actor;
     }

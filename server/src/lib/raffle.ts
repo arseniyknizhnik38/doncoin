@@ -1,4 +1,6 @@
 import { randomInt } from 'node:crypto';
+import { EN_NFT_NAMES } from '../config/nft.js';
+import type { NftItem, Raffle } from '../generated/prisma/client.js';
 import { actorName, recordFeed } from './feed.js';
 import { prisma } from './prisma.js';
 
@@ -48,6 +50,35 @@ export async function ticketWindowStart(): Promise<Date> {
   const last = await prisma.raffle.aggregate({ _max: { drawnAt: true } });
 
   return last._max.drawnAt ?? new Date(0);
+}
+
+/**
+ * Личное сообщение об идущем розыгрыше — в тоне игры и на языке игрока.
+ *
+ * Никаких обещаний цены: только вещь, номер экземпляра и как получить
+ * билеты. Остальное игрок решает сам.
+ */
+export function raffleAnnouncement(
+  raffle: Raffle & { item: NftItem },
+  language: string,
+): string {
+  const serial = raffle.item.minted + 1;
+
+  if (language === 'en') {
+    const name = EN_NFT_NAMES[raffle.item.name] ?? raffle.item.name;
+
+    return (
+      `The family is holding a raffle: “${name}”, No. ${serial} of ${raffle.item.supply} — ` +
+      'no more will ever be made. Tickets come with the daily bonus, subscriptions ' +
+      'and a crew member who plays. Get in before the draw.'
+    );
+  }
+
+  return (
+    `В семье розыгрыш: «${raffle.item.name}», № ${serial} из ${raffle.item.supply} — ` +
+    'больше таких не выпустят. Билет — за бонус дня, за подписку, за кента в деле. ' +
+    'Успей до тиража.'
+  );
 }
 
 /** Отказ в тираже с кодом — маршрут превращает его в понятный ответ. */

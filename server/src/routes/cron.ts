@@ -8,6 +8,7 @@ import {
   isQuietTime,
 } from '../config/notifications.js';
 import { buildNotifyContext, draftNotification } from '../lib/notifications.js';
+import { raffleAnnouncement } from '../lib/raffle.js';
 import { prisma } from '../lib/prisma.js';
 import { sendMessage } from '../lib/telegramApi.js';
 import { settleDueWars, startWarsForWeek } from '../lib/wars.js';
@@ -78,6 +79,64 @@ async function runNotify(_req: Request, res: Response) {
     now.getTime() - MIN_HOURS_BETWEEN_NOTIFICATIONS * 3_600_000,
   );
 
+  // ——— Идущий розыгрыш объявляется первым: у него есть срок, у остальных
+  // поводов — нет. Каждому пишем один раз за тираж; кто заходил в последний
+  // час — увидит карточку в игре сам, ему не пишем. Суточный лимит и тихие
+  // часы общие: обещание «не чаще раза в сутки» дороже анонса.
+  const activeRaffle = await prisma.raffle.findFirst({
+    where: { drawnAt: null },
+    include: { item: true },
+  });
+
+  let raffleSent = 0;
+  let raffleBlocked = 0;
+  let raffleFailed = 0;
+
+  if (activeRaffle) {
+    const raffleCandidates = await prisma.user.findMany({
+      where: {
+        notificationsEnabled: true,
+        notificationsBlocked: false,
+        lastSeenAt: { lt: new Date(now.getTime() - 3_600_000) },
+        OR: [{ raffleNotifiedId: null }, { raffleNotifiedId: { not: activeRaffle.id } }],
+        AND: [
+          { OR: [{ lastNotifiedAt: null }, { lastNotifiedAt: { lt: notifiedBefore } }] },
+        ],
+      },
+      // Сначала самые живые: у них выше шанс успеть набрать билеты.
+      orderBy: { lastSeenAt: 'desc' },
+      take: BATCH_SIZE,
+    });
+
+    for (const user of raffleCandidates) {
+      const result = await sendMessage(
+        user.telegramId,
+        raffleAnnouncement(activeRaffle, user.language),
+        botToken,
+      );
+
+      if (result === 'sent') {
+        raffleSent += 1;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastNotifiedAt: now, raffleNotifiedId: activeRaffle.id },
+        });
+      } else if (result === 'blocked') {
+        raffleBlocked += 1;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { notificationsBlocked: true },
+        });
+      } else {
+        raffleFailed += 1;
+      }
+
+      await sleep(SEND_DELAY_MS);
+    }
+  }
+
+  // Кандидаты обычной рассылки выбираются после анонсов: получившие анонс
+  // выпадают сами — их lastNotifiedAt уже свежий.
   const candidates = await prisma.user.findMany({
     where: {
       notificationsEnabled: true,
@@ -130,10 +189,19 @@ async function runNotify(_req: Request, res: Response) {
   }
 
   console.log(
-    `[notify] кандидатов ${candidates.length}: отправлено ${sent}, нечего сказать ${nothingToSay}, заблокировали ${blocked}, ошибок ${failed}`,
+    `[notify] розыгрыш: ${raffleSent} · кандидатов ${candidates.length}: отправлено ${sent}, нечего сказать ${nothingToSay}, заблокировали ${blocked}, ошибок ${failed}`,
   );
 
-  res.json({ candidates: candidates.length, sent, nothingToSay, blocked, failed });
+  res.json({
+    candidates: candidates.length,
+    sent,
+    nothingToSay,
+    blocked,
+    failed,
+    raffle: activeRaffle
+      ? { sent: raffleSent, blocked: raffleBlocked, failed: raffleFailed }
+      : null,
+  });
 }
 
 cronRouter.get('/notify', runNotify);
