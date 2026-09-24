@@ -1,3 +1,4 @@
+import { PixelIcon } from '../ui/PixelIcon';
 import { ErrorState, SkeletonList } from '../ui/States';
 import { useState } from 'react';
 import { useT } from '../i18n';
@@ -154,9 +155,13 @@ function untilEnd(endsAt: string, t: (s: string, v?: Record<string, string | num
  * Недельный турнир кентов.
  *
  * Стоит над ссылкой приглашения — сначала причина звать, потом инструмент.
- * Считаются только кенты в деле (прошедшие порог тапов): место в турнире
- * ботофермой не взять, как и саму награду за друга.
+ * Верх карточки — подиум на три места: пустые ступени с призами работают
+ * приглашением лучше любой строки текста, потому что видно, что первое
+ * место сейчас берётся одним живым кентом. Хвост таблицы — компактным
+ * списком, как в «Топе».
  */
+const PODIUM_CLASS = ['text-don-gold', 'text-don-bone', 'text-don-blood-light'] as const;
+
 function TournamentCard({ tournament }: { tournament?: TournamentData }) {
   const t = useT();
 
@@ -165,49 +170,82 @@ function TournamentCard({ tournament }: { tournament?: TournamentData }) {
   }
 
   const inTop = tournament.top.some((row) => row.isMe);
+  const tail = tournament.top.slice(3);
 
   return (
     <div className="rounded-lg border border-don-gold/40 bg-don-ink/80 p-4 text-left">
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="text-[11px] tracking-[0.25em] text-don-gold-soft uppercase">
+      <div className="flex items-center gap-2.5">
+        <PixelIcon id="trophy" className="h-6 w-6 shrink-0" />
+        <h3 className="min-w-0 flex-1 font-pixel text-base leading-relaxed text-don-gold uppercase">
           {t('Турнир недели')}
+        </h3>
+      </div>
+
+      <div className="mt-1.5 flex items-baseline justify-between gap-3">
+        <p className="min-w-0 text-[11px] leading-relaxed text-neutral-400">
+          {t('Кто привёл больше кентов в деле — забирает билеты розыгрыша')}
         </p>
-        <span className="shrink-0 text-[11px] tracking-wider text-neutral-400 tabular-nums">
+        <span className="shrink-0 text-[11px] tracking-wider text-don-gold-soft tabular-nums">
           {t('до конца {time}', { time: untilEnd(tournament.endsAt, t) })}
         </span>
       </div>
 
-      <p className="mt-1 text-xs leading-relaxed text-neutral-400">
-        {t('Топ-10 по кентам в деле получают билеты розыгрыша: {list}', {
-          list: tournament.prizes.slice(0, 3).join(', ') + '…',
-        })}
-      </p>
+      {/* Подиум: три места всегда на экране, даже пустые. */}
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        {[0, 1, 2].map((index) => {
+          const row = tournament.top[index];
 
-      {tournament.top.length > 0 ? (
-        <ul className="mt-3 flex flex-col gap-1.5">
-          {tournament.top.map((row, index) => (
+          return (
+            <div
+              key={index}
+              className={`rounded-lg border px-2 py-2 text-center ${
+                row?.isMe
+                  ? 'border-don-gold/70 bg-don-ink'
+                  : 'border-don-edge bg-black/40'
+              }`}
+            >
+              <p className={`font-pixel text-base leading-relaxed ${PODIUM_CLASS[index]}`}>
+                {index + 1}
+              </p>
+              <p
+                className={`truncate text-xs ${
+                  row ? 'text-don-bone' : 'text-neutral-400'
+                }`}
+              >
+                {row ? row.name : t('свободно')}
+              </p>
+              <p className="text-[11px] text-neutral-400 tabular-nums">
+                {row ? t('в деле: {n}', { n: row.qualified }) : '·'}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-don-gold-soft tabular-nums">
+                +{tournament.prizes[index] ?? 0} {t('бил.')}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+
+      {tail.length > 0 && (
+        <ul className="mt-2 flex flex-col gap-1">
+          {tail.map((row, index) => (
             <li
               key={`${row.name}-${index}`}
-              className={`flex items-center justify-between gap-3 text-sm ${
-                row.isMe ? 'text-don-gold-soft' : 'text-don-bone'
+              className={`flex items-center justify-between gap-3 text-xs ${
+                row.isMe ? 'text-don-gold-soft' : 'text-neutral-400'
               }`}
             >
               <span className="min-w-0 truncate">
-                <span className="mr-2 inline-block w-5 text-right text-xs text-neutral-400 tabular-nums">
-                  {index + 1}
+                <span className="mr-2 inline-block w-4 text-right tabular-nums">
+                  {index + 4}
                 </span>
                 {row.name}
               </span>
-              <span className="shrink-0 text-xs tabular-nums text-neutral-400">
-                {row.qualified} · +{tournament.prizes[index] ?? 0} {t('бил.')}
+              <span className="shrink-0 tabular-nums">
+                {row.qualified} · +{tournament.prizes[index + 3] ?? 0} {t('бил.')}
               </span>
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="mt-3 text-xs tracking-wider text-neutral-400">
-          {t('Неделя только началась — первый кент в деле выводит в лидеры.')}
-        </p>
       )}
 
       {!inTop && tournament.my.qualified > 0 && (

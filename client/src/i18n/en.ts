@@ -453,7 +453,7 @@ export const EN: Record<string, string> = {
   'Такого задания сегодня нет': 'No such job today',
 
   // ——— Турнир недели
-  'Турнир недели': 'Tournament of the week',
+  'Турнир недели': 'The Crew Cup',
   'до конца {time}': '{time} left',
   'Топ-10 по кентам в деле получают билеты розыгрыша: {list}':
     'Top 10 by crew members who play get raffle tickets: {list}',
@@ -462,4 +462,9 @@ export const EN: Record<string, string> = {
     'The week has just begun — one crew member who plays puts you on top.',
   'У тебя кентов в деле: {n} — зови ещё': 'Your crew in play: {n} — bring more',
   'Прошлая неделя: {name} — {n} билетов': 'Last week: {name} — {n} tickets',
+
+  'Кто привёл больше кентов в деле — забирает билеты розыгрыша':
+    'Bring the most crew members who play — take the raffle tickets',
+  'свободно': 'open',
+  'в деле: {n}': 'in play: {n}',
 };
