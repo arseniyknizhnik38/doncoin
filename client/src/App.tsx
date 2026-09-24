@@ -23,6 +23,7 @@ import { RankUp } from './game/RankUp';
 import { RankBackdrop } from './game/RankBackdrop';
 import { LeaderboardScreen } from './leaderboard/LeaderboardScreen';
 import { useLeaderboard } from './leaderboard/useLeaderboard';
+import { useLeague } from './leaderboard/useLeague';
 import { useGame } from './game/useGame';
 import { useReferrals } from './referrals/useReferrals';
 import { Onboarding } from './onboarding/Onboarding';
@@ -111,6 +112,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
   const backdrops = useBackdrops(sessionToken, refreshKeys.shop, game.applyServerState);
   const daily = useDaily(sessionToken, auth.daily, game.applyServerState);
   const board = useLeaderboard(sessionToken, refreshKeys.top);
+  const leagueApi = useLeague(sessionToken, refreshKeys.top);
   const tasks = useTasks(sessionToken, game.applyServerState);
   const [tasksOpen, setTasksOpen] = useState(false);
   // Задания дня перезапрашиваются при каждом открытии панели: прогресс по
@@ -269,7 +271,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
           ) : tab === 'clan' ? (
             <ClanScreen clans={clans} feed={feed} />
           ) : tab === 'top' ? (
-            <LeaderboardScreen board={board} />
+            <LeaderboardScreen board={board} league={leagueApi} />
           ) : (
             <FamilyScreen referrals={referrals} />
           )}

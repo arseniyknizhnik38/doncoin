@@ -3,8 +3,9 @@ import { PixelIcon } from '../ui/PixelIcon';
 import { useState } from 'react';
 import { useT } from '../i18n';
 import type { LeaderboardApi } from './useLeaderboard';
+import type { LeagueApi } from './useLeague';
 
-type Scope = 'players' | 'clans';
+type Scope = 'players' | 'clans' | 'league';
 
 const formatCoins = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
@@ -22,7 +23,7 @@ const positionClass = (position: number) =>
         ? 'font-pixel text-xs text-don-blood-light'
         : 'text-sm text-neutral-400';
 
-export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
+export function LeaderboardScreen({ board, league }: { board: LeaderboardApi; league: LeagueApi }) {
   const t = useT();
   const [scope, setScope] = useState<Scope>('players');
   const { data, loading, error } = board;
@@ -55,6 +56,7 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
           [
             ['players', 'Игроки'],
             ['clans', 'Семьи'],
+            ['league', 'Лига'],
           ] as [Scope, string][]
         ).map(([id, label]) => (
           <button
@@ -72,6 +74,9 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
         ))}
       </div>
 
+      {scope === 'league' ? (
+        <LeagueBoard api={league} />
+      ) : (
       <div className="flex flex-col gap-2">
         {scope === 'players'
           ? data.players.top.map((entry) => (
@@ -107,9 +112,10 @@ export function LeaderboardScreen({ board }: { board: LeaderboardApi }) {
           </p>
         )}
       </div>
+      )}
 
       {/* Своя строка отдельно — если не попал в показанный топ. */}
-      {!inTop && (
+      {scope !== 'league' && !inTop && (
         <div className="border-t border-don-edge pt-3">
           {scope === 'players' ? (
             <Row
@@ -178,6 +184,99 @@ function Row({ position, title, subtitle, value, highlight, emblem }: RowProps) 
         </p>
       </div>
       <span className="shrink-0 text-sm text-don-gold-soft tabular-nums">{value}</span>
+    </div>
+  );
+}
+
+/** «2 дн 14 ч» до конца недели лиги. */
+function leagueTimeLeft(endsAt: string, t: (s: string, v?: Record<string, string | number>) => string): string {
+  const left = new Date(endsAt).getTime() - Date.now();
+  const hours = Math.max(0, Math.floor(left / 3_600_000));
+
+  return hours >= 24
+    ? t('{d} дн {h} ч', { d: Math.floor(hours / 24), h: hours % 24 })
+    : t('{n} ч', { n: Math.max(1, hours) });
+}
+
+const OUTCOME_LINE = {
+  up: { text: 'На прошлой неделе: повышение', tone: 'text-don-gold' },
+  down: { text: 'На прошлой неделе: понижение', tone: 'text-don-blood-light' },
+} as const;
+
+/**
+ * Группа личной лиги: полсотни равных и два порога между ними.
+ *
+ * Зоны повышения и вылета показываются разделителями прямо в таблице:
+ * игрок должен видеть не «я 17-й», а «мне два места до зоны повышения».
+ */
+function LeagueBoard({ api }: { api: LeagueApi }) {
+  const t = useT();
+  const { league, loading } = api;
+
+  if (!league) {
+    return loading ? (
+      <SkeletonList rows={5} />
+    ) : (
+      <p className="rounded-lg border border-don-edge/60 px-4 py-6 text-center text-xs tracking-wider text-neutral-400">
+        {t('Лига соберётся после первого захода на этой неделе')}
+      </p>
+    );
+  }
+
+  const outcome = league.lastOutcome && league.lastOutcome !== 'stay'
+    ? OUTCOME_LINE[league.lastOutcome]
+    : null;
+  const demoteFrom = league.demoteCount > 0
+    ? league.standings.length - league.demoteCount
+    : Infinity;
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="rounded-lg border border-don-gold/40 bg-don-ink/80 p-4 text-left">
+        <div className="flex items-center gap-2.5">
+          <PixelIcon id="trophy" className="h-6 w-6 shrink-0" />
+          <h3 className="min-w-0 flex-1 font-pixel text-base leading-relaxed text-don-gold uppercase">
+            {t(league.tierTitle)}
+          </h3>
+        </div>
+        <div className="mt-1.5 flex items-baseline justify-between gap-3">
+          <p className="text-[11px] tracking-wider text-neutral-400">
+            {t('лига {a} из {b}', { a: league.tier + 1, b: league.tiersTotal })}
+            {league.promoteCount > 0 &&
+              ` · ${t('вверх уходят {n}', { n: league.promoteCount })}`}
+          </p>
+          <span className="shrink-0 text-[11px] tracking-wider text-don-gold-soft tabular-nums">
+            {t('до конца {time}', { time: leagueTimeLeft(league.endsAt, t) })}
+          </span>
+        </div>
+        {outcome && (
+          <p className={`mt-1 text-[11px] tracking-wider ${outcome.tone}`}>
+            {t(outcome.text)}
+          </p>
+        )}
+      </div>
+
+      {league.standings.map((row, index) => (
+        <div key={`${row.name}-${index}`}>
+          {index === league.promoteCount && league.promoteCount > 0 && (
+            <p className="mb-2 border-t border-don-gold/40 pt-1 text-center text-[10px] tracking-[0.25em] text-don-gold-soft uppercase">
+              {t('выше — зона повышения')}
+            </p>
+          )}
+          {index === demoteFrom && (
+            <p className="mb-2 border-t border-don-blood/50 pt-1 text-center text-[10px] tracking-[0.25em] text-don-blood-light uppercase">
+              {t('ниже — зона вылета')}
+            </p>
+          )}
+          <Row
+            position={index + 1}
+            title={row.name}
+            subtitle={t('за неделю')}
+            value={formatCoins(row.earned)}
+            highlight={row.isMe}
+          />
+        </div>
+      ))}
     </div>
   );
 }

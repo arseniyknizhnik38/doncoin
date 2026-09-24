@@ -27,6 +27,7 @@ import { dailyRouter } from './routes/daily.js';
 import { favorsRouter } from './routes/favors.js';
 import { gameRouter } from './routes/game.js';
 import { leaderboardRouter } from './routes/leaderboard.js';
+import { leagueRouter } from './routes/league.js';
 import { perksRouter } from './routes/perks.js';
 import { questsRouter } from './routes/quests.js';
 import { raffleRouter } from './routes/raffle.js';
@@ -63,6 +64,7 @@ export function createApp() {
   app.use('/api/daily', dailyRouter);
   app.use('/api/quests', questsRouter);
   app.use('/api/raffle', raffleRouter);
+  app.use('/api/league', leagueRouter);
   app.use('/api/boosters', boostersRouter);
   app.use('/api/backdrops', backdropsRouter);
   app.use('/api/cipher', cipherRouter);

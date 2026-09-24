@@ -7,6 +7,7 @@ import { collectBusinessIncome } from '../lib/businesses.js';
 import { prisma as db } from '../lib/prisma.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { recordActiveDay } from '../lib/activity.js';
+import { ensureLeague } from '../lib/league.js';
 import { announceRankIfRisen } from '../lib/feed.js';
 import { prisma } from '../lib/prisma.js';
 import { createSessionToken } from '../lib/session.js';
@@ -97,6 +98,10 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
           where: { id: stored.id },
           data: { lastSeenAt: now },
         });
+
+  // Личная лига: перекат в новую неделю происходит здесь, после offline-
+  // начислений — так недельный счёт стартует от полного totalEarned.
+  await ensureLeague(user, now);
 
   // Бизнесы работают независимо от тапов — начисляем их доход тем же входом.
   const business = isNew

@@ -196,6 +196,20 @@ model User {
   /// Места в недельных турнирах кентов.
   tournamentResults ReferralTournamentResult[]
 
+  /// Личная лига: неделя, ступень, группа и след прошлой недели.
+  ///
+  /// Перекат ленивый — при первом входе новой недели. leagueLastGroupId и
+  /// leagueLastScore хранят след завершённой недели: по ним судится итог
+  /// группы даже после того, как её участники разошлись по новым группам.
+  leagueWeek        Int     @default(0)
+  leagueTier        Int     @default(0)
+  leagueGroupId     String?
+  leagueGroup       LeagueGroup? @relation(fields: [leagueGroupId], references: [id], onDelete: SetNull)
+  leagueLastGroupId String?
+  leagueStartEarned BigInt  @default(0)
+  leagueLastScore   BigInt  @default(0)
+  leagueLastOutcome String?
+
   /// Бизнесы игрока и момент последнего начисления дохода с них.
   businesses          UserBusiness[]
   businessCollectedAt DateTime      @default(now())
@@ -640,6 +654,23 @@ model Raffle {
   totalTickets Int @default(0)
 
   createdAt DateTime @default(now())
+}
+
+/// Группа личной лиги: до полусотни игроков одной ступени одной недели.
+///
+/// Хранит только счётчик мест — состав определяется полем leagueGroupId
+/// самих игроков, а итоги недели восстановимы из их следов.
+model LeagueGroup {
+  id          String @id @default(uuid())
+  weekNumber  Int
+  tier        Int
+  memberCount Int    @default(0)
+
+  members User[]
+
+  createdAt DateTime @default(now())
+
+  @@index([weekNumber, tier, memberCount])
 }
 
 /// Итог недельного турнира кентов: место, игрок, выданные билеты.

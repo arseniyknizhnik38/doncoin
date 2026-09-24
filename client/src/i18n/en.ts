@@ -467,4 +467,22 @@ export const EN: Record<string, string> = {
     'Bring the most crew members who play — take the raffle tickets',
   'свободно': 'open',
   'в деле: {n}': 'in play: {n}',
+
+  // ——— Личные лиги
+  'Лига': 'League',
+  'Улица': 'The Street',
+  'Квартал': 'The Block',
+  'Район': 'The District',
+  'Город': 'The City',
+  'Синдикат': 'The Syndicate',
+  'Лига Дона': 'The Don’s League',
+  'лига {a} из {b}': 'league {a} of {b}',
+  'вверх уходят {n}': 'top {n} move up',
+  'выше — зона повышения': 'above — promotion zone',
+  'ниже — зона вылета': 'below — drop zone',
+  'за неделю': 'this week',
+  'На прошлой неделе: повышение': 'Last week: promoted',
+  'На прошлой неделе: понижение': 'Last week: demoted',
+  'Лига соберётся после первого захода на этой неделе':
+    'Your league forms after your first visit this week',
 };

@@ -655,5 +655,20 @@ check('крон войн подводит и турнир', warsCron.status === 
   warsCron.payload?.tournament?.winners === 0,
   JSON.stringify(warsCron.payload));
 
+// ——— Личная лига: игроки смоука сели в одну группу «Улицы» этой недели.
+const league = await call('/api/league', { token });
+check('лига отдаётся', league.status === 200 && league.payload?.league !== null,
+  JSON.stringify(league.payload)?.slice(0, 120));
+check('лига стартует с «Улицы»', league.payload?.league?.tier === 0,
+  `${league.payload?.league?.tier}`);
+check('в группе не один: игроки смоука сели вместе',
+  league.payload?.league?.standings?.length >= 2,
+  `${league.payload?.league?.standings?.length}`);
+check('недельный счёт живой: заработок смоука виден',
+  Number(league.payload?.league?.standings?.[0]?.earned) > 0,
+  JSON.stringify(league.payload?.league?.standings?.[0]));
+check('своё место в группе видно', league.payload?.league?.myPlace >= 1,
+  `${league.payload?.league?.myPlace}`);
+
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);
