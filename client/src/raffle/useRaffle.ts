@@ -41,6 +41,8 @@ export interface DrawHistoryEntry {
 }
 
 export interface RaffleState {
+  /** Билеты игрока к ближайшему тиражу — копятся и между розыгрышами. */
+  myTickets: number;
   active: ActiveRaffle | null;
   history: DrawHistoryEntry[];
   vault: VaultEntry[];

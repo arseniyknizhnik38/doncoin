@@ -64,7 +64,13 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
     return () => window.clearInterval(timer);
   }, []);
 
-  if (!raffle || (!raffle.active && raffle.vault.length === 0 && raffle.history.length === 0)) {
+  if (
+    !raffle ||
+    (!raffle.active &&
+      raffle.vault.length === 0 &&
+      raffle.history.length === 0 &&
+      raffle.myTickets === 0)
+  ) {
     return null;
   }
 
@@ -76,6 +82,15 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
       <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
         {t('Розыгрыш')}
       </p>
+
+      {!active && raffle.myTickets > 0 && (
+        <p className="mt-2 text-sm text-don-bone">
+          {t('Твоих билетов к следующему тиражу: {n}', { n: raffle.myTickets })}
+          <span className="block text-[11px] leading-relaxed text-neutral-400">
+            {t('Билеты не сгорают — сыграют в ближайшем розыгрыше.')}
+          </span>
+        </p>
+      )}
 
       {active && rarity && (
         <>

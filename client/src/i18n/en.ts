@@ -554,4 +554,8 @@ export const EN: Record<string, string> = {
   'Сейчас дела нет — Бобби подойдёт позже': 'No case right now — Bobby will come by later',
   'Дело ещё не закончено': 'The case is not finished yet',
   'Дело уже закрыто': 'The case is already closed',
+
+  'Твоих билетов к следующему тиражу: {n}': 'Your tickets for the next draw: {n}',
+  'Билеты не сгорают — сыграют в ближайшем розыгрыше.':
+    'Tickets never expire — they play in the next raffle.',
 };

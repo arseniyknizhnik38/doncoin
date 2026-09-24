@@ -58,6 +58,8 @@ raffleRouter.get('/', async (_req: Request, res: Response) => {
 
   res.json({
     raffle: {
+      // Билеты видны и между тиражами: они не сгорают, а ждут следующего.
+      myTickets,
       active: active
         ? {
             id: active.id,

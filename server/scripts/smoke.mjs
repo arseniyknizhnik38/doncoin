@@ -543,6 +543,8 @@ check('обычный перевход кента куша не даёт', frien
 const raffleBefore = await call('/api/raffle', { token });
 check('розыгрыш отвечает', raffleBefore.status === 200);
 check('активного розыгрыша ещё нет', raffleBefore.payload?.raffle?.active === null);
+check('билеты видны и между тиражами', raffleBefore.payload?.raffle?.myTickets >= 4,
+  `${raffleBefore.payload?.raffle?.myTickets}`);
 
 const ownerRaffle = await call('/api/admin/raffle', { token });
 check('генезис-коллекция из 6 вещей', ownerRaffle.payload?.raffle?.items?.length === 6,
