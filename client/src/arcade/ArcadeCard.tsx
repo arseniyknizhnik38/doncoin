@@ -47,7 +47,7 @@ export function ArcadeCard({ api }: { api: ArcadeApi }) {
       onClick={() => setPlaying(true)}
       className="flex w-full items-center justify-center gap-2.5 rounded-lg border border-don-gold/40 bg-don-ink px-3 min-h-11 py-2 text-sm font-semibold text-don-gold active:scale-95"
     >
-      <PixelIcon id="rank-capo" className="h-5 w-5" />
+      <PixelIcon id="cash" className="h-5 w-5" />
       {t('Сбор выручки: 30 секунд')}
       {status.best > 0 && (
         <span className="text-xs font-normal text-neutral-400">

@@ -14,7 +14,7 @@
 const DRAWN = new Set([
   'cigar', 'steak', 'ring', 'bourbon', 'revolver', 'envelope',
   'duck', 'payphone', 'shades', 'prosciutto', 'dice', 'car_keys',
-  'full_energy', 'rush', 'trophy', 'badge',
+  'full_energy', 'rush', 'trophy', 'badge', 'cash',
   // Бизнесы.
   'street_food', 'pizzeria', 'car_wash', 'pawnshop', 'restaurant',
   'night_club', 'casino', 'construction', 'union', 'private_club',

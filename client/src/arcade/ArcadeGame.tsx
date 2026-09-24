@@ -43,7 +43,7 @@ const BOBBY_FRAME_MS = 125;
  * нельзя было тапать не глядя.
  */
 const DROPS = [
-  { icon: 'rank-capo', value: 10, weight: 55 },
+  { icon: 'cash', value: 10, weight: 55 },
   { icon: 'casino', value: 25, weight: 20 },
   { icon: 'ring', value: 50, weight: 5 },
   { icon: 'badge', value: -30, weight: 20 },
@@ -81,7 +81,7 @@ const TUTORIAL_STEPS = [
   },
   {
     say: 'Всё, что блестит, — в карман. Тапни пачку.',
-    item: { icon: 'rank-capo', value: 10 },
+    item: { icon: 'cash', value: 10 },
     after: 'Вот так. Пачка +10, фишка +25, перстень +50.',
     button: 'Дальше',
   },
@@ -396,7 +396,7 @@ export function ArcadeGame({ api, onClose }: ArcadeGameProps) {
           <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4">
             <ul className="flex flex-col gap-3">
               {[
-                { icon: 'rank-capo', label: t('Пачка наличных'), value: '+10' },
+                { icon: 'cash', label: t('Пачка наличных'), value: '+10' },
                 { icon: 'casino', label: t('Фишка казино'), value: '+25' },
                 { icon: 'ring', label: t('Перстень'), value: '+50' },
               ].map((row) => (
