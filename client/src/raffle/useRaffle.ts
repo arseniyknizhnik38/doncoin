@@ -30,9 +30,19 @@ export interface VaultEntry {
   wonAt: string;
 }
 
+export interface DrawHistoryEntry {
+  id: string;
+  itemName: string;
+  icon: string;
+  rarity: RaffleItem['rarity'];
+  winner: string;
+  totalTickets: number;
+  drawnAt: string;
+}
+
 export interface RaffleState {
   active: ActiveRaffle | null;
-  lastWinner: { name: string; itemName: string } | null;
+  history: DrawHistoryEntry[];
   vault: VaultEntry[];
 }
 

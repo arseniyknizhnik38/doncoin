@@ -590,9 +590,11 @@ const winnerVault = await call('/api/raffle', { token: winnerAuth.payload?.sessi
 check('вещь лежит в сейфе победителя',
   winnerVault.payload?.raffle?.vault?.some((owned) => owned.itemId === 'cigar' && owned.serial === 1),
   JSON.stringify(winnerVault.payload?.raffle?.vault));
-check('прошлый тираж виден игрокам',
-  winnerVault.payload?.raffle?.lastWinner?.itemName === 'Сигара с особняка дона',
-  JSON.stringify(winnerVault.payload?.raffle?.lastWinner));
+check('история тиражей видна игрокам',
+  winnerVault.payload?.raffle?.history?.length === 1 &&
+    winnerVault.payload?.raffle?.history?.[0]?.itemName === 'Сигара с особняка дона' &&
+    winnerVault.payload?.raffle?.history?.[0]?.totalTickets >= 4,
+  JSON.stringify(winnerVault.payload?.raffle?.history));
 
 const feedAfterDraw = await call('/api/feed', { token });
 check('лента объявила победителя',

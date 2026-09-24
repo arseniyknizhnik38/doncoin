@@ -485,4 +485,7 @@ export const EN: Record<string, string> = {
   'На прошлой неделе: понижение': 'Last week: demoted',
   'Лига соберётся после первого захода на этой неделе':
     'Your league forms after your first visit this week',
+
+  'Прошлые тиражи': 'Past draws',
+  'билетов {n}': 'tickets: {n}',
 };

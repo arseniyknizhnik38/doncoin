@@ -62,7 +62,7 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
     return () => window.clearInterval(timer);
   }, []);
 
-  if (!raffle || (!raffle.active && raffle.vault.length === 0)) {
+  if (!raffle || (!raffle.active && raffle.vault.length === 0 && raffle.history.length === 0)) {
     return null;
   }
 
@@ -111,13 +111,27 @@ export function RaffleCard({ api }: { api: RaffleApi }) {
         </>
       )}
 
-      {raffle.lastWinner && (
-        <p className="mt-2 border-t border-don-edge pt-2 text-[11px] text-neutral-400">
-          {t('Прошлый тираж: {name} забрал «{item}»', {
-            name: raffle.lastWinner.name,
-            item: t(raffle.lastWinner.itemName),
-          })}
-        </p>
+      {raffle.history.length > 0 && (
+        <div className="mt-3 border-t border-don-edge pt-3">
+          <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
+            {t('Прошлые тиражи')}
+          </p>
+          <ul className="mt-2 flex flex-col gap-2">
+            {raffle.history.map((draw) => (
+              <li key={draw.id} className="flex items-center gap-3">
+                <PixelIcon id={draw.icon} className="h-6 w-6 shrink-0" />
+                <span className="min-w-0 flex-1 truncate text-sm text-don-bone">
+                  {t(draw.itemName)}
+                </span>
+                <span className="min-w-0 shrink-0 text-right text-xs text-neutral-400">
+                  <span className="text-don-gold-soft">{draw.winner}</span>
+                  {' · '}
+                  {t('билетов {n}', { n: draw.totalTickets })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {raffle.vault.length > 0 && (

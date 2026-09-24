@@ -33,7 +33,7 @@ raffleRouter.get('/', async (_req: Request, res: Response) => {
 
   const since = await ticketWindowStart();
 
-  const [active, myTickets, totalTickets, vault, lastDrawn] = await Promise.all([
+  const [active, myTickets, totalTickets, vault, drawn] = await Promise.all([
     prisma.raffle.findFirst({
       where: { drawnAt: null },
       orderBy: { createdAt: 'asc' },
@@ -48,9 +48,10 @@ raffleRouter.get('/', async (_req: Request, res: Response) => {
       orderBy: { wonAt: 'desc' },
       include: { item: true },
     }),
-    prisma.raffle.findFirst({
+    prisma.raffle.findMany({
       where: { drawnAt: { not: null } },
       orderBy: { drawnAt: 'desc' },
+      take: 20,
       include: { item: true, winner: true },
     }),
   ]);
@@ -74,10 +75,19 @@ raffleRouter.get('/', async (_req: Request, res: Response) => {
             },
           }
         : null,
-      lastWinner:
-        lastDrawn && lastDrawn.winner
-          ? { name: actorName(lastDrawn.winner), itemName: lastDrawn.item.name }
-          : null,
+      // История тиражей — публичная витрина честности: вещи, имена,
+      // билеты. Каждый прошлый тираж рекламирует следующий.
+      history: drawn
+        .filter((raffle) => raffle.winner !== null)
+        .map((raffle) => ({
+          id: raffle.id,
+          itemName: raffle.item.name,
+          icon: raffle.item.icon,
+          rarity: raffle.item.rarity,
+          winner: actorName(raffle.winner!),
+          totalTickets: raffle.totalTickets,
+          drawnAt: raffle.drawnAt,
+        })),
       vault: vault.map((owned) => ({
         id: owned.id,
         itemId: owned.itemId,
