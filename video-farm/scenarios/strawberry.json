@@ -1,0 +1,21 @@
+{
+  "voice": "ru-RU-SvetlanaNeural",
+  "scenes": [
+    {
+      "text": "Эту клубничку никто не выбирал. Она была слишком маленькой.",
+      "image_prompt": "cute sad little strawberry character with big teary eyes, 3D animated movie style, pixar disney style render, soft lighting, supermarket shelf background, adorable"
+    },
+    {
+      "text": "Каждый день покупатели брали больших и красивых. А она ждала.",
+      "image_prompt": "tiny strawberry character watching big shiny strawberries being picked by hands, 3D animation style, emotional scene, cinematic soft light, pixar style"
+    },
+    {
+      "text": "Но однажды пришла девочка и сказала: маленькие — самые сладкие.",
+      "image_prompt": "happy cute strawberry character held gently in child hands, warm sunlight, 3D animated movie style, heartwarming, pixar disney render, glowing"
+    },
+    {
+      "text": "И это была правда. Подпишись, если тоже веришь в маленьких.",
+      "image_prompt": "joyful strawberry character smiling with sparkling eyes, confetti, celebration, 3D animation pixar style, bright colorful, adorable"
+    }
+  ]
+}

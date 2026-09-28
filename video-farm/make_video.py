@@ -66,11 +66,11 @@ def media_duration(path):
 
 # ---------- озвучка (edge-tts, бесплатно) ----------
 
-async def tts(text, voice, out_mp3):
+async def tts(text, voice, out_mp3, pitch="+0Hz"):
     last_err = None
     for attempt in range(5):
         try:
-            await edge_tts.Communicate(text, voice, rate="+8%").save(str(out_mp3))
+            await edge_tts.Communicate(text, voice, rate="+8%", pitch=pitch).save(str(out_mp3))
             return
         except Exception as e:
             last_err = e
@@ -96,16 +96,21 @@ def fetch_image(prompt, path):
     url = ("https://image.pollinations.ai/prompt/"
            + urllib.parse.quote(prompt + ", vertical 9:16, cinematic, high detail")
            + f"?width={W}&height={H}&nologo=true")
-    try:
-        r = requests.get(url, timeout=120)
-        r.raise_for_status()
-        path.write_bytes(r.content)
-        img = Image.open(path)
-        img = img.convert("RGB").resize((W, H))
-        img.save(path)
-    except Exception as e:
-        print(f"    ! картинка не скачалась ({e}), ставлю фон-заглушку")
-        fallback_image(path, prompt)
+    import time
+    for attempt in range(4):
+        try:
+            r = requests.get(url, timeout=120)
+            r.raise_for_status()
+            path.write_bytes(r.content)
+            img = Image.open(path)
+            img = img.convert("RGB").resize((W, H))
+            img.save(path)
+            return
+        except Exception as e:
+            print(f"    ! попытка {attempt + 1}: картинка не скачалась ({e})")
+            time.sleep(10 * (attempt + 1))
+    print("    ! сдаюсь, ставлю фон-заглушку")
+    fallback_image(path, prompt)
 
 
 # ---------- субтитры (PNG через Pillow — без проблем с кириллицей) ----------
@@ -162,7 +167,8 @@ def build_scene(idx, scene, voice, tmp):
     img = tmp / f"s{idx}.jpg"
     out = tmp / f"s{idx}.mp4"
 
-    asyncio.run(tts(text, voice, mp3))
+    asyncio.run(tts(text, scene.get("voice", voice), mp3,
+                    scene.get("pitch", "+0Hz")))
     dur = media_duration(mp3) + 0.35
     fetch_image(scene.get("image_prompt", text), img)
 

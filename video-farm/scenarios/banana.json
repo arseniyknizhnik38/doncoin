@@ -1,0 +1,21 @@
+{
+  "voice": "ru-RU-SvetlanaNeural",
+  "scenes": [
+    {
+      "text": "У банана было всего семь дней. Потом появятся пятнышки.",
+      "image_prompt": "cute banana character looking at calendar worried, big expressive eyes, 3D animated movie style, pixar disney render, kitchen morning light"
+    },
+    {
+      "text": "Он мог грустить. А мог прожить эти дни ярко.",
+      "image_prompt": "banana character standing at a crossroad, dramatic lighting, 3D animation pixar style, cinematic, emotional"
+    },
+    {
+      "text": "Он танцевал, смеялся и стал лучшим другом всех фруктов на кухне.",
+      "image_prompt": "banana character dancing happily with fruit friends, party lights, confetti, 3D animated movie pixar style, joyful, colorful"
+    },
+    {
+      "text": "Пятнышки появились. Но их никто не заметил. Живи ярко.",
+      "image_prompt": "old banana with brown spots smiling peacefully surrounded by loving fruit friends, warm golden hour light, 3D animation pixar disney style, heartwarming"
+    }
+  ]
+}

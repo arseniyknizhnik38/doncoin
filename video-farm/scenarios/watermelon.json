@@ -1,0 +1,21 @@
+{
+  "voice": "ru-RU-DmitryNeural",
+  "scenes": [
+    {
+      "text": "Все думали, что арбуз — просто большой и зелёный.",
+      "image_prompt": "big round watermelon character with shy smile, 3D animated movie style, pixar disney render, summer market background, soft light"
+    },
+    {
+      "text": "Никто не знал, что у него внутри.",
+      "image_prompt": "watermelon character with a glowing heart visible like a silhouette inside, mysterious soft light, 3D animation pixar style, cinematic"
+    },
+    {
+      "text": "Пока однажды он не раскрылся.",
+      "image_prompt": "sliced watermelon revealing bright red sparkling inside like treasure, fruit characters amazed, 3D animated pixar style, magical glow, wow moment"
+    },
+    {
+      "text": "Самое яркое всегда внутри. Не суди по кожуре.",
+      "image_prompt": "happy watermelon slice character shining like a star, friends around applauding, 3D animation pixar disney style, bright joyful colors"
+    }
+  ]
+}
