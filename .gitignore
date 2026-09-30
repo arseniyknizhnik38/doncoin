@@ -49,3 +49,6 @@ server/src/generated/
 
 # Локальные настройки Claude Code: у каждого свои.
 .claude/
+
+deploy-keys/
+DEPLOY-HANDOFF.md
