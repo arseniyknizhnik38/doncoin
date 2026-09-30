@@ -8,9 +8,18 @@
 # останавливает всё до того, как тронута локальная база (дамп сначала в файл).
 set -euo pipefail
 
-NEON_URL="${1:?Использование: migrate-from-neon.sh '<neon database url>'}"
 ENV_FILE="${ENV_FILE:-/opt/doncoin/server/.env}"
 DUMP=/root/neon-final.dump
+
+# Адрес Neon: аргументом, либо ищем след на самом сервере (файлы, история).
+NEON_URL="${1:-}"
+if [ -z "$NEON_URL" ]; then
+  NEON_URL=$(grep -rhoE "postgresql://[^\"' ]*neon\.tech[^\"' ]*" \
+    /opt/doncoin/server/.env* /root/.env* /root/*.txt /root/.bash_history 2>/dev/null \
+    | head -1 || true)
+fi
+[ -n "$NEON_URL" ] || { echo "Адрес Neon не найден — передай его аргументом."; exit 1; }
+echo "Neon: ${NEON_URL%%@*}@…"
 
 LOCAL_URL=$(grep -E '^DATABASE_URL=' "$ENV_FILE" | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'")
 [ -n "$LOCAL_URL" ] || { echo "Не нашёл DATABASE_URL в $ENV_FILE"; exit 1; }
