@@ -36,6 +36,16 @@ export const EN_NFT_NAMES: Record<string, string> = {
   'Перстень дона': 'The don’s ring',
 };
 
+/** Китайские имена вещей — для тех же серверных текстов. */
+export const ZH_NFT_NAMES: Record<string, string> = {
+  'Сигара с особняка дона': '教父豪宅的雪茄',
+  'Кости из задней комнаты': '后屋的骰子',
+  'Очки с похорон': '葬礼墨镜',
+  'Ключи от седана с тонировкой': '贴膜轿车的钥匙',
+  'Револьвер с посвящения': '入会仪式的左轮',
+  'Перстень дона': '教父的戒指',
+};
+
 export const NFT_CATALOG: NftCatalogItem[] = [
   {
     id: 'cigar',

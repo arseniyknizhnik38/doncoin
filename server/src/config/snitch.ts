@@ -79,10 +79,17 @@ export const SNITCH_QUOTES: Record<Lang, readonly string[]> = {
     '🐟 Crooked Sal asked at the table where you have been. Nobody answered. It was a bad kind of quiet. {inviter} put their word on you — do not make a fool of them. Show up and you both get a cut.',
     '🐟 Fat Bobby keeps looking at your empty chair. Says the only guys who disappear like that are the ones with new friends carrying badges. {inviter} is still vouching for you. Come back — a cut for both of you.',
   ],
+  zh: [
+    '🐟 胖鲍比说你最近不怎么露面了。弟兄们开始起疑，关于你的闲话越来越多。{inviter} 还在替你担保。露个面——你们俩都有分红。',
+    '🐟 街上传言有人看见你坐进一辆没牌照的车，旁边还有两个穿西装的。弟兄们在数日子。{inviter} 说你不是那种人。证明一下——回来，你们俩都有分红。',
+    '🐟 歪嘴萨尔在桌上问你去哪儿了。没人吭声。那种安静不是好兆头。{inviter} 拿自己的信誉替你作保——别让他丢脸。露面，分红双份到账。',
+    '🐟 胖鲍比盯着你的空椅子看了两天了。他说这么消失的人，多半交了些带警徽的新朋友。{inviter} 还在替你说话。回来——你们俩都有分红。',
+  ],
 };
 
 /** Сообщение пригласившему, когда кент вернулся. */
 export const COMEBACK_TO_INVITER: Record<Lang, string> = {
   ru: '🤝 {friend} снова на людях. Толстый Бобби отозвал своих — пацан чистый. Ты за него впрягся и не прогадал: твой куш +{amount} DONC.',
   en: '🤝 {friend} is back on the street. Fat Bobby called off his guys — the kid is clean. You stood up for them and it paid: your cut +{amount} DONC.',
+  zh: '🤝 {friend} 又在街面上露脸了。胖鲍比把人撤了——这小子是清白的。你替他担保没看走眼：你的分红 +{amount} DONC。',
 };

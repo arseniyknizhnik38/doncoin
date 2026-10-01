@@ -37,7 +37,7 @@ import { useQuests } from './quests/useQuests';
 import { SettingsPanel } from './settings/SettingsPanel';
 import { useSettings } from './settings/useSettings';
 import { TasksPanel } from './tasks/TasksPanel';
-import { LangProvider, useT } from './i18n';
+import { LangProvider, useT, type Lang } from './i18n';
 import type { RankView } from './game/types';
 import { ErrorState } from './ui/States';
 import { useTasks } from './tasks/useTasks';
@@ -70,15 +70,25 @@ const TABS: { id: Tab | 'tasks'; label: string }[] = [
  */
 export default function App() {
   const auth = useAuth();
+  // Выбор из настроек перекрывает язык, определённый при входе: сервер
+  // хранит его между сессиями, а состояние здесь даёт мгновенную смену
+  // без перезахода.
+  const [langOverride, setLangOverride] = useState<Lang | null>(null);
 
   return (
-    <LangProvider lang={auth.language}>
-      <Game auth={auth} />
+    <LangProvider lang={langOverride ?? auth.language}>
+      <Game auth={auth} onLangChange={setLangOverride} />
     </LangProvider>
   );
 }
 
-function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
+function Game({
+  auth,
+  onLangChange,
+}: {
+  auth: ReturnType<typeof useAuth>;
+  onLangChange: (lang: Lang) => void;
+}) {
   const [tab, setTab] = useState<Tab>('game');
 
   // Данные вкладок обновляются при их открытии: каталог, кланы и топ иначе
@@ -329,6 +339,7 @@ function Game({ auth }: { auth: ReturnType<typeof useAuth> }) {
             <SettingsPanel
               api={settings}
               retirement={retirement}
+              onLangChange={onLangChange}
               onClose={() => setSettingsOpen(false)}
             />
           )}

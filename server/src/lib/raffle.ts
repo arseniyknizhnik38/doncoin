@@ -1,5 +1,5 @@
 import { randomInt } from 'node:crypto';
-import { EN_NFT_NAMES } from '../config/nft.js';
+import { EN_NFT_NAMES, ZH_NFT_NAMES } from '../config/nft.js';
 import type { NftItem, Raffle } from '../generated/prisma/client.js';
 import { actorName, recordFeed } from './feed.js';
 import { prisma } from './prisma.js';
@@ -63,6 +63,15 @@ export function raffleAnnouncement(
   language: string,
 ): string {
   const serial = raffle.item.minted + 1;
+
+  if (language === 'zh') {
+    const name = ZH_NFT_NAMES[raffle.item.name] ?? EN_NFT_NAMES[raffle.item.name] ?? raffle.item.name;
+
+    return (
+      `家族开抽奖了：「${name}」，第 ${serial}/${raffle.item.supply} 号——` +
+      '以后绝不增发。每日奖励、订阅、拉来真玩的兄弟都送抽奖券。开奖前上车。'
+    );
+  }
 
   if (language === 'en') {
     const name = EN_NFT_NAMES[raffle.item.name] ?? raffle.item.name;

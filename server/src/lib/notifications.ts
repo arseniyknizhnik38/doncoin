@@ -126,17 +126,23 @@ export function draftNotification(
     return { kind: 'snitch', text: format(quote, { inviter: inviterName }) };
   }
 
+  const lang = pickLangStored(user.language);
+
   // 1. Стрик сгорит: бонус за сегодня не забран, а серия уже набрана.
   const daily = dailyStatus(user, now);
   const mskHour = (now.getUTCHours() + 3) % 24;
 
   if (daily.available && user.dailyStreak > 0 && mskHour >= 17) {
-    return {
-      kind: 'streak',
-      text:
-        `Серия ${user.dailyStreak} ${plural(user.dailyStreak, 'день', 'дня', 'дней')} сгорит в полночь. ` +
-        'Забери бонус, пока семья не решила, что ты остыл.',
-    };
+    const streak = user.dailyStreak;
+    const text =
+      lang === 'zh'
+        ? `连续 ${streak} 天的记录今晚午夜就要断了。快把奖励领了，别让家族觉得你凉了。`
+        : lang === 'en'
+          ? `Your ${streak}-day streak burns at midnight. Grab the bonus before the family decides you have gone cold.`
+          : `Серия ${streak} ${plural(streak, 'день', 'дня', 'дней')} сгорит в полночь. ` +
+            'Забери бонус, пока семья не решила, что ты остыл.';
+
+    return { kind: 'streak', text };
   }
 
   // 2. Бизнесы накопили заметную сумму.
@@ -150,10 +156,15 @@ export function draftNotification(
     const pending = BigInt(Math.floor(Number(perHour) * hours));
 
     if (pending >= MIN_BUSINESS_INCOME) {
-      return {
-        kind: 'business',
-        text: `Дела шли без тебя: накопилось ${formatCoins(pending)} DONC. Зайди и забери.`,
-      };
+      const amount = formatCoins(pending);
+      const text =
+        lang === 'zh'
+          ? `你不在，生意照转：攒下了 ${amount} DONC。进来收账。`
+          : lang === 'en'
+            ? `Business ran without you: ${amount} DONC piled up. Come in and collect.`
+            : `Дела шли без тебя: накопилось ${amount} DONC. Зайди и забери.`;
+
+      return { kind: 'business', text };
     }
   }
 
@@ -161,10 +172,15 @@ export function draftNotification(
   const { energy } = regenerateEnergy(user, now);
 
   if (energy >= user.energyMax) {
-    return {
-      kind: 'energy',
-      text: `Люди отдохнули: обойма полная, ${formatCoins(BigInt(Math.floor(user.energyMax / ENERGY_PER_TAP)))} тапов. Пора за работу.`,
-    };
+    const taps = formatCoins(BigInt(Math.floor(user.energyMax / ENERGY_PER_TAP)));
+    const text =
+      lang === 'zh'
+        ? `手下都歇够了：弹匣满了，${taps} 次点击等着你。该干活了。`
+        : lang === 'en'
+          ? `The crew is rested: the clip is full, ${taps} taps ready. Time to work.`
+          : `Люди отдохнули: обойма полная, ${taps} тапов. Пора за работу.`;
+
+    return { kind: 'energy', text };
   }
 
   return null;

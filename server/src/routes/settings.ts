@@ -8,11 +8,14 @@ export const settingsRouter = Router();
 settingsRouter.use(requireTelegramAuth);
 settingsRouter.use(writeRateLimit());
 
+/** Языки, которые можно выбрать руками. Всё остальное в базу не пускаем. */
+const LANGS = ['ru', 'en', 'zh'] as const;
+
 /** GET /api/settings — текущие настройки игрока. */
 settingsRouter.get('/', async (_req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { telegramId: getTelegramId(res) },
-    select: { notificationsEnabled: true, notificationsBlocked: true },
+    select: { notificationsEnabled: true, notificationsBlocked: true, language: true },
   });
 
   if (!user) {
@@ -20,28 +23,54 @@ settingsRouter.get('/', async (_req: Request, res: Response) => {
     return;
   }
 
-  res.json({ notifications: user });
+  res.json({
+    notifications: {
+      notificationsEnabled: user.notificationsEnabled,
+      notificationsBlocked: user.notificationsBlocked,
+    },
+    language: user.language,
+  });
 });
 
-/** PATCH /api/settings — включить или выключить уведомления. */
+/** PATCH /api/settings — уведомления и язык интерфейса. */
 settingsRouter.patch('/', async (req: Request, res: Response) => {
-  const { notificationsEnabled } = req.body as { notificationsEnabled?: unknown };
+  const { notificationsEnabled, language } = req.body as {
+    notificationsEnabled?: unknown;
+    language?: unknown;
+  };
 
-  if (typeof notificationsEnabled !== 'boolean') {
-    res.status(400).json({ error: 'Ожидалось поле notificationsEnabled (true/false)' });
+  const togglesNotifications = typeof notificationsEnabled === 'boolean';
+  const picksLanguage =
+    typeof language === 'string' && (LANGS as readonly string[]).includes(language);
+
+  if (!togglesNotifications && !picksLanguage) {
+    res.status(400).json({
+      error: 'Ожидалось notificationsEnabled (true/false) или language (ru/en/zh)',
+    });
     return;
   }
 
   const updated = await prisma.user.update({
     where: { telegramId: getTelegramId(res) },
     data: {
-      notificationsEnabled,
-      // Включая уведомления заново, снимаем отметку блокировки: возможно,
-      // человек разблокировал бота и хочет их снова.
-      ...(notificationsEnabled ? { notificationsBlocked: false } : {}),
+      ...(togglesNotifications
+        ? {
+            notificationsEnabled,
+            // Включая уведомления заново, снимаем отметку блокировки:
+            // возможно, человек разблокировал бота и хочет их снова.
+            ...(notificationsEnabled ? { notificationsBlocked: false } : {}),
+          }
+        : {}),
+      ...(picksLanguage ? { language } : {}),
     },
-    select: { notificationsEnabled: true, notificationsBlocked: true },
+    select: { notificationsEnabled: true, notificationsBlocked: true, language: true },
   });
 
-  res.json({ notifications: updated });
+  res.json({
+    notifications: {
+      notificationsEnabled: updated.notificationsEnabled,
+      notificationsBlocked: updated.notificationsBlocked,
+    },
+    language: updated.language,
+  });
 });

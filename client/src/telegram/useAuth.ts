@@ -118,7 +118,8 @@ export function useAuth(): AuthState {
           // Как и оффлайн-доход: повторный вход куша не несёт, прежний не затираем.
           comeback: (payload.comeback ?? prev.comeback) as Comeback | null,
           isAdmin: Boolean(payload.isAdmin),
-          language: payload.language === 'en' ? 'en' : 'ru',
+          language:
+            payload.language === 'en' ? 'en' : payload.language === 'zh' ? 'zh' : 'ru',
         }));
       })
       .catch((error: unknown) => {

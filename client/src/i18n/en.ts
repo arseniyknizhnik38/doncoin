@@ -406,6 +406,7 @@ export const EN: Record<string, string> = {
 
   // ——— Настройки и уход на покой
   'Настройки': 'Settings',
+  'Язык': 'Language',
   'Напоминания от бота': 'Bot reminders',
   'Сообщение, когда энергия восстановилась, бизнесы накопили доход или серия вот-вот прервётся. Не чаще раза в сутки и не по ночам.': 'A message when your clip is full, your businesses have piled up income, or your streak is about to break. No more than once a day, never at night.',
   'Бот не может вам написать — похоже, он заблокирован. Разблокируйте его в Telegram, и напоминания вернутся.': 'The bot cannot message you — it looks blocked. Unblock it in Telegram and reminders come back.',

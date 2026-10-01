@@ -1,4 +1,4 @@
-import { useT } from '../i18n';
+import { LANGS, useLang, useT, type Lang } from '../i18n';
 import { RetirementCard } from '../retirement/RetirementCard';
 import type { RetirementApi } from '../retirement/useRetirement';
 import { ErrorState } from '../ui/States';
@@ -7,14 +7,27 @@ import type { SettingsApi } from './useSettings';
 export function SettingsPanel({
   api,
   retirement,
+  onLangChange,
   onClose,
 }: {
   api: SettingsApi;
   retirement: RetirementApi;
+  onLangChange: (lang: Lang) => void;
   onClose: () => void;
 }) {
   const t = useT();
+  const lang = useLang();
   const { settings, loading, saving, error } = api;
+
+  const pickLang = (code: Lang) => {
+    if (code === lang) {
+      return;
+    }
+
+    // Экран меняется мгновенно, сервер запоминает выбор следом.
+    onLangChange(code);
+    api.setLanguage(code);
+  };
 
   return (
     <div className="fixed inset-0 z-20 flex flex-col bg-don-black/95 backdrop-blur-sm">
@@ -31,6 +44,28 @@ export function SettingsPanel({
             {t('Закрыть')}
           </button>
         </header>
+
+        {/* Язык — выше остальных настроек: тому, кто попал не в свой язык,
+            до любой другой строки ещё надо продраться. */}
+        <div className="rounded-lg border border-don-edge bg-don-ink/80 p-4 text-left">
+          <p className="text-sm font-semibold text-don-bone">{t('Язык')}</p>
+          <div className="mt-3 flex gap-1 rounded-lg border border-don-edge p-1">
+            {LANGS.map((item) => (
+              <button
+                key={item.code}
+                type="button"
+                onClick={() => pickLang(item.code)}
+                className={`min-h-11 flex-1 rounded-lg px-2 py-2 text-sm font-semibold transition-colors ${
+                  lang === item.code
+                    ? 'bg-don-blood border-b-2 border-b-don-blood-deep text-don-gold-soft'
+                    : 'text-neutral-400'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {!settings ? (
           loading ? (

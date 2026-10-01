@@ -1,3 +1,4 @@
+import type { Text } from './i18n.js';
 import { createHmac } from 'node:crypto';
 import type { User } from '../generated/prisma/client.js';
 import { activeIncomePerHour } from './rewards.js';
@@ -18,21 +19,21 @@ import { activeIncomePerHour } from './rewards.js';
 export interface OmertaItem {
   id: string;
   emoji: string;
-  title: { ru: string; en: string };
+  title: Text;
 }
 
 export const OMERTA_ITEMS: readonly OmertaItem[] = [
-  { id: 'cigar', emoji: '🚬', title: { ru: 'Сигара Тони', en: "Tony's cigar" } },
-  { id: 'steak', emoji: '🥩', title: { ru: 'Стейк из лавки', en: 'Steak from the butcher shop' } },
-  { id: 'ring', emoji: '💍', title: { ru: 'Золотой перстень с печаткой', en: 'Gold signet ring' } },
-  { id: 'bourbon', emoji: '🥃', title: { ru: 'Бокал с бурбоном', en: 'Glass of bourbon' } },
-  { id: 'revolver', emoji: '🔫', title: { ru: 'Револьвер с глушителем', en: 'Silenced revolver' } },
-  { id: 'envelope', emoji: '✉️', title: { ru: 'Белый пухлый конверт с кэшем', en: 'Fat white envelope of cash' } },
-  { id: 'duck', emoji: '🦆', title: { ru: 'Резиновая уточка', en: 'Rubber duck' } },
-  { id: 'payphone', emoji: '📞', title: { ru: 'Трубка таксофона', en: 'Payphone receiver' } },
-  { id: 'shades', emoji: '🕶️', title: { ru: 'Тёмные очки', en: 'Dark shades' } },
-  { id: 'prosciutto', emoji: '🥓', title: { ru: 'Кусок прошутто', en: 'Slice of prosciutto' } },
-  { id: 'dice', emoji: '🎲', title: { ru: 'Игральные кости из Bada Bing', en: 'Dice from the Bada Bing' } },
+  { id: 'cigar', emoji: '🚬', title: { ru: 'Сигара Тони', en: "Tony's cigar", zh: '托尼的雪茄' } },
+  { id: 'steak', emoji: '🥩', title: { ru: 'Стейк из лавки', en: 'Steak from the butcher shop', zh: '肉铺的牛排' } },
+  { id: 'ring', emoji: '💍', title: { ru: 'Золотой перстень с печаткой', en: 'Gold signet ring', zh: '金质图章戒指' } },
+  { id: 'bourbon', emoji: '🥃', title: { ru: 'Бокал с бурбоном', en: 'Glass of bourbon', zh: '一杯波本威士忌' } },
+  { id: 'revolver', emoji: '🔫', title: { ru: 'Револьвер с глушителем', en: 'Silenced revolver', zh: '带消音器的左轮' } },
+  { id: 'envelope', emoji: '✉️', title: { ru: 'Белый пухлый конверт с кэшем', en: 'Fat white envelope of cash', zh: '塞满现金的白信封' } },
+  { id: 'duck', emoji: '🦆', title: { ru: 'Резиновая уточка', en: 'Rubber duck', zh: '橡皮小黄鸭' } },
+  { id: 'payphone', emoji: '📞', title: { ru: 'Трубка таксофона', en: 'Payphone receiver', zh: '公用电话听筒' } },
+  { id: 'shades', emoji: '🕶️', title: { ru: 'Тёмные очки', en: 'Dark shades', zh: '墨镜' } },
+  { id: 'prosciutto', emoji: '🥓', title: { ru: 'Кусок прошутто', en: 'Slice of prosciutto', zh: '一片帕尔马火腿' } },
+  { id: 'dice', emoji: '🎲', title: { ru: 'Игральные кости из Bada Bing', en: 'Dice from the Bada Bing', zh: 'Bada Bing 的骰子' } },
   { id: 'car_keys', emoji: '🏎️', title: { ru: 'Ключи от спорткара', en: 'Sports car keys' } },
 ];
 

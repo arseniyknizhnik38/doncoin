@@ -1,3 +1,4 @@
+import type { Lang } from '../config/i18n.js';
 import { FEED_LIMIT, FEED_RANK_FROM_STEP, type FeedKind, feedText, isClanEvent } from '../config/feed.js';
 import { RANKS, rankStep } from '../config/ranks.js';
 import type { User } from '../generated/prisma/client.js';
@@ -48,7 +49,7 @@ export interface FeedView {
   createdAt: Date;
 }
 
-export async function loadFeed(lang: 'ru' | 'en' = 'ru', limit = FEED_LIMIT): Promise<FeedView[]> {
+export async function loadFeed(lang: Lang = 'ru', limit = FEED_LIMIT): Promise<FeedView[]> {
   const events = await prisma.feedEvent.findMany({
     orderBy: { createdAt: 'desc' },
     take: limit,

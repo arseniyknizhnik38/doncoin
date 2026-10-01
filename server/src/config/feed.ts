@@ -1,5 +1,6 @@
 import type { FeedEvent } from '../generated/prisma/client.js';
-import { EN_NFT_NAMES } from './nft.js';
+import type { Lang } from './i18n.js';
+import { EN_NFT_NAMES, ZH_NFT_NAMES } from './nft.js';
 
 /**
  * Лента «Что слышно».
@@ -60,6 +61,22 @@ const enRank = (rank: string | null): string => {
   return `${EN_RANKS[title ?? ''] ?? title}${stars ? ` ${stars}` : ''}`;
 };
 
+/** Китайские подписи рангов — та же механика, что и у английских. */
+const ZH_RANKS: Record<string, string> = {
+  'Аутсайдер': '局外人',
+  'Приближённый': '亲信',
+  'Солдат': '士兵',
+  'Капо': '头目',
+  'Консильери': '军师',
+  'Дон': '教父',
+};
+
+const zhRank = (rank: string | null): string => {
+  const [title, stars] = (rank ?? '').split(' ');
+
+  return `${ZH_RANKS[title ?? ''] ?? title}${stars ? ` ${stars}` : ''}`;
+};
+
 /**
  * Текст события.
  *
@@ -68,8 +85,35 @@ const enRank = (rank: string | null): string => {
  */
 export function feedText(
   event: Pick<FeedEvent, 'kind' | 'actor' | 'rival' | 'amount' | 'rank'>,
-  lang: 'ru' | 'en' = 'ru',
+  lang: Lang = 'ru',
 ): string {
+  if (lang === 'zh') {
+    switch (event.kind as FeedKind) {
+      case 'clan_created':
+        return `「${event.actor}」家族崭露头角`;
+      case 'clan_level':
+        return `「${event.actor}」实力大增：${event.amount ?? 1} 级`;
+      case 'war_started':
+        return `「${event.actor}」与「${event.rival}」开战了`;
+      case 'war_won':
+        return event.amount && event.amount > 0n
+          ? `「${event.actor}」从「${event.rival}」手里拿走 ${coins(event.amount)}`
+          : `「${event.actor}」摆平了「${event.rival}」`;
+      case 'rank_up':
+        return `${event.actor} 现在是${zhRank(event.rank)}`;
+      case 'retired':
+        return `${event.actor} 金盆洗手了`;
+      case 'fat_envelope':
+        return `${event.actor} 收到一个鼓鼓的信封：${coins(event.amount)}`;
+      case 'raffle_won':
+        return `${event.actor} 从抽奖中抱走了「${ZH_NFT_NAMES[event.rival ?? ''] ?? event.rival}」`;
+      case 'tournament_won':
+        return `${event.actor} 拿下本周兄弟锦标赛：拉来 ${event.amount ?? 0} 人`;
+      default:
+        return event.actor;
+    }
+  }
+
   if (lang === 'en') {
     switch (event.kind as FeedKind) {
       case 'clan_created':

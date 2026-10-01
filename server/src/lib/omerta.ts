@@ -7,7 +7,7 @@ import {
   omertaReward,
   omertaSecret,
 } from '../config/omerta.js';
-import { pickLangStored } from '../config/i18n.js';
+import { pickLangStored, t } from '../config/i18n.js';
 import { utcDayNumber } from '../config/rewards.js';
 import type { User } from '../generated/prisma/client.js';
 import { prisma } from './prisma.js';
@@ -51,7 +51,7 @@ export function omertaState(user: User, now: Date): OmertaState {
     items: OMERTA_ITEMS.map((item) => ({
       id: item.id,
       emoji: item.emoji,
-      title: item.title[lang],
+      title: t(item.title, lang),
     })),
     length: OMERTA_LENGTH,
     solved,

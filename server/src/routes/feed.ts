@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import { pickLangStored } from '../config/i18n.js';
 import { loadFeed } from '../lib/feed.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
@@ -22,5 +23,5 @@ feedRouter.get('/', async (_req: Request, res: Response) => {
     select: { language: true },
   });
 
-  res.json({ events: await loadFeed(user?.language === 'en' ? 'en' : 'ru') });
+  res.json({ events: await loadFeed(pickLangStored(user?.language ?? 'ru')) });
 });
