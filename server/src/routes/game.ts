@@ -5,6 +5,7 @@ import {
   regenerateEnergy,
   toGameState,
 } from '../lib/game.js';
+import { maybeSendConversion } from '../lib/attribution.js';
 import { prisma } from '../lib/prisma.js';
 import { payReferralIfQualified } from '../lib/referrals.js';
 import { gameRateLimit } from '../middleware/rateLimit.js';
@@ -63,7 +64,15 @@ gameRouter.post('/tap', async (req: Request, res: Response) => {
   // не отдаём — в них внутренние идентификаторы.
   await payReferralIfQualified(result.referral);
 
-  const { referral: _referral, ...payload } = result;
+  // Конверсия рекламной сети: порог тапов — первое доказательство, что
+  // пришёл живой игрок, а не открытие приложения ботом.
+  await maybeSendConversion({
+    user: result.attribution,
+    trigger: { kind: 'taps', taps: result.referral.taps },
+    ip: req.ip ?? null,
+  });
+
+  const { referral: _referral, attribution: _attribution, ...payload } = result;
 
   res.json(payload);
 });

@@ -46,6 +46,13 @@ import { upgradesRouter } from './routes/upgrades.js';
 export function createApp() {
   const app = express();
 
+  // За nginx каждый запрос приходит с 127.0.0.1, и без этой строки req.ip
+  // одинаков у всех игроков: ограничитель частоты складывал бы весь мир в
+  // одно ведро, а антифрод видел бы один адрес на всю закупку. Доверяем
+  // ровно одному хопу — своему nginx: подделанный клиентом X-Forwarded-For
+  // он дописывает слева, а Express читает правый, настоящий.
+  app.set('trust proxy', 1);
+
   app.use(cors());
   app.use(express.json());
 

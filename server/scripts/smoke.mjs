@@ -763,5 +763,70 @@ await wait(260);
 const caseClaimAgain = await call('/api/cases/claim', { token, method: 'POST' });
 check('дважды дело не закрыть', caseClaimAgain.status === 409, `${caseClaimAgain.status}`);
 
+// ——— Рекламные конверсии
+//
+// Проверяем всю цепочку: метка из ссылки доезжает до базы, конверсия не
+// уходит раньше окна, уходит после него, повторно не отправляется никогда,
+// а органика в отчёте лежит отдельно от закупки.
+const adLogin = await login(777300, 'С рекламы', 'ad_adsgram_block7_click999', 'ru');
+check('вход с рекламной меткой', adLogin.status === 200, `${adLogin.status}`);
+
+const adToken = adLogin.payload?.session?.token;
+
+// Полсотни тапов сразу: порог действия взят, но окно ещё не вышло.
+for (let i = 0; i < 2; i += 1) {
+  await call('/api/game/tap', { token: adToken, method: 'POST', body: { taps: 50 } });
+}
+
+const beforeWindow = await call('/api/admin/sources', { token });
+const adsgramEarly = beforeWindow.payload?.sources?.find((row) => row.source === 'adsgram');
+
+check('метка записана в источник игрока', adsgramEarly?.players >= 1,
+  JSON.stringify(beforeWindow.payload?.sources));
+check('площадка из ссылки сохранена', adsgramEarly?.placement === 'block7',
+  adsgramEarly?.placement);
+check('до окна конверсия не уходит', adsgramEarly?.converted === 0,
+  `${adsgramEarly?.converted}`);
+check('отказ записан с причиной too-fast',
+  beforeWindow.payload?.rejections?.some((row) => row.reason === 'too-fast'),
+  JSON.stringify(beforeWindow.payload?.rejections));
+
+// Окно вышло — следующий тап засчитывает конверсию.
+await wait(2_200);
+await call('/api/game/tap', { token: adToken, method: 'POST', body: { taps: 5 } });
+// Postback уходит фоном: даём обещанию доиграть до записи в журнал.
+await wait(500);
+
+const afterWindow = await call('/api/admin/sources', { token });
+const adsgram = afterWindow.payload?.sources?.find((row) => row.source === 'adsgram');
+
+check('после окна конверсия засчитана', adsgram?.converted === 1, `${adsgram?.converted}`);
+check('процент конверсии посчитан', adsgram?.conversionPercent === 100,
+  `${adsgram?.conversionPercent}`);
+check('postback ушёл в сеть',
+  afterWindow.payload?.rejections?.some((row) => row.reason === 'sent' && row.status === 'sent'),
+  JSON.stringify(afterWindow.payload?.rejections));
+
+// Повторные тапы не должны слать конверсию второй раз.
+await call('/api/game/tap', { token: adToken, method: 'POST', body: { taps: 5 } });
+await wait(300);
+
+const repeated = await call('/api/admin/sources', { token });
+check('повторно конверсия не отправляется',
+  repeated.payload?.sources?.find((row) => row.source === 'adsgram')?.converted === 1,
+  JSON.stringify(repeated.payload?.sources));
+
+// Код кента рекламной меткой не считается: такой игрок — органика.
+const organic = await login(777301, 'Органика', 'RANK777106', 'ru');
+check('вход по коду кента', organic.status === 200, `${organic.status}`);
+
+const sourcesWithOrganic = await call('/api/admin/sources', { token });
+check('пришедший по коду кента попал в органику',
+  sourcesWithOrganic.payload?.sources?.some((row) => row.source === 'organic'),
+  JSON.stringify(sourcesWithOrganic.payload?.sources));
+check('выгрузка отвечает только админу',
+  (await call('/api/admin/sources', { token: adToken })).status === 404);
+
+
 console.log(`\nПроверок: ${checks}, провалено: ${failures}`);
 process.exit(failures > 0 ? 1 : 0);

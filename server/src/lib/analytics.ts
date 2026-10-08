@@ -132,3 +132,125 @@ export async function dailyCounts(now: Date, days = 14): Promise<DayCount[]> {
 
   return result;
 }
+
+export interface SourceRow {
+  /** Сеть: adsgram, telega… «organic» — пришли сами. */
+  source: string;
+  /** Площадка внутри сети, null — сеть её не передала. */
+  placement: string | null;
+  /** Сколько игроков пришло. */
+  players: number;
+  /** Сколько дошло до конверсии. */
+  converted: number;
+  /** Сколько вернулось на 1-й, 3-й и 7-й день. */
+  d1: number;
+  d3: number;
+  d7: number;
+  /** Знаменатель для D3: сколько успело дожить до третьего дня. */
+  eligibleD3: number;
+}
+
+interface SourceSqlRow {
+  source: string | null;
+  placement: string | null;
+  players: bigint;
+  converted: bigint;
+  d1: bigint;
+  d3: bigint;
+  d7: bigint;
+  eligible_d3: bigint;
+}
+
+/**
+ * Что принесла каждая площадка.
+ *
+ * Три числа в одной строке отвечают на весь вопрос закупки: сколько людей
+ * пришло, сколько из них начало играть и сколько вернулось через два дня.
+ * Площадка с тысячей приходов и нулём на третий день дороже пустой: за неё
+ * заплачено, а играть там некому.
+ *
+ * Возвраты считаются по тем же суткам UTC, что и удержание в остальной
+ * сводке, а в знаменателе D3 только те, кто успел дожить до третьего дня, —
+ * иначе вчерашняя закупка выглядела бы провальной просто потому, что третий
+ * день для неё ещё не наступил.
+ */
+export async function sourceBreakdown(now: Date, days = 30): Promise<SourceRow[]> {
+  const today = utcDayNumber(now);
+  const from = today - days + 1;
+
+  const rows = await prisma.$queryRaw<SourceSqlRow[]>`
+    WITH cohort AS (
+      SELECT
+        u.id,
+        COALESCE(u."adSource", 'organic') AS source,
+        u."adPlacement" AS placement,
+        u."adConvertedAt" IS NOT NULL AS converted,
+        FLOOR(EXTRACT(EPOCH FROM u."createdAt") / 86400)::int AS joined
+      FROM "User" u
+    ),
+    marked AS (
+      SELECT
+        c.*,
+        EXISTS (SELECT 1 FROM "DailyActive" a WHERE a."userId" = c.id AND a."dayNumber" = c.joined + 1) AS back1,
+        EXISTS (SELECT 1 FROM "DailyActive" a WHERE a."userId" = c.id AND a."dayNumber" = c.joined + 3) AS back3,
+        EXISTS (SELECT 1 FROM "DailyActive" a WHERE a."userId" = c.id AND a."dayNumber" = c.joined + 7) AS back7
+      FROM cohort c
+      WHERE c.joined >= ${from}::int
+    )
+    SELECT
+      source,
+      placement,
+      COUNT(*) AS players,
+      COUNT(*) FILTER (WHERE converted) AS converted,
+      COUNT(*) FILTER (WHERE back1) AS d1,
+      COUNT(*) FILTER (WHERE back3) AS d3,
+      COUNT(*) FILTER (WHERE back7) AS d7,
+      COUNT(*) FILTER (WHERE joined + 3 <= ${today}::int) AS eligible_d3
+    FROM marked
+    GROUP BY source, placement
+    ORDER BY players DESC
+  `;
+
+  return rows.map((row) => ({
+    source: row.source ?? 'organic',
+    placement: row.placement,
+    players: Number(row.players),
+    converted: Number(row.converted),
+    d1: Number(row.d1),
+    d3: Number(row.d3),
+    d7: Number(row.d7),
+    eligibleD3: Number(row.eligible_d3),
+  }));
+}
+
+export interface RejectionRow {
+  reason: string;
+  status: string;
+  count: number;
+}
+
+/**
+ * Почему конверсии не ушли.
+ *
+ * Без этой таблицы отчёт сети и наш отчёт расходятся молча: сеть показывает
+ * тысячу кликов, у нас полсотни конверсий, и непонятно, кого винить. Здесь
+ * видно сразу: «young-account 400» — площадка гонит свежие аккаунты,
+ * «too-fast 300» — скрипты, «no-postback-url» — не настроен кабинет.
+ */
+export async function conversionRejections(now: Date, days = 30): Promise<RejectionRow[]> {
+  const since = new Date(now.getTime() - days * 86_400_000);
+
+  const rows = await prisma.adConversionLog.groupBy({
+    by: ['status', 'reason'],
+    where: { createdAt: { gte: since } },
+    _count: { _all: true },
+  });
+
+  return rows
+    .map((row) => ({
+      reason: row.reason,
+      status: row.status,
+      count: row._count._all,
+    }))
+    .sort((a, b) => b.count - a.count);
+}

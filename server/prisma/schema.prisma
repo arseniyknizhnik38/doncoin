@@ -222,6 +222,22 @@ model User {
   businesses          UserBusiness[]
   businessCollectedAt DateTime      @default(now())
 
+  /// Рекламная метка: откуда пришёл игрок.
+  ///
+  /// Проставляется один раз при регистрации из start_param и больше не
+  /// меняется: источник — свойство появления игрока, а не последнего входа.
+  /// Пусто у органики и у тех, кто пришёл по ссылке кента.
+  adSource    String?
+  adPlacement String?
+  adClickId   String?
+  /// Момент первого входа — от него считается «не меньше 40 секунд до
+  /// конверсии» и когорта источника.
+  adLandedAt  DateTime?
+  /// Когда конверсия ушла в сеть. Непусто — повторно не отправляем никогда.
+  adConvertedAt DateTime?
+
+  adLogs AdConversionLog[]
+
   /// Клан игрока и его вклад в общую казну.
   clanId          String?
   clan            Clan?     @relation("ClanMembers", fields: [clanId], references: [id], onDelete: SetNull)
@@ -241,6 +257,8 @@ model User {
   @@index([lifetimeEarned])
   @@index([totalEarned])
   @@index([omertaSolvedDay])
+  /// Выгрузка по источникам: «сколько пришло и сколько дошло» с каждой площадки.
+  @@index([adSource, adPlacement])
 }
 
 /// Еженедельное рекламное поручение: подписаться на канал.
@@ -742,4 +760,42 @@ model RaffleTicket {
 
   @@index([userId, createdAt])
   @@index([createdAt])
+}
+
+/// Журнал конверсий рекламной сети: и отправленные, и отклонённые.
+///
+/// Отказы хранятся наравне с успехами: без них не ответить на главный вопрос
+/// закупки — то ли площадка привела ботов, то ли мы сами отсекли живых людей
+/// слишком строгим фильтром. Одна строка на игрока и причину: повторные
+/// попытки лишь обновляют счётчик, иначе один автокликер за минуту
+/// заспамил бы журнал сотней одинаковых строк.
+model AdConversionLog {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  source    String?
+  placement String?
+  clickId   String?
+
+  /// sent — ушла в сеть, rejected — отсеяна антифродом, failed — сеть не приняла.
+  status String
+  /// Машинная причина: young-account, too-fast, ip-flood, duplicate-id, http-500…
+  reason String
+  /// Подробности для разбора: ответ сети или замеренные значения.
+  detail String?
+  /// Сколько раз пытались отправить.
+  attempts Int @default(0)
+
+  /// Хэш IP, с которого пришла конверсия. Сырой адрес не храним: для счёта
+  /// «больше трёх с одного адреса за час» хватает отпечатка.
+  ipHash String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Одна строка на игрока и причину — дедупликация повторных попыток.
+  @@unique([userId, reason])
+  @@index([status, createdAt])
+  @@index([ipHash, createdAt])
 }

@@ -40,6 +40,13 @@ const env = {
   TELEGRAM_BOT_TOKEN: BOT_TOKEN,
   ADMIN_TELEGRAM_IDS: '777001',
   CRON_SECRET: 'verify-cron',
+  // Рекламные конверсии: окно в две секунды вместо сорока (ждать по сорок
+  // на игрока прогон не может), опоры возраста аккаунта и postback,
+  // нацеленный на собственный /api/health — он отвечает 200, и путь
+  // отправки проверяется целиком, без внешней сети.
+  AD_MIN_SECONDS: '2',
+  AD_ID_ANCHORS: '1000000000:2020-11-01,7000000000:2024-01-01',
+  AD_POSTBACK_URL: `http://127.0.0.1:${PORT}/api/health?click={click_id}&uid={user_id}`,
   PORT: String(PORT),
   API: `http://127.0.0.1:${PORT}`,
 };

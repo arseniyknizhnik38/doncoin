@@ -1,3 +1,4 @@
+import type { AttributedUser } from './attribution.js';
 import type { User } from '../generated/prisma/client.js';
 import { effectiveBackdrop } from '../config/backdrops.js';
 import { RUSH_MULTIPLIER } from '../config/boosters.js';
@@ -143,6 +144,12 @@ export interface TapResult {
     /** Всего тапов за всё время. */
     taps: number;
   };
+  /**
+   * Рекламная метка игрока: по ней решается, пора ли слать конверсию.
+   * Едет в том же RETURNING, что и всё остальное, чтобы конверсия не стоила
+   * лишнего запроса к базе на каждом тапе.
+   */
+  attribution: AttributedUser;
   state: GameState;
   /** Сколько тапов реально засчитано (могло упереться в энергию). */
   accepted: number;
@@ -170,6 +177,12 @@ interface TapRow {
   respectProgress: number;
   accepted: number;
   respectAwarded: number;
+  telegramId: string;
+  adSource: string | null;
+  adPlacement: string | null;
+  adClickId: string | null;
+  adLandedAt: Date | null;
+  adConvertedAt: Date | null;
 }
 
 /**
@@ -262,6 +275,12 @@ export async function applyTaps(
       u."coinsPerTap" AS "coinsPerTap",
       u.respect,
       u."respectProgress" AS "respectProgress",
+      u."telegramId" AS "telegramId",
+      u."adSource" AS "adSource",
+      u."adPlacement" AS "adPlacement",
+      u."adClickId" AS "adClickId",
+      u."adLandedAt" AS "adLandedAt",
+      u."adConvertedAt" AS "adConvertedAt",
       c.accepted,
       c.respect_pool / ${TAPS_PER_RESPECT}::int AS "respectAwarded"
   `;
@@ -291,6 +310,15 @@ export async function applyTaps(
       // Respect выдаётся ровно за каждые TAPS_PER_RESPECT тапов, остаток
       // лежит в respectProgress — отдельного счётчика тапов в базе нет.
       taps: Number(row.respect) * TAPS_PER_RESPECT + Number(row.respectProgress),
+    },
+    attribution: {
+      id: String(row.userId),
+      telegramId: String(row.telegramId),
+      adSource: row.adSource,
+      adPlacement: row.adPlacement,
+      adClickId: row.adClickId,
+      adLandedAt: row.adLandedAt === null ? null : new Date(row.adLandedAt),
+      adConvertedAt: row.adConvertedAt === null ? null : new Date(row.adConvertedAt),
     },
     accepted,
     awarded:

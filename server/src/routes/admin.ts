@@ -3,7 +3,12 @@ import { AD_STATUS_TITLES, adStatus, isChatId, isTelegramUrl } from '../config/a
 import { isAdmin } from '../config/admin.js';
 import { isValidCipher, normalizeCipher } from '../config/cipher.js';
 import { utcDayNumber } from '../config/rewards.js';
-import { dailyCounts, retention } from '../lib/analytics.js';
+import {
+  conversionRejections,
+  dailyCounts,
+  retention,
+  sourceBreakdown,
+} from '../lib/analytics.js';
 import { setCipher } from '../lib/cipher.js';
 import { DrawError, drawRaffle, ticketWindowStart } from '../lib/raffle.js';
 import { omertaForOwner } from '../lib/omerta.js';
@@ -109,6 +114,9 @@ adminRouter.get('/stats', async (_req: Request, res: Response) => {
       COUNT(*) FILTER (WHERE "createdAt" < ${day})::bigint AS eligible
     FROM "User"
     WHERE "referredById" IS NULL AND "referredByCode" IS NOT NULL
+      -- Метки рекламных сетей уникальны на каждый клик: в списке ручных
+      -- тегов они дали бы тысячу строк по одному игроку. У них свой отчёт.
+      AND "referredByCode" NOT LIKE 'ad!_%' ESCAPE '!'
     GROUP BY "referredByCode"
     ORDER BY total DESC
     LIMIT 50
@@ -119,6 +127,7 @@ adminRouter.get('/stats', async (_req: Request, res: Response) => {
     FROM "FavorCompletion" fc
     JOIN "User" u ON u.id = fc."userId"
     WHERE u."referredById" IS NULL AND u."referredByCode" IS NOT NULL
+      AND u."referredByCode" NOT LIKE 'ad!_%' ESCAPE '!'
     GROUP BY u."referredByCode"
   `;
 
@@ -450,6 +459,37 @@ adminRouter.post('/ads/:id/diagnose', async (req: Request, res: Response) => {
 /** GET /api/admin/omerta — ответ Шифра Омерты на сегодня и завтра. */
 adminRouter.get('/omerta', async (_req: Request, res: Response) => {
   res.json({ omerta: await omertaForOwner(new Date()) });
+});
+
+/**
+ * GET /api/admin/sources — что принесла каждая рекламная площадка.
+ *
+ * Отдельным маршрутом, а не внутри сводки: таблица источников нужна в дни
+ * закупки по многу раз, а общая сводка считает десяток агрегатов по всей
+ * базе и дёргать её ради одной таблицы дорого.
+ */
+adminRouter.get('/sources', async (req: Request, res: Response) => {
+  const raw = Number(req.query.days);
+  const days = Number.isFinite(raw) && raw >= 1 && raw <= 180 ? Math.floor(raw) : 30;
+  const now = new Date();
+
+  const [sources, rejections] = await Promise.all([
+    sourceBreakdown(now, days),
+    conversionRejections(now, days),
+  ]);
+
+  res.json({
+    days,
+    sources: sources.map((row) => ({
+      ...row,
+      // Проценты считаем здесь: клиент не должен знать про знаменатели.
+      conversionPercent:
+        row.players > 0 ? Math.round((row.converted / row.players) * 100) : null,
+      d3Percent:
+        row.eligibleD3 > 0 ? Math.round((row.d3 / row.eligibleD3) * 100) : null,
+    })),
+    rejections,
+  });
 });
 
 /** GET /api/admin/raffle — коллекция, тиражи и билеты текущего окна. */

@@ -6,6 +6,7 @@ import { RafflePanel } from './RafflePanel';
 import type { AdsApi } from './useAds';
 import type { CiphersApi } from './useCiphers';
 import type { AdminStatsApi } from './useAdminStats';
+import { useAdSources } from './useAdSources';
 
 const formatNumber = (value: string | number) => Number(value).toLocaleString('ru-RU');
 
@@ -60,6 +61,9 @@ export function AdminPanel({
   onClose: () => void;
 }) {
   const { stats, loading, error } = api;
+  // Отчёт по закупке грузится вместе с панелью: отдельной кнопки нет,
+  // в дни закупки это первое, на что смотрят.
+  const adSources = useAdSources(token, true);
 
   return (
     <div className="fixed inset-0 z-20 flex flex-col bg-don-black/95 backdrop-blur-sm">
@@ -127,6 +131,36 @@ export function AdminPanel({
                 ))
               )}
             </Section>
+
+            {/* Закупка: сколько сеть привела, сколько из них начали играть
+                и сколько вернулось на третий день. Площадка с тысячей
+                приходов и нулём на третий день дороже пустой. */}
+            {adSources.data && adSources.data.sources.some((row) => row.source !== 'organic') && (
+              <Section title="Закупка рекламы">
+                {adSources.data.sources
+                  .filter((row) => row.source !== 'organic')
+                  .map((row) => (
+                    <Row
+                      key={`${row.source}:${row.placement ?? ''}`}
+                      label={row.placement ? `${row.source} · ${row.placement}` : row.source}
+                      value={formatNumber(row.players)}
+                      hint={`играют ${formatNumber(row.converted)}${
+                        row.conversionPercent === null ? '' : ` (${row.conversionPercent}%)`
+                      } · D3 ${row.d3Percent === null ? '—' : `${row.d3Percent}%`}`}
+                    />
+                  ))}
+
+                {adSources.data.rejections.length > 0 && (
+                  <p className="mt-2 text-[11px] leading-relaxed text-neutral-400">
+                    Не засчитано:{' '}
+                    {adSources.data.rejections
+                      .filter((row) => row.status !== 'sent')
+                      .map((row) => `${row.reason} ${row.count}`)
+                      .join(', ') || '—'}
+                  </p>
+                )}
+              </Section>
+            )}
 
             <Section title="Докуда доходят">
               <Row

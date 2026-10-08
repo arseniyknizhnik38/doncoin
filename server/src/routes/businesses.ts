@@ -12,6 +12,7 @@ import {
   pendingBusinessIncome,
   totalIncomePerHour,
 } from '../lib/businesses.js';
+import { maybeSendConversion } from '../lib/attribution.js';
 import { regenerateEnergy, toGameState } from '../lib/game.js';
 import { prisma } from '../lib/prisma.js';
 import { writeRateLimit } from '../middleware/rateLimit.js';
@@ -89,6 +90,17 @@ businessesRouter.post('/:id/buy', async (req: Request, res: Response) => {
   const fresh = await prisma.user.findUniqueOrThrow({ where: { id: user.id } });
   const rows = await loadBusinesses(user.id);
   const { energy } = regenerateEnergy(fresh, now);
+
+  // Первый купленный бизнес — второе доказательство живого игрока наравне с
+  // полусотней тапов: до кассы доходит тот, кто разобрался, как игра устроена.
+  if (level === 1) {
+    await maybeSendConversion({
+      user: fresh,
+      trigger: { kind: 'business' },
+      ip: req.ip ?? null,
+      now,
+    });
+  }
 
   res.json({
     level,

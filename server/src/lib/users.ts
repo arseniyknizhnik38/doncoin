@@ -5,6 +5,7 @@ import {
   generateReferralCode,
   normalizeReferralCode,
 } from './referrals.js';
+import { parseAdTag } from '../config/attribution.js';
 import { pickLang } from '../config/i18n.js';
 import type { ParsedInitData } from './telegram.js';
 import { START_STATE } from './upgrades.js';
@@ -96,6 +97,12 @@ interface CreateUserInput {
 }
 
 async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: boolean }> {
+  // Рекламная метка живёт в том же start_param, что и код кента, но с
+  // префиксом: по ссылке человек приходит либо от сети, либо от друга.
+  // Разбираем её здесь же, чтобы источник был записан той же единственной
+  // вставкой, что и сам игрок, и не потерялся при гонке двух первых входов.
+  const ad = parseAdTag(input.startParam);
+
   // Кто пригласил: ищем владельца кода из ссылки. Свой код новичку
   // принадлежать ещё не может, так что самоприглашение невозможно.
   const code = normalizeReferralCode(input.startParam);
@@ -119,6 +126,12 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
           referralCode: generateReferralCode(),
           referredByCode: input.startParam,
           referredById: inviter?.id ?? null,
+          // Пусто у органики: так в выгрузке видно не только площадки, но и
+          // долю тех, кто пришёл сам.
+          adSource: ad?.source ?? null,
+          adPlacement: ad?.placement ?? null,
+          adClickId: ad?.clickId ?? null,
+          adLandedAt: ad ? new Date() : null,
           balance: inviter ? INVITEE_REWARD : 0n,
           totalEarned: inviter ? INVITEE_REWARD : 0n,
           lifetimeEarned: inviter ? INVITEE_REWARD : 0n,
