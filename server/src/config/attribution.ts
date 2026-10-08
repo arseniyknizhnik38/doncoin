@@ -41,8 +41,15 @@ export interface AdTag {
 /** Префикс, по которому рекламная метка отличается от кода кента. */
 const AD_PREFIX = 'ad_';
 
-/** Сеть и площадка — только безопасные короткие слова. */
-const SLUG = /^[a-z0-9]{1,16}$/;
+/** Сеть — короткое слово. */
+const SOURCE = /^[a-z0-9]{1,16}$/;
+
+/**
+ * Площадка. Дефис разрешён, потому что в неё складывается пара значений
+ * сети: у AdsGram это «кто показал — в какой кампании», и обе половины
+ * нужны в отчёте, а отдельной колонки они не стоят.
+ */
+const PLACEMENT = /^[a-z0-9-]{1,32}$/;
 
 /** Click id сети: длинный, но без экзотики — Telegram сам ограничивает набор. */
 const CLICK_ID = /^[A-Za-z0-9_-]{1,64}$/;
@@ -75,7 +82,7 @@ export function parseAdTag(startParam: string | null | undefined): AdTag | null 
 
   const source = (parts[0] ?? '').toLowerCase();
 
-  if (!SLUG.test(source)) {
+  if (!SOURCE.test(source)) {
     return null;
   }
 
@@ -89,7 +96,7 @@ export function parseAdTag(startParam: string | null | undefined): AdTag | null 
   const placement = (parts[1] ?? '').toLowerCase();
   const clickId = parts.slice(2).join('_');
 
-  if (!SLUG.test(placement) || !CLICK_ID.test(clickId)) {
+  if (!PLACEMENT.test(placement) || !CLICK_ID.test(clickId)) {
     return null;
   }
 

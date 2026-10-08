@@ -36,6 +36,14 @@ describe('parseAdTag', () => {
     expect(parseAdTag(`ad_${'x'.repeat(20)}_abc`)).toBeNull();
   });
 
+  it('принимает составную площадку AdsGram: кто показал и в какой кампании', () => {
+    expect(parseAdTag('ad_adsgram_412-99071_Zm9vYmFy')).toEqual({
+      source: 'adsgram',
+      placement: '412-99071',
+      clickId: 'Zm9vYmFy',
+    });
+  });
+
   it('приводит сеть и площадку к нижнему регистру', () => {
     expect(parseAdTag('ad_AdsGram_Block7_Abc')).toEqual({
       source: 'adsgram',
