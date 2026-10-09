@@ -180,6 +180,7 @@ interface TapRow {
   telegramId: string;
   adSource: string | null;
   adPlacement: string | null;
+  adCampaign: string | null;
   adClickId: string | null;
   adLandedAt: Date | null;
   adConvertedAt: Date | null;
@@ -278,6 +279,7 @@ export async function applyTaps(
       u."telegramId" AS "telegramId",
       u."adSource" AS "adSource",
       u."adPlacement" AS "adPlacement",
+      u."adCampaign" AS "adCampaign",
       u."adClickId" AS "adClickId",
       u."adLandedAt" AS "adLandedAt",
       u."adConvertedAt" AS "adConvertedAt",
@@ -316,6 +318,7 @@ export async function applyTaps(
       telegramId: String(row.telegramId),
       adSource: row.adSource,
       adPlacement: row.adPlacement,
+      adCampaign: row.adCampaign,
       adClickId: row.adClickId,
       adLandedAt: row.adLandedAt === null ? null : new Date(row.adLandedAt),
       adConvertedAt: row.adConvertedAt === null ? null : new Date(row.adConvertedAt),

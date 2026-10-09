@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { buildPostbackUrl } from './postback.js';
 
 const input = {
-  tag: { source: 'adsgram', placement: 'block7', clickId: 'abc 123&x' },
+  tag: { source: 'adsgram', placement: '412', campaign: '99071', clickId: 'abc 123&x' },
   userId: '777001',
   event: 'taps',
 };
@@ -30,6 +30,17 @@ describe('buildPostbackUrl', () => {
     });
 
     expect(url).toBe('https://n.example/?p=');
+  });
+
+  it('собирает запрос AdsGram ровно по их документации', () => {
+    const url = buildPostbackUrl(
+      'https://api.adsgram.ai/confirm_conversion?token=T0KEN&tgid={user_id}&goaltype=1&campaignid={campaign}',
+      input,
+    );
+
+    expect(url).toBe(
+      'https://api.adsgram.ai/confirm_conversion?token=T0KEN&tgid=777001&goaltype=1&campaignid=99071',
+    );
   });
 
   it('незнакомую подстановку оставляет как есть', () => {

@@ -130,6 +130,7 @@ async function createUser(input: CreateUserInput): Promise<{ user: User; isNew: 
           // долю тех, кто пришёл сам.
           adSource: ad?.source ?? null,
           adPlacement: ad?.placement ?? null,
+          adCampaign: ad?.campaign ?? null,
           adClickId: ad?.clickId ?? null,
           adLandedAt: ad ? new Date() : null,
           balance: inviter ? INVITEE_REWARD : 0n,

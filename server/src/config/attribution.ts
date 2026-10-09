@@ -32,9 +32,15 @@ export const MAX_CONVERSIONS_PER_IP_HOUR = 3;
 export interface AdTag {
   /** Сеть: adsgram, telega, blogger… */
   source: string;
-  /** Площадка или креатив внутри сети. null — сеть её не передала. */
+  /** Площадка: у AdsGram это publisher_id, кто показал рекламу. */
   placement: string | null;
-  /** Идентификатор клика, его же возвращаем в postback. */
+  /**
+   * Кампания сети. У AdsGram это обязательное поле их API подтверждения
+   * конверсий: без campaignid конверсия не засчитывается.
+   */
+  campaign: string | null;
+  /** Идентификатор клика. Сети он в postback не нужен, но по нему видно
+   * повторное использование ссылки и легче разбирать спорные случаи. */
   clickId: string;
 }
 
@@ -63,6 +69,10 @@ const CLICK_ID = /^[A-Za-z0-9_-]{1,64}$/;
  *   ad_<сеть>_<площадка>_<click id>
  *   ad_<сеть>_<click id>            — если площадку сеть не отдаёт
  *
+ * Площадка вида «412-99071» разбирается на пару «кто показал — в какой
+ * кампании»: у AdsGram оба числа приходят разными макросами, а слот в
+ * ссылке один, потому что длина start_param ограничена 64 символами.
+ *
  * Click id собирается из остатка целиком: внутри него встречаются
  * подчёркивания, и терять хвост нельзя — иначе сеть не узнает свой клик.
  *
@@ -90,17 +100,23 @@ export function parseAdTag(startParam: string | null | undefined): AdTag | null 
   if (parts.length === 2) {
     const clickId = parts[1] ?? '';
 
-    return CLICK_ID.test(clickId) ? { source, placement: null, clickId } : null;
+    return CLICK_ID.test(clickId)
+      ? { source, placement: null, campaign: null, clickId }
+      : null;
   }
 
-  const placement = (parts[1] ?? '').toLowerCase();
+  const slot = (parts[1] ?? '').toLowerCase();
   const clickId = parts.slice(2).join('_');
 
-  if (!PLACEMENT.test(placement) || !CLICK_ID.test(clickId)) {
+  if (!PLACEMENT.test(slot) || !CLICK_ID.test(clickId)) {
     return null;
   }
 
-  return { source, placement, clickId };
+  const pair = slot.split('-');
+  const [placement, campaign] =
+    pair.length === 2 && pair[0] && pair[1] ? [pair[0]!, pair[1]!] : [slot, null];
+
+  return { source, placement, campaign, clickId };
 }
 
 /**

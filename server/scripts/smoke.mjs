@@ -768,7 +768,7 @@ check('дважды дело не закрыть', caseClaimAgain.status === 409
 // Проверяем всю цепочку: метка из ссылки доезжает до базы, конверсия не
 // уходит раньше окна, уходит после него, повторно не отправляется никогда,
 // а органика в отчёте лежит отдельно от закупки.
-const adLogin = await login(777300, 'С рекламы', 'ad_adsgram_block7_click999', 'ru');
+const adLogin = await login(777300, 'С рекламы', 'ad_adsgram_412-99071_click999', 'ru');
 check('вход с рекламной меткой', adLogin.status === 200, `${adLogin.status}`);
 
 const adToken = adLogin.payload?.session?.token;
@@ -783,7 +783,7 @@ const adsgramEarly = beforeWindow.payload?.sources?.find((row) => row.source ===
 
 check('метка записана в источник игрока', adsgramEarly?.players >= 1,
   JSON.stringify(beforeWindow.payload?.sources));
-check('площадка из ссылки сохранена', adsgramEarly?.placement === 'block7',
+check('площадка из ссылки сохранена', adsgramEarly?.placement === '412',
   adsgramEarly?.placement);
 check('до окна конверсия не уходит', adsgramEarly?.converted === 0,
   `${adsgramEarly?.converted}`);

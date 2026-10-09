@@ -10,8 +10,13 @@ import type { AdTag } from '../config/attribution.js';
  *
  *   AD_POSTBACK_URL="https://сеть.example/postback?click_id={click_id}&event={event}"
  *
- * Поддерживаемые подстановки: {click_id} {source} {placement} {user_id}
- * {event} {value}. Шаблон не задан — конверсия не отправляется, но в журнал
+ * Поддерживаемые подстановки: {click_id} {source} {placement} {campaign}
+ * {user_id} {event} {value}. Для AdsGram шаблон выглядит так (токен из их
+ * кабинета, поэтому и живёт в переменной окружения, а не в коде):
+ *
+ *   https://api.adsgram.ai/confirm_conversion?token=ТОКЕН&tgid={user_id}
+ *     &goaltype=1&campaignid={campaign}
+ * Шаблон не задан — конверсия не отправляется, но в журнал
  * попадает: когда адрес появится, по журналу видно, что было потеряно.
  */
 
@@ -46,6 +51,7 @@ export function buildPostbackUrl(template: string, input: PostbackInput): string
     click_id: input.tag.clickId,
     source: input.tag.source,
     placement: input.tag.placement ?? '',
+    campaign: input.tag.campaign ?? '',
     user_id: input.userId,
     event: input.event,
     value: input.value ?? '',

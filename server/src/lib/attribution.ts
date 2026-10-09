@@ -33,6 +33,7 @@ export interface AttributedUser {
   telegramId: string;
   adSource: string | null;
   adPlacement: string | null;
+  adCampaign: string | null;
   adClickId: string | null;
   adLandedAt: Date | null;
   adConvertedAt: Date | null;
@@ -219,6 +220,7 @@ export async function maybeSendConversion(input: {
     const tag: AdTag = {
       source: user.adSource ?? 'unknown',
       placement: user.adPlacement,
+      campaign: user.adCampaign,
       clickId: user.adClickId,
     };
 

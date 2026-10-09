@@ -8,6 +8,7 @@ describe('parseAdTag', () => {
     expect(parseAdTag('ad_adsgram_block7_abc123')).toEqual({
       source: 'adsgram',
       placement: 'block7',
+      campaign: null,
       clickId: 'abc123',
     });
   });
@@ -16,6 +17,7 @@ describe('parseAdTag', () => {
     expect(parseAdTag('ad_adsgram_abc123')).toEqual({
       source: 'adsgram',
       placement: null,
+      campaign: null,
       clickId: 'abc123',
     });
   });
@@ -36,10 +38,11 @@ describe('parseAdTag', () => {
     expect(parseAdTag(`ad_${'x'.repeat(20)}_abc`)).toBeNull();
   });
 
-  it('принимает составную площадку AdsGram: кто показал и в какой кампании', () => {
+  it('разбирает пару «площадка-кампания» AdsGram на два поля', () => {
     expect(parseAdTag('ad_adsgram_412-99071_Zm9vYmFy')).toEqual({
       source: 'adsgram',
-      placement: '412-99071',
+      placement: '412',
+      campaign: '99071',
       clickId: 'Zm9vYmFy',
     });
   });
@@ -48,6 +51,7 @@ describe('parseAdTag', () => {
     expect(parseAdTag('ad_AdsGram_Block7_Abc')).toEqual({
       source: 'adsgram',
       placement: 'block7',
+      campaign: null,
       clickId: 'Abc',
     });
   });
