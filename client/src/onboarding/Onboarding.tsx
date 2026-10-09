@@ -106,9 +106,21 @@ export function Onboarding({ onDone }: OnboardingProps) {
   return (
     <div className="fixed inset-0 z-30 flex flex-col bg-don-black/95 backdrop-blur-sm">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-between px-6 py-8">
-        <p className="text-center text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
-          {t(step.badge)}
-        </p>
+        {/* Выход виден с первой секунды и на каждом шаге. Пришедший с
+            рекламы не подписывался слушать рассказ: не найдя двери, он
+            закрывает не объяснение, а игру. */}
+        <div className="flex items-start justify-between gap-3">
+          <p className="text-[11px] tracking-[0.25em] text-neutral-400 uppercase">
+            {t(step.badge)}
+          </p>
+          <button
+            type="button"
+            onClick={onDone}
+            className="-mt-2 -mr-2 shrink-0 rounded-lg border border-don-edge px-3 py-2 text-[11px] tracking-wider text-neutral-300 uppercase active:scale-95"
+          >
+            {t('Пропустить')} ✕
+          </button>
+        </div>
 
         {/* Бобби стоит ступнями на плашке своей реплики. Лента и геометрия —
             те же, что у игровых фигур (кадр 192, ступни на 188-й строке),
@@ -162,9 +174,9 @@ export function Onboarding({ onDone }: OnboardingProps) {
             <button
               type="button"
               onClick={onDone}
-              className="text-xs tracking-wider text-neutral-400"
+              className="w-full rounded-lg border border-don-edge px-4 py-2.5 text-sm tracking-wider text-neutral-300 active:scale-95"
             >
-              {t('Пропустить')}
+              {t('Сам разберусь')}
             </button>
           )}
         </div>

@@ -38,6 +38,12 @@ export function GameScreen({
     state.rushUntil !== null && new Date(state.rushUntil).getTime() > Date.now();
   const perTap = rushActive ? state.coinsPerTap * state.rushMultiplier : state.coinsPerTap;
 
+  // Ни одного тапа за всё время: игрок либо пропустил объяснение, либо
+  // пролистал его не читая. Одно слово поверх фигуры стоит дешевле любого
+  // текста — подсказка не перехватывает нажатия и гаснет от первого тапа,
+  // потому что Respect начинает расти сразу.
+  const neverTapped = state.respect === 0 && state.respectProgress === 0;
+
   return (
     <div className="relative flex w-full max-w-md min-h-0 flex-1 flex-col items-center gap-2 overflow-hidden py-2">
       {/* На главном экране осталось четыре вещи: ранг, деньги, человек и
@@ -49,6 +55,15 @@ export function GameScreen({
           одной линии. Раньше рост задавался долей экрана: вместе с плашками
           фигура не помещалась, и её приходилось выискивать прокруткой, а
           листаться игре нельзя вовсе. */}
+      {neverTapped && !empty && (
+        <p
+          aria-hidden
+          className="pointer-events-none absolute top-[14%] left-1/2 z-10 -translate-x-1/2 animate-bounce rounded-lg border border-don-gold/60 bg-don-black/90 px-4 py-2 font-pixel text-sm tracking-wider text-don-gold uppercase"
+        >
+          {t('Тапай сюда')}
+        </p>
+      )}
+
       <div className="flex min-h-0 w-full flex-1 items-end justify-center">
         <TapCoin
           coinsPerTap={perTap}

@@ -53,6 +53,8 @@ export const EN: Record<string, string> = {
   'Обойма пуста — восстанавливается {n} тапов в минуту':
     'Clip is empty — refills {n} taps per minute',
   'Тапнуть': 'Tap',
+  'Тапай сюда': 'Tap here',
+  'Сам разберусь': 'I will figure it out',
   'Высший ранг — вершина семьи': 'Top rank — the head of the family',
   'ДонКоинов до': 'DonCoins to',
 
