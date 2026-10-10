@@ -75,6 +75,21 @@ export function useAuth(): AuthState {
 
   const reauth = useCallback(() => setAttempt((value) => value + 1), []);
 
+  /**
+   * Рекламная метка из адреса.
+   *
+   * Игрок, пришедший через бота, открывает игру кнопкой web_app, а она не
+   * несёт start_param — тот бывает только у ссылки ?startapp=. Поэтому бот
+   * кладёт метку в адрес, а мы передаём её серверу вместе с входом.
+   */
+  function urlTag(): string | null {
+    try {
+      return new URLSearchParams(window.location.search).get('tag');
+    } catch {
+      return null;
+    }
+  }
+
   useEffect(() => {
     if (!isTelegramEnv() || !rawInitData) {
       return;
@@ -86,7 +101,7 @@ export function useAuth(): AuthState {
     fetch('/api/auth/telegram', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: rawInitData }),
+      body: JSON.stringify({ initData: rawInitData, tag: urlTag() }),
       signal: controller.signal,
     })
       .then(async (response) => {

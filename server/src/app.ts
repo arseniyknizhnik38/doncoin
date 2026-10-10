@@ -16,6 +16,7 @@ import { adminRouter } from './routes/admin.js';
 import { arcadeRouter } from './routes/arcade.js';
 import { authRouter } from './routes/auth.js';
 import { backdropsRouter } from './routes/backdrops.js';
+import { botRouter } from './routes/bot.js';
 import { boostersRouter } from './routes/boosters.js';
 import { casesRouter } from './routes/cases.js';
 import { businessesRouter } from './routes/businesses.js';
@@ -61,6 +62,7 @@ export function createApp() {
   });
 
   app.use('/api/auth', authRouter);
+  app.use('/api/bot', botRouter);
   app.use('/api/admin', adminRouter);
   app.use('/api/game', gameRouter);
   app.use('/api/referrals', referralsRouter);

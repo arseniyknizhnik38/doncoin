@@ -34,7 +34,7 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
     return;
   }
 
-  const { initData } = req.body as { initData?: unknown };
+  const { initData, tag } = req.body as { initData?: unknown; tag?: unknown };
 
   if (typeof initData !== 'string' || initData.length === 0) {
     res.status(400).json({ error: 'Ожидалось поле initData (строка)' });
@@ -53,7 +53,18 @@ authRouter.post('/telegram', authRateLimit(), async (req: Request, res: Response
     throw error;
   }
 
-  const { user: stored, isNew } = await upsertUserFromTelegram(parsed);
+  // Метка из адреса. Игрок, пришедший через бота, открывает игру кнопкой
+  // web_app, а она не несёт start_param — тот приходит только по ссылке
+  // ?startapp=. Поэтому метку бот кладёт в адрес, и здесь она подменяет
+  // пустой start_param. Доверяем ей ровно настолько же: ни наград, ни прав
+  // она не даёт, только источник трафика и код пригласившего.
+  const fromUrl =
+    typeof tag === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(tag) ? tag : null;
+  const withTag = parsed.startParam
+    ? parsed
+    : { ...parsed, startParam: fromUrl };
+
+  const { user: stored, isNew } = await upsertUserFromTelegram(withTag);
   const now = new Date();
 
   // Отмечаем посещение до того, как обновится lastSeenAt: после обновления
